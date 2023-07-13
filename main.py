@@ -2,42 +2,67 @@ import sys
 from antlr4 import *
 from YAPLLexer import YAPLLexer
 from YAPLParser import YAPLParser
-import tkinter as tk
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QAction, QFileDialog, QVBoxLayout, QWidget, QPushButton
 
-# def main(argv):
-#     input_stream = FileStream(argv[1])
-#     lexer = YAPLLexer(input_stream) 
-#     stream = CommonTokenStream(lexer)
-#     parser = YAPLParser(stream)
-#     tree = parser.startRule()
- 
-# if __name__ == '__main__':
-#     main(sys.argv)
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
 
-def compilar():
-    # Obtiene el texto ingresado en el cuadro de texto editable
-    codigo = texto_editable.get("1.0", "end-1c")
-    print(codigo)
-    # Muestra el contenido en el cuadro de texto de resultados
-    texto_resultados.config(state=tk.NORMAL)  # Habilita la edición
-    texto_resultados.delete("1.0", tk.END)    # Borra el contenido anterior
-    texto_resultados.insert(tk.END, codigo)   # Muestra el código en el cuadro de resultados
-    texto_resultados.config(state=tk.DISABLED)  # Deshabilita la edición
+    def initUI(self):
+        self.textEdit = QTextEdit()
+        self.setCentralWidget(self.textEdit)
 
-# Crear ventana principal
-ventana = tk.Tk()
+        openFile = QAction('Open', self)
+        openFile.setShortcut('Ctrl+O')
+        openFile.triggered.connect(self.showFileDialog)
+        menubar = self.menuBar()
+        fileMenu = menubar.addMenu('&File')
+        fileMenu.addAction(openFile)
 
-# Crear cuadro de texto editable
-texto_editable = tk.Text(ventana)
-texto_editable.pack()
+        self.runButton = QPushButton("Run")
+        self.runButton.clicked.connect(self.runANTLR)
 
-# Crear cuadro de texto de resultados
-texto_resultados = tk.Text(ventana, state=tk.DISABLED)
-texto_resultados.pack()
+        layout = QVBoxLayout()
+        layout.addWidget(self.textEdit)
+        layout.addWidget(self.runButton)
 
-# Crear botón de compilación
-boton_compilar = tk.Button(ventana, text="Compilar", command=compilar)
-boton_compilar.pack()
+        widget = QWidget()
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
 
-# Iniciar el bucle principal de la interfaz gráfica
-ventana.mainloop()
+        self.setGeometry(300, 300, 800, 600)
+        self.setWindowTitle('ANTLR4 GUI')
+        self.show()
+
+    def showFileDialog(self):
+        file, _ = QFileDialog.getOpenFileName(self, "Open file", "", "ANTLR Grammar Files (*.g4)")
+        if file:
+            with open(file, "r") as f:
+                content = f.read()
+                self.textEdit.setPlainText(content)
+
+    def runANTLR(self):
+        code = self.textEdit.toPlainText()
+
+        # Aquí se puede generar el archivo .g4 dinámicamente
+        with open("Expr.g4", "w") as f:
+            f.write(code)
+
+        # Aquí se puede generar y compilar el lexer y el parser utilizando ANTLR4
+        lexer = YAPLLexer(InputStream(code))
+        stream = CommonTokenStream(lexer)
+        parser = YAPLParser(stream)
+
+        # Obtener el árbol sintáctico
+        tree = parser.program()
+
+        # Mostrar el árbol sintáctico
+        tree_str = tree.toStringTree(recog=parser)
+        self.textEdit.clear()
+        self.textEdit.setPlainText(tree_str)
+        
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    mainWindow = MainWindow()
+    sys.exit(app.exec_())
