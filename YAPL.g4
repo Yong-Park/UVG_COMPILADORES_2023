@@ -1,82 +1,83 @@
 grammar YAPL;
 
-// Reglas léxicas
-INT : [0-9]+;
-ID : (LETTER | DIGIT | '_') (LETTER | DIGIT | '_')*;
-TYPE_ID : LETTER (LETTER | DIGIT | '_')*;
-OBJECT_ID : LETTER (LETTER | DIGIT | '_')*;
-STRING : '"' (~[\b\t\n\f\\] | '\\' [btnf])* '"';
-WS : [ \t\r\n\f]+ -> skip;
+program     : class+
+            ;
 
-// Palabras reservadas
-CLASS : [Cc][Ll][Aa][Ss][Ss];
-ELSE : [Ee][Ll][Ss][Ee];
-FALSE : [Ff][Aa][Ll][Ss][Ee];
-FI : [Ff][Ii];
-IF : [Ii][Ff];
-IN : [Ii][Nn];
-INHERITS : [Ii][Nn][Hh][Ee][Rr][Ii][Tt][Ss];
-ISVOID : [Ii][Ss][Vv][Oo][Ii][Dd];
-LOOP : [Ll][Oo][Oo][Pp];
-POOL : [Pp][Oo][Oo][Ll];
-THEN : [Tt][Hh][Ee][Nn];
-WHILE : [Ww][Hh][Ii][Ll][Ee];
-NEW : [Nn][Ee][Ww];
-NOT : [Nn][Oo][Tt];
-TRUE : [Tt][Rr][Uu][Ee];
-LET : [Ll][Ee][Tt];
-CASE : [Cc][Aa][Ss][Ee];
-OF : [Oo][Ff];
-ESAC : [Ee][Ss][Aa][Cc];
+class       : 'class' TYPE ('inherits' TYPE)? '{' feature* '}'
+            ;
 
-// Reglas de producción
-program : class_list EOF;
+feature     : ID '(' formalList? ')' ':' TYPE expr
+            | ID ':' TYPE ('<-' expr)?
+            ;
 
-class_list : class_def+;
+formalList  : formal (',' formal)*
+            ;
 
-class_def : CLASS TYPE_ID (INHERITS TYPE_ID)? '{' feature_list '}';
+formal      : ID ':' TYPE
+            ;
 
-feature_list : feature_def*;
+expr        : assignExpr
+            ;
 
-feature_def : OBJECT_ID ':' TYPE_ID (feature_body)? ';';
+assignExpr  : condExpr ('<-' assignExpr)?
+            ;
 
-feature_body : '=' expr | '(' formal_list ')' ':' TYPE_ID '{' expr_list '}' | '{' expr_list '}';
+condExpr    : orExpr ('if' orExpr 'then' expr 'else' condExpr)?
+            ;
 
-formal_list : formal_param (',' formal_param)*;
+orExpr      : andExpr ('or' andExpr)*
+            ;
 
-formal_param : OBJECT_ID ':' TYPE_ID;
+andExpr     : relExpr ('and' relExpr)*
+            ;
 
-expr_list : expr (';' expr)*;
-expr : IF expr THEN expr ELSE expr FI
-     | WHILE expr LOOP expr POOL
-     | '{' expr_list '}'
-     | LET OBJECT_ID ':' TYPE_ID ('<-' expr)? (',' OBJECT_ID ':' TYPE_ID ('<-' expr)?)* IN expr
-     | CASE expr OF case_list ESAC
-     | NEW TYPE_ID
-     | ISVOID expr
-     | expr '.' OBJECT_ID '(' expr_list ')'
-     | expr '@' TYPE_ID '.' OBJECT_ID '(' expr_list ')'
-     | expr '~'
-     | NOT expr
-     | expr '*' expr
-     | expr '/' expr
-     | expr '+' expr
-     | expr '-' expr
-     | expr '<=' expr
-     | expr '<' expr
-     | expr '=' expr
-     | expr ISVOID
-     | '(' expr ')'
-     | OBJECT_ID
-     | INT
-     | TRUE
-     | FALSE
-     | STRING;
+relExpr     : addExpr (('<' | '<=' | '=' | 'not') addExpr)?
+            ;
 
-case_list : case_def+;
+addExpr     : multExpr (('+' | '-') multExpr)*
+            ;
 
-case_def : OBJECT_ID ':' TYPE_ID '=>' expr ';';
+multExpr    : unaryExpr (('*' | '/') unaryExpr)*
+            ;
 
-// Reglas léxicas auxiliares
-fragment LETTER : [a-zA-Z];
-fragment DIGIT : [0-9];
+unaryExpr   : ('not' | '-')? atomExpr
+            ;
+
+atomExpr    : ID '(' exprList? ')'
+            | 'if' expr 'then' expr 'else' expr 'fi'
+            | 'while' expr 'loop' expr 'pool'
+            | '{' expr (',' expr)* '}'
+            | 'let' letBindingList 'in' expr
+            | 'new' TYPE
+            | 'isvoid' expr
+            | '(' expr ')'
+            | ID
+            | INTEGER
+            | STRING
+            | 'true'
+            | 'false'
+            ;
+
+letBindingList : letBinding (',' letBinding)*
+               ;
+
+letBinding  : ID ':' TYPE ('<-' expr)?
+            ;
+
+exprList    : expr (',' expr)*
+            ;
+
+TYPE        : [A-Z][a-zA-Z0-9]*
+            ;
+
+ID          : [a-z][a-zA-Z0-9]*
+            ;
+
+INTEGER     : [0-9]+
+            ;
+
+STRING      : '"' (~["\r\n] | '\\' [btnf])* '"'
+            ;
+
+WS          : [ \t\r\n\f]+ -> skip
+            ;
