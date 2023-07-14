@@ -1,8 +1,9 @@
 import sys
 from antlr4 import *
-from YAPLLexer import YAPLLexer
-from YAPLParser import YAPLParser
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QAction, QFileDialog, QVBoxLayout, QWidget, QPushButton
+from ExprLexer import ExprLexer
+from ExprParser import ExprParser
+from antlr4.tree.Trees import Trees
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QAction, QFileDialog, QVBoxLayout, QWidget, QPushButton, QHBoxLayout
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -11,6 +12,10 @@ class MainWindow(QMainWindow):
 
     def initUI(self):
         self.textEdit = QTextEdit()
+        self.resultTextEdit = QTextEdit()  # Nuevo cuadro de texto para el resultado
+        self.resultTextEdit.setReadOnly(True)  # Establecer como solo lectura
+        self.resultTextEdit.setStyleSheet("background-color: lightgray")  # Establecer el color de fondo
+
         self.setCentralWidget(self.textEdit)
 
         openFile = QAction('Open', self)
@@ -25,7 +30,14 @@ class MainWindow(QMainWindow):
 
         layout = QVBoxLayout()
         layout.addWidget(self.textEdit)
-        layout.addWidget(self.runButton)
+
+        # Agregar ambos cuadros de texto a un layout horizontal
+        result_layout = QHBoxLayout()
+        result_layout.addWidget(self.resultTextEdit)
+        result_layout.addWidget(self.runButton)
+
+        # Agregar el layout horizontal al layout principal
+        layout.addLayout(result_layout)
 
         widget = QWidget()
         widget.setLayout(layout)
@@ -45,23 +57,20 @@ class MainWindow(QMainWindow):
     def runANTLR(self):
         code = self.textEdit.toPlainText()
 
-        # Aquí se puede generar el archivo .g4 dinámicamente
-        with open("Expr.g4", "w") as f:
-            f.write(code)
-
         # Aquí se puede generar y compilar el lexer y el parser utilizando ANTLR4
-        lexer = YAPLLexer(InputStream(code))
+        input_stream = InputStream(code)
+        lexer = ExprLexer(input_stream)
         stream = CommonTokenStream(lexer)
-        parser = YAPLParser(stream)
+        parser = ExprParser(stream)
 
         # Obtener el árbol sintáctico
-        tree = parser.program()
+        # tree = parser.program()
+        tree = parser.prog()
 
         # Mostrar el árbol sintáctico
         tree_str = tree.toStringTree(recog=parser)
-        self.textEdit.clear()
-        self.textEdit.setPlainText(tree_str)
-        
+        self.resultTextEdit.setPlainText(tree_str)  # Establecer el resultado en el cuadro de texto de resultado
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     mainWindow = MainWindow()
