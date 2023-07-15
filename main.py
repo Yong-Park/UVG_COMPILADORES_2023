@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import scrolledtext
 from antlr4 import *
-from ExprLexer import ExprLexer
-from ExprParser import ExprParser
+from YAPLLexer import YAPLLexer
+from YAPLParser import YAPLParser
 from subprocess import *
 
 class IDE(tk.Tk):
@@ -35,20 +35,20 @@ class IDE(tk.Tk):
 """
     def run_antlr(self):
         input_code = self.code_input.get("1.0", tk.END)
-        process = Popen(['antlr4-parse', 'Expr.g4', 'prog', '-gui'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        process = Popen(['antlr4-parse', 'YAPL.g4', 'program', '-gui'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         output, error = process.communicate(input_code.encode())
         error_occurred = False
 
         # Crear el lexer y el stream de tokens
-        lexer = ExprLexer(InputStream(input_code))
+        lexer = YAPLLexer(InputStream(input_code))
         stream = CommonTokenStream(lexer)
 
         # Crear el parser y construir el árbol sintáctico
-        parser = ExprParser(stream)
+        parser = YAPLParser(stream)
         parser.removeErrorListeners()  # Desactivar los listeners de errores para evitar mensajes por consola
 
         try:
-            tree = parser.prog()
+            tree = parser.program()
         except RecognitionException as e:
             error_occurred = True
 
