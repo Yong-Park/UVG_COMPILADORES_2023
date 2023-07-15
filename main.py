@@ -1,77 +1,65 @@
-import sys
+import tkinter as tk
+from tkinter import scrolledtext
 from antlr4 import *
 from ExprLexer import ExprLexer
 from ExprParser import ExprParser
-from antlr4.tree.Trees import Trees
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QAction, QFileDialog, QVBoxLayout, QWidget, QPushButton, QHBoxLayout
+from subprocess import *
 
-class MainWindow(QMainWindow):
+class IDE(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.initUI()
 
-    def initUI(self):
-        self.textEdit = QTextEdit()
-        self.resultTextEdit = QTextEdit()  # Nuevo cuadro de texto para el resultado
-        self.resultTextEdit.setReadOnly(True)  # Establecer como solo lectura
-        self.resultTextEdit.setStyleSheet("background-color: lightgray")  # Establecer el color de fondo
+        self.title("IDE")
+        self.geometry("800x600")
 
-        self.setCentralWidget(self.textEdit)
+        self.code_input = scrolledtext.ScrolledText(self, width=100, height=30)
+        self.code_input.pack()
 
-        openFile = QAction('Open', self)
-        openFile.setShortcut('Ctrl+O')
-        openFile.triggered.connect(self.showFileDialog)
-        menubar = self.menuBar()
-        fileMenu = menubar.addMenu('&File')
-        fileMenu.addAction(openFile)
+        self.output = scrolledtext.ScrolledText(self, width=100, height=10)
+        self.output.pack()
 
-        self.runButton = QPushButton("Run")
-        self.runButton.clicked.connect(self.runANTLR)
+        self.run_button = tk.Button(self, text="Ejecutar", command=self.run_antlr)
+        self.run_button.pack()
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.textEdit)
+    """def run_antlr(self):
+        try:
+            input_code = self.code_input.get("1.0", tk.END)
+            process = Popen(['antlr4-parse', 'Expr.g4', 'prog', '-gui'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            output, error = process.communicate(input_code.encode())
 
-        # Agregar ambos cuadros de texto a un layout horizontal
-        result_layout = QHBoxLayout()
-        result_layout.addWidget(self.resultTextEdit)
-        result_layout.addWidget(self.runButton)
+            self.output.delete("1.0", tk.END)
+            self.output.insert(tk.END, output.decode())
+        except Exception as e:
+            self.output.delete("1.0", tk.END)
+            self.output.insert(tk.END, str(e))
+"""
+    def run_antlr(self):
+        input_code = self.code_input.get("1.0", tk.END)
+        process = Popen(['antlr4-parse', 'Expr.g4', 'prog', '-gui'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        output, error = process.communicate(input_code.encode())
+        error_occurred = False
 
-        # Agregar el layout horizontal al layout principal
-        layout.addLayout(result_layout)
-
-        widget = QWidget()
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
-
-        self.setGeometry(300, 300, 800, 600)
-        self.setWindowTitle('ANTLR4 GUI')
-        self.show()
-
-    def showFileDialog(self):
-        file, _ = QFileDialog.getOpenFileName(self, "Open file", "", "ANTLR Grammar Files (*.g4)")
-        if file:
-            with open(file, "r") as f:
-                content = f.read()
-                self.textEdit.setPlainText(content)
-
-    def runANTLR(self):
-        code = self.textEdit.toPlainText()
-
-        # Aquí se puede generar y compilar el lexer y el parser utilizando ANTLR4
-        input_stream = InputStream(code)
-        lexer = ExprLexer(input_stream)
+        # Crear el lexer y el stream de tokens
+        lexer = ExprLexer(InputStream(input_code))
         stream = CommonTokenStream(lexer)
+
+        # Crear el parser y construir el árbol sintáctico
         parser = ExprParser(stream)
+        parser.removeErrorListeners()  # Desactivar los listeners de errores para evitar mensajes por consola
 
-        # Obtener el árbol sintáctico
-        # tree = parser.program()
-        tree = parser.prog()
+        try:
+            tree = parser.prog()
+        except RecognitionException as e:
+            error_occurred = True
 
-        # Mostrar el árbol sintáctico
-        tree_str = tree.toStringTree(recog=parser)
-        self.resultTextEdit.setPlainText(tree_str)  # Establecer el resultado en el cuadro de texto de resultado
+        if error_occurred and error:
+            self.output.delete("1.0", tk.END)
+            self.output.insert(tk.END, str(e))
+        else:
+            self.output.delete("1.0", tk.END)
+            self.output.insert(tk.END, output.decode())
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    mainWindow = MainWindow()
-    sys.exit(app.exec_())
+if __name__ == "__main__":
+    ide = IDE()
+    ide.mainloop()
+
