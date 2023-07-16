@@ -52,12 +52,12 @@ class IDE(tk.Tk):
         except RecognitionException as e:
             error_occurred = True
 
+        self.output.delete("1.0", tk.END)
         if error_occurred and error:
-            self.output.delete("1.0", tk.END)
             self.output.insert(tk.END, str(e))
         else:
-            self.output.delete("1.0", tk.END)
             self.output.insert(tk.END, output.decode())
+            self.output.insert(tk.END, tree.toStringTree(recog=parser))
 
 if __name__ == "__main__":
     ide = IDE()
