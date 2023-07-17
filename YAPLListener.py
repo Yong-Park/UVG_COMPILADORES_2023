@@ -26,15 +26,6 @@ class YAPLListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by YAPLParser#inherits.
-    def enterInherits(self, ctx:YAPLParser.InheritsContext):
-        pass
-
-    # Exit a parse tree produced by YAPLParser#inherits.
-    def exitInherits(self, ctx:YAPLParser.InheritsContext):
-        pass
-
-
     # Enter a parse tree produced by YAPLParser#feature.
     def enterFeature(self, ctx:YAPLParser.FeatureContext):
         pass
