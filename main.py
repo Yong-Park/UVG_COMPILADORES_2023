@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import scrolledtext
+from tkinter import scrolledtext, filedialog
 from antlr4 import *
 from YAPLLexer import YAPLLexer
 from YAPLParser import YAPLParser
@@ -10,16 +10,36 @@ class IDE(tk.Tk):
         super().__init__()
 
         self.title("IDE")
-        self.geometry("800x600")
+        self.geometry("800x800")
 
         self.code_input = scrolledtext.ScrolledText(self, width=100, height=30)
         self.code_input.pack()
 
         self.output = scrolledtext.ScrolledText(self, width=100, height=10)
         self.output.pack()
+        
+        button_frame = tk.Frame(self)  # Frame para los botones
+        button_frame.pack()
+        
+        button_font = ("Arial", 14)  # Fuente y tamaño de los botones
 
-        self.run_button = tk.Button(self, text="Ejecutar", command=self.run_antlr)
-        self.run_button.pack()
+        self.run_button = tk.Button(self, text="Ejecutar", command=self.run_antlr, width=15, height=2)
+        self.run_button.pack(side=tk.RIGHT, padx=30, pady=10)
+        
+        self.upload_button = tk.Button(self, text="Upload File", command=self.upload_file, width=15, height=2)
+        self.upload_button.pack(side=tk.LEFT, padx=30, pady=10)
+        
+        # Centrar el button_frame
+        button_frame.place(relx=0.5, rely=0.9, anchor=tk.CENTER)
+        
+    def upload_file(self):
+        file_path = filedialog.askopenfilename(filetypes=(("Text files", "*.txt"), ("All files", "*.*")))
+        if file_path:
+            with open(file_path, "r") as file:
+                code = file.read()
+                self.code_input.delete("1.0", tk.END)
+                self.code_input.insert(tk.END, code)
+
 
     """def run_antlr(self):
         try:
