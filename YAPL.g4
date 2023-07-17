@@ -2,47 +2,48 @@ grammar YAPL;
 
 program   : classDefine+ # start
           ;
-classDefine : CLASS CLASSTYPE (inherit)? OPENBRACE (feature SEMICOLON)* CLOSEBRACE  SEMICOLON# classDef
+classDefine : CLASS CLASSTYPE (inherit)? OPENBRACE (feature SEMICOLON)* CLOSEBRACE  SEMICOLON # defClase
           ;
 inherit   : INHERITS CLASSTYPE # inherits
           ;
-feature   : ID OPENPARENTHESES (parameter (COMMA parameter)*)? CLOSEPARENTHESES COLON CLASSTYPE OPENBRACE expr CLOSEBRACE # method
-          | ID COLON CLASSTYPE (ASSIGN expr )? # property
+feature   : ID OPENPARENTHESES (formal (COMMA formal)*)? CLOSEPARENTHESES COLON CLASSTYPE OPENBRACE expr CLOSEBRACE 
+          | ID COLON CLASSTYPE (ASSIGN expr )? 
           ;
-parameter : ID COLON CLASSTYPE # param;
-expr      : expr(AT CLASSTYPE)? DOT ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPARENTHESES # methodCall
-          | ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPARENTHESES # ownMethodCall
+formal    : ID COLON CLASSTYPE # forml
+          ;
+expr      : ID ASSIGN expr # assign
+          | expr(AT CLASSTYPE)? DOT ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPARENTHESES #methodCall
+          | ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPARENTHESES #ownMethodCall
           | IF expr THEN expr ELSE expr FI # if
           | WHILE expr LOOP expr POOL # while
-          | OPENBRACE (expr SEMICOLON)+ CLOSEBRACE  # block
+          | OPENBRACE (expr SEMICOLON)+ CLOSEBRACE #block
           | LET let_expr # let
           | NEW CLASSTYPE # newObject
           | ISVOID expr # void
-          | expr MUL expr # mul
-          | expr DIV expr # div
           | expr ADD expr # add
           | expr SUB expr # sub
+          | expr MUL expr # mul
+          | expr DIV expr # div
           | INTEGER_NEGATIVE expr # invert
           | expr LT expr # lt
           | expr LTEQ expr # lteq
           | expr EQUAL expr # equal
           | NOT expr # not
           | OPENPARENTHESES expr CLOSEPARENTHESES # factExpr
-          | STRING # string
-          | NUM # num
           | ID # id
+          | NUM # num
+          | STRING # string
           | TRUE # true
           | FALSE # false
-          | ID ASSIGN expr # assign
           ;
 
-let_expr  : ID COLON CLASSTYPE COMMA let_expr # nestedLet
-          | ID COLON CLASSTYPE IN expr # letIn
-          | ID COLON CLASSTYPE ASSIGN expr COMMA let_expr # letAssignLet
-          | ID COLON CLASSTYPE ASSIGN expr IN expr # letAssignIn
+let_expr  : ID COLON CLASSTYPE COMMA let_expr 
+          | ID COLON CLASSTYPE IN expr 
+          | ID COLON CLASSTYPE ASSIGN expr COMMA let_expr 
+          | ID COLON CLASSTYPE ASSIGN expr IN expr 
           ;
 
-// Key words
+// Palabras reservadas
 CLASS: C L A S S;
 ELSE: E L S E;
 FALSE: 'false';
@@ -60,13 +61,13 @@ NEW: N E W;
 NOT: N O T;
 LET: L E T;
 
-// Basic definitions
-NUM: [0-9]+;
-ID: [a-z_][a-zA-Z0-9_]*;
-CLASSTYPE: 'SELF_TYPE' | [A-Z][a-zA-Z_0-9]*;
-STRING: '"' (('\\'|'\t'|'\r\n'|'\r'|'\n'|'\\"') | ~('\\'|'\t'|'\r'|'\n'|'"'))* '"';
+// Definicion de integer, Identificadores y Cadenas
+NUM: [0-9]+;                                                                            // Integer
+ID: [a-z_][a-zA-Z0-9_]*;                                                                // Identificador
+CLASSTYPE: 'SELF_TYPE' | [A-Z][a-zA-Z_0-9]*;                                            // Identificador especial
+STRING: '"' (('\\'|'\t'|'\r\n'|'\r'|'\n'|'\\"') | ~('\\'|'\t'|'\r'|'\n'|'"'))* '"';     // Cadena
 
-// Special characters
+// Caracteres especiales que se utilizaran para la construccion
 SEMICOLON: ';';
 OPENBRACE: '{';
 CLOSEBRACE: '}';
@@ -86,14 +87,14 @@ LT: '<';
 LTEQ: '<=';
 ASSIGN: '<-';
 
-// Ignored tokens
-SINGLECOMMENT: '--' ~[\r\n]* -> skip;
-MULTICOMMENT: '(*' .*? '*)' -> skip;
-WS: [ \n\t\r\f]+ -> skip;
+// Tokens de ingorar
+SINGLECOMMENT: '--' ~[\r\n]* -> skip;                     // Un solo comentario
+MULTICOMMENT: '(*' .*? '*)' -> skip;                      // Multiple comentarios
+WS: [ \n\t\r\f]+ -> skip;                                 // Caracteres especiales como salto, tab y entre otros
 
 ERROR : . ;
 
-// Letters to use uncase sensitive
+// Asignacion de letras para utilizarlos en el case insensitive
 fragment A : [aA];
 fragment B : [bB];
 fragment C : [cC];
