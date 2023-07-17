@@ -74,7 +74,7 @@ class IDE(tk.Tk):
 
         self.output.delete("1.0", tk.END)
         if error_occurred and error:
-            self.output.insert(tk.END, str(e))
+            self.output.insert(tk.END, str(e) + "\n", "red")
         else:
             self.output.insert(tk.END, output.decode())
             self.output.insert(tk.END, tree.toStringTree(recog=parser))
