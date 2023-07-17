@@ -172,7 +172,7 @@ class YAPLLexer(Lexer):
     LET = 16
     NUM = 17
     ID = 18
-    CLASSTYPE = 19
+    TYPE = 19
     STRING = 20
     SEMICOLON = 21
     OPENBRACE = 22
@@ -183,7 +183,7 @@ class YAPLLexer(Lexer):
     CLOSEPARENTHESES = 27
     DOT = 28
     AT = 29
-    INTEGER_NEGATIVE = 30
+    TILDE = 30
     ADD = 31
     SUB = 32
     MUL = 33
@@ -209,21 +209,20 @@ class YAPLLexer(Lexer):
     symbolicNames = [ "<INVALID>",
             "CLASS", "ELSE", "FALSE", "TRUE", "FI", "IF", "IN", "INHERITS", 
             "ISVOID", "LOOP", "POOL", "THEN", "WHILE", "NEW", "NOT", "LET", 
-            "NUM", "ID", "CLASSTYPE", "STRING", "SEMICOLON", "OPENBRACE", 
-            "CLOSEBRACE", "COLON", "COMMA", "OPENPARENTHESES", "CLOSEPARENTHESES", 
-            "DOT", "AT", "INTEGER_NEGATIVE", "ADD", "SUB", "MUL", "DIV", 
-            "EQUAL", "LT", "LTEQ", "ASSIGN", "SINGLECOMMENT", "MULTICOMMENT", 
-            "WS", "ERROR" ]
+            "NUM", "ID", "TYPE", "STRING", "SEMICOLON", "OPENBRACE", "CLOSEBRACE", 
+            "COLON", "COMMA", "OPENPARENTHESES", "CLOSEPARENTHESES", "DOT", 
+            "AT", "TILDE", "ADD", "SUB", "MUL", "DIV", "EQUAL", "LT", "LTEQ", 
+            "ASSIGN", "SINGLECOMMENT", "MULTICOMMENT", "WS", "ERROR" ]
 
     ruleNames = [ "CLASS", "ELSE", "FALSE", "TRUE", "FI", "IF", "IN", "INHERITS", 
                   "ISVOID", "LOOP", "POOL", "THEN", "WHILE", "NEW", "NOT", 
-                  "LET", "NUM", "ID", "CLASSTYPE", "STRING", "SEMICOLON", 
-                  "OPENBRACE", "CLOSEBRACE", "COLON", "COMMA", "OPENPARENTHESES", 
-                  "CLOSEPARENTHESES", "DOT", "AT", "INTEGER_NEGATIVE", "ADD", 
-                  "SUB", "MUL", "DIV", "EQUAL", "LT", "LTEQ", "ASSIGN", 
-                  "SINGLECOMMENT", "MULTICOMMENT", "WS", "ERROR", "A", "B", 
-                  "C", "D", "E", "F", "H", "I", "L", "N", "O", "P", "R", 
-                  "S", "T", "V", "W", "ESC", "UNICODE", "HEX" ]
+                  "LET", "NUM", "ID", "TYPE", "STRING", "SEMICOLON", "OPENBRACE", 
+                  "CLOSEBRACE", "COLON", "COMMA", "OPENPARENTHESES", "CLOSEPARENTHESES", 
+                  "DOT", "AT", "TILDE", "ADD", "SUB", "MUL", "DIV", "EQUAL", 
+                  "LT", "LTEQ", "ASSIGN", "SINGLECOMMENT", "MULTICOMMENT", 
+                  "WS", "ERROR", "A", "B", "C", "D", "E", "F", "H", "I", 
+                  "L", "N", "O", "P", "R", "S", "T", "V", "W", "ESC", "UNICODE", 
+                  "HEX" ]
 
     grammarFileName = "YAPL.g4"
 

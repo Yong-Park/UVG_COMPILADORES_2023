@@ -1,22 +1,22 @@
 grammar YAPL;
 
-program   : classDefine+ # start
+program   : (classDefine SEMICOLON)+ # start
           ;
-classDefine : CLASS CLASSTYPE (INHERITS CLASSTYPE)? OPENBRACE (feature SEMICOLON)* CLOSEBRACE  SEMICOLON # defClase
+classDefine : CLASS TYPE (INHERITS TYPE)? OPENBRACE (feature SEMICOLON)* CLOSEBRACE # defClase
           ;
-feature   : ID OPENPARENTHESES (formal (COMMA formal)*)? CLOSEPARENTHESES COLON CLASSTYPE OPENBRACE expr CLOSEBRACE 
-          | ID COLON CLASSTYPE (ASSIGN expr )? 
+feature   : ID OPENPARENTHESES (formal (COMMA formal)*)? CLOSEPARENTHESES COLON TYPE OPENBRACE expr CLOSEBRACE 
+          | ID COLON TYPE (ASSIGN expr )? 
           ;
-formal    : ID COLON CLASSTYPE # forml
+formal    : ID COLON TYPE # forml
           ;
 expr      : ID ASSIGN expr # assign
-          | expr(AT CLASSTYPE)? DOT ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPARENTHESES #methodCall
+          | expr(AT TYPE)? DOT ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPARENTHESES #methodCall
           | ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPARENTHESES #ownMethodCall
           | IF expr THEN expr ELSE expr FI # if
           | WHILE expr LOOP expr POOL # while
           | OPENBRACE (expr SEMICOLON)+ CLOSEBRACE #block
           | LET let_expr # let
-          | NEW CLASSTYPE # newObject
+          | NEW TYPE # newObject
           | ISVOID expr # void
           | expr ADD expr # add
           | expr SUB expr # sub
@@ -35,17 +35,15 @@ expr      : ID ASSIGN expr # assign
           | FALSE # false
           ;
 
-let_expr  : ID COLON CLASSTYPE COMMA let_expr 
-          | ID COLON CLASSTYPE IN expr 
-          | ID COLON CLASSTYPE ASSIGN expr COMMA let_expr 
-          | ID COLON CLASSTYPE ASSIGN expr IN expr 
+let_expr  : ID COLON TYPE COMMA let_expr 
+          | ID COLON TYPE IN expr 
+          | ID COLON TYPE ASSIGN expr COMMA let_expr 
+          | ID COLON TYPE ASSIGN expr IN expr 
           ;
 
 // Palabras reservadas
 CLASS: C L A S S;
 ELSE: E L S E;
-FALSE: 'false';
-TRUE: 'true';
 FI: F I;
 IF: I F;
 IN: I N;
@@ -57,12 +55,14 @@ THEN: T H E N;
 WHILE: W H I L E;
 NEW: N E W;
 NOT: N O T;
+FALSE: 'false';
+TRUE: 'true';
 LET: L E T;
 
 // Definicion de integer, Identificadores y Cadenas
 NUM: [0-9]+;                                                                            // Integer
 ID: [a-z_][a-zA-Z0-9_]*;                                                                // Identificador de objeto
-CLASSTYPE: 'self' | 'SELF_TYPE' | [A-Z][a-zA-Z_0-9]*;                                   // Identificador de tipo
+TYPE: 'self' | 'SELF_TYPE' | [A-Z][a-zA-Z_0-9]*;                                   // Identificador de tipo
 STRING: '"' (('\\'|'\t'|'\r\n'|'\r'|'\n'|'\\"') | ~('\\'|'\t'|'\r'|'\n'|'"'))* '"';     // Cadena
 
 // Caracteres especiales que se utilizaran para la construccion

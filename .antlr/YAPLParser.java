@@ -16,12 +16,12 @@ public class YAPLParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		CLASS=1, ELSE=2, FALSE=3, TRUE=4, FI=5, IF=6, IN=7, INHERITS=8, ISVOID=9, 
-		LOOP=10, POOL=11, THEN=12, WHILE=13, NEW=14, NOT=15, LET=16, NUM=17, ID=18, 
-		CLASSTYPE=19, STRING=20, SEMICOLON=21, OPENBRACE=22, CLOSEBRACE=23, COLON=24, 
-		COMMA=25, OPENPARENTHESES=26, CLOSEPARENTHESES=27, DOT=28, AT=29, TILDE=30, 
-		ADD=31, SUB=32, MUL=33, DIV=34, EQUAL=35, LT=36, LTEQ=37, ASSIGN=38, SINGLECOMMENT=39, 
-		MULTICOMMENT=40, WS=41, ERROR=42;
+		CLASS=1, ELSE=2, FI=3, IF=4, IN=5, INHERITS=6, ISVOID=7, LOOP=8, POOL=9, 
+		THEN=10, WHILE=11, NEW=12, NOT=13, FALSE=14, TRUE=15, LET=16, NUM=17, 
+		ID=18, TYPE=19, STRING=20, SEMICOLON=21, OPENBRACE=22, CLOSEBRACE=23, 
+		COLON=24, COMMA=25, OPENPARENTHESES=26, CLOSEPARENTHESES=27, DOT=28, AT=29, 
+		TILDE=30, ADD=31, SUB=32, MUL=33, DIV=34, EQUAL=35, LT=36, LTEQ=37, ASSIGN=38, 
+		SINGLECOMMENT=39, MULTICOMMENT=40, WS=41, ERROR=42;
 	public static final int
 		RULE_program = 0, RULE_classDefine = 1, RULE_feature = 2, RULE_formal = 3, 
 		RULE_expr = 4, RULE_let_expr = 5;
@@ -34,8 +34,8 @@ public class YAPLParser extends Parser {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, null, null, "'false'", "'true'", null, null, null, null, null, 
-			null, null, null, null, null, null, null, null, null, null, null, "';'", 
+			null, null, null, null, null, null, null, null, null, null, null, null, 
+			null, null, "'false'", "'true'", null, null, null, null, null, "';'", 
 			"'{'", "'}'", "':'", "','", "'('", "')'", "'.'", "'@'", "'~'", "'+'", 
 			"'-'", "'*'", "'/'", "'='", "'<'", "'<='", "'<-'"
 		};
@@ -43,12 +43,12 @@ public class YAPLParser extends Parser {
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "CLASS", "ELSE", "FALSE", "TRUE", "FI", "IF", "IN", "INHERITS", 
-			"ISVOID", "LOOP", "POOL", "THEN", "WHILE", "NEW", "NOT", "LET", "NUM", 
-			"ID", "CLASSTYPE", "STRING", "SEMICOLON", "OPENBRACE", "CLOSEBRACE", 
-			"COLON", "COMMA", "OPENPARENTHESES", "CLOSEPARENTHESES", "DOT", "AT", 
-			"TILDE", "ADD", "SUB", "MUL", "DIV", "EQUAL", "LT", "LTEQ", "ASSIGN", 
-			"SINGLECOMMENT", "MULTICOMMENT", "WS", "ERROR"
+			null, "CLASS", "ELSE", "FI", "IF", "IN", "INHERITS", "ISVOID", "LOOP", 
+			"POOL", "THEN", "WHILE", "NEW", "NOT", "FALSE", "TRUE", "LET", "NUM", 
+			"ID", "TYPE", "STRING", "SEMICOLON", "OPENBRACE", "CLOSEBRACE", "COLON", 
+			"COMMA", "OPENPARENTHESES", "CLOSEPARENTHESES", "DOT", "AT", "TILDE", 
+			"ADD", "SUB", "MUL", "DIV", "EQUAL", "LT", "LTEQ", "ASSIGN", "SINGLECOMMENT", 
+			"MULTICOMMENT", "WS", "ERROR"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -120,6 +120,10 @@ public class YAPLParser extends Parser {
 		public ClassDefineContext classDefine(int i) {
 			return getRuleContext(ClassDefineContext.class,i);
 		}
+		public List<TerminalNode> SEMICOLON() { return getTokens(YAPLParser.SEMICOLON); }
+		public TerminalNode SEMICOLON(int i) {
+			return getToken(YAPLParser.SEMICOLON, i);
+		}
 		public StartContext(ProgramContext ctx) { copyFrom(ctx); }
 	}
 
@@ -131,7 +135,7 @@ public class YAPLParser extends Parser {
 			_localctx = new StartContext(_localctx);
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(13); 
+			setState(15); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
@@ -139,9 +143,11 @@ public class YAPLParser extends Parser {
 				{
 				setState(12);
 				classDefine();
+				setState(13);
+				match(SEMICOLON);
 				}
 				}
-				setState(15); 
+				setState(17); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==CLASS );
@@ -171,22 +177,22 @@ public class YAPLParser extends Parser {
 	}
 	public static class DefClaseContext extends ClassDefineContext {
 		public TerminalNode CLASS() { return getToken(YAPLParser.CLASS, 0); }
-		public List<TerminalNode> CLASSTYPE() { return getTokens(YAPLParser.CLASSTYPE); }
-		public TerminalNode CLASSTYPE(int i) {
-			return getToken(YAPLParser.CLASSTYPE, i);
+		public List<TerminalNode> TYPE() { return getTokens(YAPLParser.TYPE); }
+		public TerminalNode TYPE(int i) {
+			return getToken(YAPLParser.TYPE, i);
 		}
 		public TerminalNode OPENBRACE() { return getToken(YAPLParser.OPENBRACE, 0); }
 		public TerminalNode CLOSEBRACE() { return getToken(YAPLParser.CLOSEBRACE, 0); }
-		public List<TerminalNode> SEMICOLON() { return getTokens(YAPLParser.SEMICOLON); }
-		public TerminalNode SEMICOLON(int i) {
-			return getToken(YAPLParser.SEMICOLON, i);
-		}
 		public TerminalNode INHERITS() { return getToken(YAPLParser.INHERITS, 0); }
 		public List<FeatureContext> feature() {
 			return getRuleContexts(FeatureContext.class);
 		}
 		public FeatureContext feature(int i) {
 			return getRuleContext(FeatureContext.class,i);
+		}
+		public List<TerminalNode> SEMICOLON() { return getTokens(YAPLParser.SEMICOLON); }
+		public TerminalNode SEMICOLON(int i) {
+			return getToken(YAPLParser.SEMICOLON, i);
 		}
 		public DefClaseContext(ClassDefineContext ctx) { copyFrom(ctx); }
 	}
@@ -199,44 +205,42 @@ public class YAPLParser extends Parser {
 			_localctx = new DefClaseContext(_localctx);
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(17);
+			setState(19);
 			match(CLASS);
-			setState(18);
-			match(CLASSTYPE);
-			setState(21);
+			setState(20);
+			match(TYPE);
+			setState(23);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==INHERITS) {
 				{
-				setState(19);
+				setState(21);
 				match(INHERITS);
-				setState(20);
-				match(CLASSTYPE);
+				setState(22);
+				match(TYPE);
 				}
 			}
 
-			setState(23);
+			setState(25);
 			match(OPENBRACE);
-			setState(29);
+			setState(31);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==ID) {
 				{
 				{
-				setState(24);
+				setState(26);
 				feature();
-				setState(25);
+				setState(27);
 				match(SEMICOLON);
 				}
 				}
-				setState(31);
+				setState(33);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(32);
+			setState(34);
 			match(CLOSEBRACE);
-			setState(33);
-			match(SEMICOLON);
 			}
 		}
 		catch (RecognitionException re) {
@@ -255,7 +259,7 @@ public class YAPLParser extends Parser {
 		public TerminalNode OPENPARENTHESES() { return getToken(YAPLParser.OPENPARENTHESES, 0); }
 		public TerminalNode CLOSEPARENTHESES() { return getToken(YAPLParser.CLOSEPARENTHESES, 0); }
 		public TerminalNode COLON() { return getToken(YAPLParser.COLON, 0); }
-		public TerminalNode CLASSTYPE() { return getToken(YAPLParser.CLASSTYPE, 0); }
+		public TerminalNode TYPE() { return getToken(YAPLParser.TYPE, 0); }
 		public TerminalNode OPENBRACE() { return getToken(YAPLParser.OPENBRACE, 0); }
 		public ExprContext expr() {
 			return getRuleContext(ExprContext.class,0);
@@ -283,73 +287,73 @@ public class YAPLParser extends Parser {
 		enterRule(_localctx, 4, RULE_feature);
 		int _la;
 		try {
-			setState(61);
+			setState(62);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,6,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(35);
-				match(ID);
 				setState(36);
+				match(ID);
+				setState(37);
 				match(OPENPARENTHESES);
-				setState(45);
+				setState(46);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==ID) {
 					{
-					setState(37);
+					setState(38);
 					formal();
-					setState(42);
+					setState(43);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 					while (_la==COMMA) {
 						{
 						{
-						setState(38);
-						match(COMMA);
 						setState(39);
+						match(COMMA);
+						setState(40);
 						formal();
 						}
 						}
-						setState(44);
+						setState(45);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
 					}
 					}
 				}
 
-				setState(47);
-				match(CLOSEPARENTHESES);
 				setState(48);
-				match(COLON);
+				match(CLOSEPARENTHESES);
 				setState(49);
-				match(CLASSTYPE);
+				match(COLON);
 				setState(50);
-				match(OPENBRACE);
+				match(TYPE);
 				setState(51);
-				expr(0);
+				match(OPENBRACE);
 				setState(52);
+				expr(0);
+				setState(53);
 				match(CLOSEBRACE);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(54);
-				match(ID);
 				setState(55);
-				match(COLON);
+				match(ID);
 				setState(56);
-				match(CLASSTYPE);
-				setState(59);
+				match(COLON);
+				setState(57);
+				match(TYPE);
+				setState(60);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==ASSIGN) {
 					{
-					setState(57);
-					match(ASSIGN);
 					setState(58);
+					match(ASSIGN);
+					setState(59);
 					expr(0);
 					}
 				}
@@ -383,7 +387,7 @@ public class YAPLParser extends Parser {
 	public static class FormlContext extends FormalContext {
 		public TerminalNode ID() { return getToken(YAPLParser.ID, 0); }
 		public TerminalNode COLON() { return getToken(YAPLParser.COLON, 0); }
-		public TerminalNode CLASSTYPE() { return getToken(YAPLParser.CLASSTYPE, 0); }
+		public TerminalNode TYPE() { return getToken(YAPLParser.TYPE, 0); }
 		public FormlContext(FormalContext ctx) { copyFrom(ctx); }
 	}
 
@@ -394,12 +398,12 @@ public class YAPLParser extends Parser {
 			_localctx = new FormlContext(_localctx);
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(63);
-			match(ID);
 			setState(64);
-			match(COLON);
+			match(ID);
 			setState(65);
-			match(CLASSTYPE);
+			match(COLON);
+			setState(66);
+			match(TYPE);
 			}
 		}
 		catch (RecognitionException re) {
@@ -549,7 +553,7 @@ public class YAPLParser extends Parser {
 	}
 	public static class NewObjectContext extends ExprContext {
 		public TerminalNode NEW() { return getToken(YAPLParser.NEW, 0); }
-		public TerminalNode CLASSTYPE() { return getToken(YAPLParser.CLASSTYPE, 0); }
+		public TerminalNode TYPE() { return getToken(YAPLParser.TYPE, 0); }
 		public NewObjectContext(ExprContext ctx) { copyFrom(ctx); }
 	}
 	public static class TrueContext extends ExprContext {
@@ -631,7 +635,7 @@ public class YAPLParser extends Parser {
 		public TerminalNode OPENPARENTHESES() { return getToken(YAPLParser.OPENPARENTHESES, 0); }
 		public TerminalNode CLOSEPARENTHESES() { return getToken(YAPLParser.CLOSEPARENTHESES, 0); }
 		public TerminalNode AT() { return getToken(YAPLParser.AT, 0); }
-		public TerminalNode CLASSTYPE() { return getToken(YAPLParser.CLASSTYPE, 0); }
+		public TerminalNode TYPE() { return getToken(YAPLParser.TYPE, 0); }
 		public List<TerminalNode> COMMA() { return getTokens(YAPLParser.COMMA); }
 		public TerminalNode COMMA(int i) {
 			return getToken(YAPLParser.COMMA, i);
@@ -655,7 +659,7 @@ public class YAPLParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(127);
+			setState(128);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,10,_ctx) ) {
 			case 1:
@@ -664,11 +668,11 @@ public class YAPLParser extends Parser {
 				_ctx = _localctx;
 				_prevctx = _localctx;
 
-				setState(68);
-				match(ID);
 				setState(69);
-				match(ASSIGN);
+				match(ID);
 				setState(70);
+				match(ASSIGN);
+				setState(71);
 				expr(24);
 				}
 				break;
@@ -677,37 +681,37 @@ public class YAPLParser extends Parser {
 				_localctx = new OwnMethodCallContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(71);
-				match(ID);
 				setState(72);
+				match(ID);
+				setState(73);
 				match(OPENPARENTHESES);
-				setState(81);
+				setState(82);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FALSE) | (1L << TRUE) | (1L << IF) | (1L << ISVOID) | (1L << WHILE) | (1L << NEW) | (1L << NOT) | (1L << LET) | (1L << NUM) | (1L << ID) | (1L << STRING) | (1L << OPENBRACE) | (1L << OPENPARENTHESES) | (1L << TILDE))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << IF) | (1L << ISVOID) | (1L << WHILE) | (1L << NEW) | (1L << NOT) | (1L << FALSE) | (1L << TRUE) | (1L << LET) | (1L << NUM) | (1L << ID) | (1L << STRING) | (1L << OPENBRACE) | (1L << OPENPARENTHESES) | (1L << TILDE))) != 0)) {
 					{
-					setState(73);
+					setState(74);
 					expr(0);
-					setState(78);
+					setState(79);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 					while (_la==COMMA) {
 						{
 						{
-						setState(74);
-						match(COMMA);
 						setState(75);
+						match(COMMA);
+						setState(76);
 						expr(0);
 						}
 						}
-						setState(80);
+						setState(81);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
 					}
 					}
 				}
 
-				setState(83);
+				setState(84);
 				match(CLOSEPARENTHESES);
 				}
 				break;
@@ -716,19 +720,19 @@ public class YAPLParser extends Parser {
 				_localctx = new IfContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(84);
-				match(IF);
 				setState(85);
-				expr(0);
+				match(IF);
 				setState(86);
-				match(THEN);
+				expr(0);
 				setState(87);
-				expr(0);
+				match(THEN);
 				setState(88);
-				match(ELSE);
-				setState(89);
 				expr(0);
+				setState(89);
+				match(ELSE);
 				setState(90);
+				expr(0);
+				setState(91);
 				match(FI);
 				}
 				break;
@@ -737,15 +741,15 @@ public class YAPLParser extends Parser {
 				_localctx = new WhileContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(92);
-				match(WHILE);
 				setState(93);
-				expr(0);
+				match(WHILE);
 				setState(94);
-				match(LOOP);
-				setState(95);
 				expr(0);
+				setState(95);
+				match(LOOP);
 				setState(96);
+				expr(0);
+				setState(97);
 				match(POOL);
 				}
 				break;
@@ -754,25 +758,25 @@ public class YAPLParser extends Parser {
 				_localctx = new BlockContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(98);
+				setState(99);
 				match(OPENBRACE);
-				setState(102); 
+				setState(103); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
 					{
-					setState(99);
-					expr(0);
 					setState(100);
+					expr(0);
+					setState(101);
 					match(SEMICOLON);
 					}
 					}
-					setState(104); 
+					setState(105); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FALSE) | (1L << TRUE) | (1L << IF) | (1L << ISVOID) | (1L << WHILE) | (1L << NEW) | (1L << NOT) | (1L << LET) | (1L << NUM) | (1L << ID) | (1L << STRING) | (1L << OPENBRACE) | (1L << OPENPARENTHESES) | (1L << TILDE))) != 0) );
-				setState(106);
+				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << IF) | (1L << ISVOID) | (1L << WHILE) | (1L << NEW) | (1L << NOT) | (1L << FALSE) | (1L << TRUE) | (1L << LET) | (1L << NUM) | (1L << ID) | (1L << STRING) | (1L << OPENBRACE) | (1L << OPENPARENTHESES) | (1L << TILDE))) != 0) );
+				setState(107);
 				match(CLOSEBRACE);
 				}
 				break;
@@ -781,9 +785,9 @@ public class YAPLParser extends Parser {
 				_localctx = new LetContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(108);
-				match(LET);
 				setState(109);
+				match(LET);
+				setState(110);
 				let_expr();
 				}
 				break;
@@ -792,10 +796,10 @@ public class YAPLParser extends Parser {
 				_localctx = new NewObjectContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(110);
-				match(NEW);
 				setState(111);
-				match(CLASSTYPE);
+				match(NEW);
+				setState(112);
+				match(TYPE);
 				}
 				break;
 			case 8:
@@ -803,9 +807,9 @@ public class YAPLParser extends Parser {
 				_localctx = new VoidContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(112);
-				match(ISVOID);
 				setState(113);
+				match(ISVOID);
+				setState(114);
 				expr(16);
 				}
 				break;
@@ -814,9 +818,9 @@ public class YAPLParser extends Parser {
 				_localctx = new InvertContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(114);
-				match(TILDE);
 				setState(115);
+				match(TILDE);
+				setState(116);
 				expr(11);
 				}
 				break;
@@ -825,9 +829,9 @@ public class YAPLParser extends Parser {
 				_localctx = new NotContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(116);
-				match(NOT);
 				setState(117);
+				match(NOT);
+				setState(118);
 				expr(7);
 				}
 				break;
@@ -836,11 +840,11 @@ public class YAPLParser extends Parser {
 				_localctx = new FactExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(118);
-				match(OPENPARENTHESES);
 				setState(119);
-				expr(0);
+				match(OPENPARENTHESES);
 				setState(120);
+				expr(0);
+				setState(121);
 				match(CLOSEPARENTHESES);
 				}
 				break;
@@ -849,7 +853,7 @@ public class YAPLParser extends Parser {
 				_localctx = new IdContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(122);
+				setState(123);
 				match(ID);
 				}
 				break;
@@ -858,7 +862,7 @@ public class YAPLParser extends Parser {
 				_localctx = new NumContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(123);
+				setState(124);
 				match(NUM);
 				}
 				break;
@@ -867,7 +871,7 @@ public class YAPLParser extends Parser {
 				_localctx = new StringContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(124);
+				setState(125);
 				match(STRING);
 				}
 				break;
@@ -876,7 +880,7 @@ public class YAPLParser extends Parser {
 				_localctx = new TrueContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(125);
+				setState(126);
 				match(TRUE);
 				}
 				break;
@@ -885,13 +889,13 @@ public class YAPLParser extends Parser {
 				_localctx = new FalseContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(126);
+				setState(127);
 				match(FALSE);
 				}
 				break;
 			}
 			_ctx.stop = _input.LT(-1);
-			setState(171);
+			setState(172);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,15,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
@@ -899,18 +903,18 @@ public class YAPLParser extends Parser {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					setState(169);
+					setState(170);
 					_errHandler.sync(this);
 					switch ( getInterpreter().adaptivePredict(_input,14,_ctx) ) {
 					case 1:
 						{
 						_localctx = new AddContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(129);
-						if (!(precpred(_ctx, 15))) throw new FailedPredicateException(this, "precpred(_ctx, 15)");
 						setState(130);
-						match(ADD);
+						if (!(precpred(_ctx, 15))) throw new FailedPredicateException(this, "precpred(_ctx, 15)");
 						setState(131);
+						match(ADD);
+						setState(132);
 						expr(16);
 						}
 						break;
@@ -918,11 +922,11 @@ public class YAPLParser extends Parser {
 						{
 						_localctx = new SubContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(132);
-						if (!(precpred(_ctx, 14))) throw new FailedPredicateException(this, "precpred(_ctx, 14)");
 						setState(133);
-						match(SUB);
+						if (!(precpred(_ctx, 14))) throw new FailedPredicateException(this, "precpred(_ctx, 14)");
 						setState(134);
+						match(SUB);
+						setState(135);
 						expr(15);
 						}
 						break;
@@ -930,11 +934,11 @@ public class YAPLParser extends Parser {
 						{
 						_localctx = new MulContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(135);
-						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
 						setState(136);
-						match(MUL);
+						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
 						setState(137);
+						match(MUL);
+						setState(138);
 						expr(14);
 						}
 						break;
@@ -942,11 +946,11 @@ public class YAPLParser extends Parser {
 						{
 						_localctx = new DivContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(138);
-						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
 						setState(139);
-						match(DIV);
+						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
 						setState(140);
+						match(DIV);
+						setState(141);
 						expr(13);
 						}
 						break;
@@ -954,11 +958,11 @@ public class YAPLParser extends Parser {
 						{
 						_localctx = new LtContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(141);
-						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
 						setState(142);
-						match(LT);
+						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
 						setState(143);
+						match(LT);
+						setState(144);
 						expr(11);
 						}
 						break;
@@ -966,11 +970,11 @@ public class YAPLParser extends Parser {
 						{
 						_localctx = new LteqContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(144);
-						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
 						setState(145);
-						match(LTEQ);
+						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
 						setState(146);
+						match(LTEQ);
+						setState(147);
 						expr(10);
 						}
 						break;
@@ -978,11 +982,11 @@ public class YAPLParser extends Parser {
 						{
 						_localctx = new EqualContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(147);
-						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
 						setState(148);
-						match(EQUAL);
+						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
 						setState(149);
+						match(EQUAL);
+						setState(150);
 						expr(9);
 						}
 						break;
@@ -990,60 +994,60 @@ public class YAPLParser extends Parser {
 						{
 						_localctx = new MethodCallContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(150);
+						setState(151);
 						if (!(precpred(_ctx, 23))) throw new FailedPredicateException(this, "precpred(_ctx, 23)");
-						setState(153);
+						setState(154);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
 						if (_la==AT) {
 							{
-							setState(151);
-							match(AT);
 							setState(152);
-							match(CLASSTYPE);
+							match(AT);
+							setState(153);
+							match(TYPE);
 							}
 						}
 
-						setState(155);
-						match(DOT);
 						setState(156);
-						match(ID);
+						match(DOT);
 						setState(157);
+						match(ID);
+						setState(158);
 						match(OPENPARENTHESES);
-						setState(166);
+						setState(167);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FALSE) | (1L << TRUE) | (1L << IF) | (1L << ISVOID) | (1L << WHILE) | (1L << NEW) | (1L << NOT) | (1L << LET) | (1L << NUM) | (1L << ID) | (1L << STRING) | (1L << OPENBRACE) | (1L << OPENPARENTHESES) | (1L << TILDE))) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << IF) | (1L << ISVOID) | (1L << WHILE) | (1L << NEW) | (1L << NOT) | (1L << FALSE) | (1L << TRUE) | (1L << LET) | (1L << NUM) | (1L << ID) | (1L << STRING) | (1L << OPENBRACE) | (1L << OPENPARENTHESES) | (1L << TILDE))) != 0)) {
 							{
-							setState(158);
+							setState(159);
 							expr(0);
-							setState(163);
+							setState(164);
 							_errHandler.sync(this);
 							_la = _input.LA(1);
 							while (_la==COMMA) {
 								{
 								{
-								setState(159);
-								match(COMMA);
 								setState(160);
+								match(COMMA);
+								setState(161);
 								expr(0);
 								}
 								}
-								setState(165);
+								setState(166);
 								_errHandler.sync(this);
 								_la = _input.LA(1);
 							}
 							}
 						}
 
-						setState(168);
+						setState(169);
 						match(CLOSEPARENTHESES);
 						}
 						break;
 					}
 					} 
 				}
-				setState(173);
+				setState(174);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,15,_ctx);
 			}
@@ -1063,7 +1067,7 @@ public class YAPLParser extends Parser {
 	public static class Let_exprContext extends ParserRuleContext {
 		public TerminalNode ID() { return getToken(YAPLParser.ID, 0); }
 		public TerminalNode COLON() { return getToken(YAPLParser.COLON, 0); }
-		public TerminalNode CLASSTYPE() { return getToken(YAPLParser.CLASSTYPE, 0); }
+		public TerminalNode TYPE() { return getToken(YAPLParser.TYPE, 0); }
 		public TerminalNode COMMA() { return getToken(YAPLParser.COMMA, 0); }
 		public Let_exprContext let_expr() {
 			return getRuleContext(Let_exprContext.class,0);
@@ -1086,74 +1090,74 @@ public class YAPLParser extends Parser {
 		Let_exprContext _localctx = new Let_exprContext(_ctx, getState());
 		enterRule(_localctx, 10, RULE_let_expr);
 		try {
-			setState(200);
+			setState(201);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,16,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(174);
-				match(ID);
 				setState(175);
-				match(COLON);
+				match(ID);
 				setState(176);
-				match(CLASSTYPE);
+				match(COLON);
 				setState(177);
-				match(COMMA);
+				match(TYPE);
 				setState(178);
+				match(COMMA);
+				setState(179);
 				let_expr();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(179);
-				match(ID);
 				setState(180);
-				match(COLON);
+				match(ID);
 				setState(181);
-				match(CLASSTYPE);
+				match(COLON);
 				setState(182);
-				match(IN);
+				match(TYPE);
 				setState(183);
+				match(IN);
+				setState(184);
 				expr(0);
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(184);
-				match(ID);
 				setState(185);
-				match(COLON);
+				match(ID);
 				setState(186);
-				match(CLASSTYPE);
+				match(COLON);
 				setState(187);
-				match(ASSIGN);
+				match(TYPE);
 				setState(188);
-				expr(0);
+				match(ASSIGN);
 				setState(189);
-				match(COMMA);
+				expr(0);
 				setState(190);
+				match(COMMA);
+				setState(191);
 				let_expr();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(192);
-				match(ID);
 				setState(193);
-				match(COLON);
+				match(ID);
 				setState(194);
-				match(CLASSTYPE);
+				match(COLON);
 				setState(195);
-				match(ASSIGN);
+				match(TYPE);
 				setState(196);
-				expr(0);
+				match(ASSIGN);
 				setState(197);
-				match(IN);
+				expr(0);
 				setState(198);
+				match(IN);
+				setState(199);
 				expr(0);
 				}
 				break;
@@ -1200,73 +1204,73 @@ public class YAPLParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3,\u00cd\4\2\t\2\4"+
-		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\3\2\6\2\20\n\2\r\2\16\2\21\3\3"+
-		"\3\3\3\3\3\3\5\3\30\n\3\3\3\3\3\3\3\3\3\7\3\36\n\3\f\3\16\3!\13\3\3\3"+
-		"\3\3\3\3\3\4\3\4\3\4\3\4\3\4\7\4+\n\4\f\4\16\4.\13\4\5\4\60\n\4\3\4\3"+
-		"\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4>\n\4\5\4@\n\4\3\5\3\5\3"+
-		"\5\3\5\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\7\6O\n\6\f\6\16\6R\13\6\5\6"+
-		"T\n\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6"+
-		"\3\6\3\6\3\6\6\6i\n\6\r\6\16\6j\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3"+
-		"\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\5\6\u0082\n\6\3\6\3\6\3"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3,\u00ce\4\2\t\2\4"+
+		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\3\2\3\2\3\2\6\2\22\n\2\r\2\16\2"+
+		"\23\3\3\3\3\3\3\3\3\5\3\32\n\3\3\3\3\3\3\3\3\3\7\3 \n\3\f\3\16\3#\13\3"+
+		"\3\3\3\3\3\4\3\4\3\4\3\4\3\4\7\4,\n\4\f\4\16\4/\13\4\5\4\61\n\4\3\4\3"+
+		"\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4?\n\4\5\4A\n\4\3\5\3\5\3"+
+		"\5\3\5\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\7\6P\n\6\f\6\16\6S\13\6\5\6"+
+		"U\n\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6"+
+		"\3\6\3\6\3\6\6\6j\n\6\r\6\16\6k\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3"+
+		"\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\5\6\u0083\n\6\3\6\3\6\3"+
 		"\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6"+
-		"\3\6\3\6\3\6\3\6\5\6\u009c\n\6\3\6\3\6\3\6\3\6\3\6\3\6\7\6\u00a4\n\6\f"+
-		"\6\16\6\u00a7\13\6\5\6\u00a9\n\6\3\6\7\6\u00ac\n\6\f\6\16\6\u00af\13\6"+
+		"\3\6\3\6\3\6\3\6\5\6\u009d\n\6\3\6\3\6\3\6\3\6\3\6\3\6\7\6\u00a5\n\6\f"+
+		"\6\16\6\u00a8\13\6\5\6\u00aa\n\6\3\6\7\6\u00ad\n\6\f\6\16\6\u00b0\13\6"+
 		"\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3"+
-		"\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\5\7\u00cb\n\7\3\7\2\3\n\b\2\4\6\b\n"+
-		"\f\2\2\2\u00ed\2\17\3\2\2\2\4\23\3\2\2\2\6?\3\2\2\2\bA\3\2\2\2\n\u0081"+
-		"\3\2\2\2\f\u00ca\3\2\2\2\16\20\5\4\3\2\17\16\3\2\2\2\20\21\3\2\2\2\21"+
-		"\17\3\2\2\2\21\22\3\2\2\2\22\3\3\2\2\2\23\24\7\3\2\2\24\27\7\25\2\2\25"+
-		"\26\7\n\2\2\26\30\7\25\2\2\27\25\3\2\2\2\27\30\3\2\2\2\30\31\3\2\2\2\31"+
-		"\37\7\30\2\2\32\33\5\6\4\2\33\34\7\27\2\2\34\36\3\2\2\2\35\32\3\2\2\2"+
-		"\36!\3\2\2\2\37\35\3\2\2\2\37 \3\2\2\2 \"\3\2\2\2!\37\3\2\2\2\"#\7\31"+
-		"\2\2#$\7\27\2\2$\5\3\2\2\2%&\7\24\2\2&/\7\34\2\2\',\5\b\5\2()\7\33\2\2"+
-		")+\5\b\5\2*(\3\2\2\2+.\3\2\2\2,*\3\2\2\2,-\3\2\2\2-\60\3\2\2\2.,\3\2\2"+
-		"\2/\'\3\2\2\2/\60\3\2\2\2\60\61\3\2\2\2\61\62\7\35\2\2\62\63\7\32\2\2"+
-		"\63\64\7\25\2\2\64\65\7\30\2\2\65\66\5\n\6\2\66\67\7\31\2\2\67@\3\2\2"+
-		"\289\7\24\2\29:\7\32\2\2:=\7\25\2\2;<\7(\2\2<>\5\n\6\2=;\3\2\2\2=>\3\2"+
-		"\2\2>@\3\2\2\2?%\3\2\2\2?8\3\2\2\2@\7\3\2\2\2AB\7\24\2\2BC\7\32\2\2CD"+
-		"\7\25\2\2D\t\3\2\2\2EF\b\6\1\2FG\7\24\2\2GH\7(\2\2H\u0082\5\n\6\32IJ\7"+
-		"\24\2\2JS\7\34\2\2KP\5\n\6\2LM\7\33\2\2MO\5\n\6\2NL\3\2\2\2OR\3\2\2\2"+
-		"PN\3\2\2\2PQ\3\2\2\2QT\3\2\2\2RP\3\2\2\2SK\3\2\2\2ST\3\2\2\2TU\3\2\2\2"+
-		"U\u0082\7\35\2\2VW\7\b\2\2WX\5\n\6\2XY\7\16\2\2YZ\5\n\6\2Z[\7\4\2\2[\\"+
-		"\5\n\6\2\\]\7\7\2\2]\u0082\3\2\2\2^_\7\17\2\2_`\5\n\6\2`a\7\f\2\2ab\5"+
-		"\n\6\2bc\7\r\2\2c\u0082\3\2\2\2dh\7\30\2\2ef\5\n\6\2fg\7\27\2\2gi\3\2"+
-		"\2\2he\3\2\2\2ij\3\2\2\2jh\3\2\2\2jk\3\2\2\2kl\3\2\2\2lm\7\31\2\2m\u0082"+
-		"\3\2\2\2no\7\22\2\2o\u0082\5\f\7\2pq\7\20\2\2q\u0082\7\25\2\2rs\7\13\2"+
-		"\2s\u0082\5\n\6\22tu\7 \2\2u\u0082\5\n\6\rvw\7\21\2\2w\u0082\5\n\6\tx"+
-		"y\7\34\2\2yz\5\n\6\2z{\7\35\2\2{\u0082\3\2\2\2|\u0082\7\24\2\2}\u0082"+
-		"\7\23\2\2~\u0082\7\26\2\2\177\u0082\7\6\2\2\u0080\u0082\7\5\2\2\u0081"+
-		"E\3\2\2\2\u0081I\3\2\2\2\u0081V\3\2\2\2\u0081^\3\2\2\2\u0081d\3\2\2\2"+
-		"\u0081n\3\2\2\2\u0081p\3\2\2\2\u0081r\3\2\2\2\u0081t\3\2\2\2\u0081v\3"+
-		"\2\2\2\u0081x\3\2\2\2\u0081|\3\2\2\2\u0081}\3\2\2\2\u0081~\3\2\2\2\u0081"+
-		"\177\3\2\2\2\u0081\u0080\3\2\2\2\u0082\u00ad\3\2\2\2\u0083\u0084\f\21"+
-		"\2\2\u0084\u0085\7!\2\2\u0085\u00ac\5\n\6\22\u0086\u0087\f\20\2\2\u0087"+
-		"\u0088\7\"\2\2\u0088\u00ac\5\n\6\21\u0089\u008a\f\17\2\2\u008a\u008b\7"+
-		"#\2\2\u008b\u00ac\5\n\6\20\u008c\u008d\f\16\2\2\u008d\u008e\7$\2\2\u008e"+
-		"\u00ac\5\n\6\17\u008f\u0090\f\f\2\2\u0090\u0091\7&\2\2\u0091\u00ac\5\n"+
-		"\6\r\u0092\u0093\f\13\2\2\u0093\u0094\7\'\2\2\u0094\u00ac\5\n\6\f\u0095"+
-		"\u0096\f\n\2\2\u0096\u0097\7%\2\2\u0097\u00ac\5\n\6\13\u0098\u009b\f\31"+
-		"\2\2\u0099\u009a\7\37\2\2\u009a\u009c\7\25\2\2\u009b\u0099\3\2\2\2\u009b"+
-		"\u009c\3\2\2\2\u009c\u009d\3\2\2\2\u009d\u009e\7\36\2\2\u009e\u009f\7"+
-		"\24\2\2\u009f\u00a8\7\34\2\2\u00a0\u00a5\5\n\6\2\u00a1\u00a2\7\33\2\2"+
-		"\u00a2\u00a4\5\n\6\2\u00a3\u00a1\3\2\2\2\u00a4\u00a7\3\2\2\2\u00a5\u00a3"+
-		"\3\2\2\2\u00a5\u00a6\3\2\2\2\u00a6\u00a9\3\2\2\2\u00a7\u00a5\3\2\2\2\u00a8"+
-		"\u00a0\3\2\2\2\u00a8\u00a9\3\2\2\2\u00a9\u00aa\3\2\2\2\u00aa\u00ac\7\35"+
-		"\2\2\u00ab\u0083\3\2\2\2\u00ab\u0086\3\2\2\2\u00ab\u0089\3\2\2\2\u00ab"+
-		"\u008c\3\2\2\2\u00ab\u008f\3\2\2\2\u00ab\u0092\3\2\2\2\u00ab\u0095\3\2"+
-		"\2\2\u00ab\u0098\3\2\2\2\u00ac\u00af\3\2\2\2\u00ad\u00ab\3\2\2\2\u00ad"+
-		"\u00ae\3\2\2\2\u00ae\13\3\2\2\2\u00af\u00ad\3\2\2\2\u00b0\u00b1\7\24\2"+
-		"\2\u00b1\u00b2\7\32\2\2\u00b2\u00b3\7\25\2\2\u00b3\u00b4\7\33\2\2\u00b4"+
-		"\u00cb\5\f\7\2\u00b5\u00b6\7\24\2\2\u00b6\u00b7\7\32\2\2\u00b7\u00b8\7"+
-		"\25\2\2\u00b8\u00b9\7\t\2\2\u00b9\u00cb\5\n\6\2\u00ba\u00bb\7\24\2\2\u00bb"+
-		"\u00bc\7\32\2\2\u00bc\u00bd\7\25\2\2\u00bd\u00be\7(\2\2\u00be\u00bf\5"+
-		"\n\6\2\u00bf\u00c0\7\33\2\2\u00c0\u00c1\5\f\7\2\u00c1\u00cb\3\2\2\2\u00c2"+
-		"\u00c3\7\24\2\2\u00c3\u00c4\7\32\2\2\u00c4\u00c5\7\25\2\2\u00c5\u00c6"+
-		"\7(\2\2\u00c6\u00c7\5\n\6\2\u00c7\u00c8\7\t\2\2\u00c8\u00c9\5\n\6\2\u00c9"+
-		"\u00cb\3\2\2\2\u00ca\u00b0\3\2\2\2\u00ca\u00b5\3\2\2\2\u00ca\u00ba\3\2"+
-		"\2\2\u00ca\u00c2\3\2\2\2\u00cb\r\3\2\2\2\23\21\27\37,/=?PSj\u0081\u009b"+
-		"\u00a5\u00a8\u00ab\u00ad\u00ca";
+		"\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\5\7\u00cc\n\7\3\7\2\3\n\b\2\4\6\b\n"+
+		"\f\2\2\2\u00ee\2\21\3\2\2\2\4\25\3\2\2\2\6@\3\2\2\2\bB\3\2\2\2\n\u0082"+
+		"\3\2\2\2\f\u00cb\3\2\2\2\16\17\5\4\3\2\17\20\7\27\2\2\20\22\3\2\2\2\21"+
+		"\16\3\2\2\2\22\23\3\2\2\2\23\21\3\2\2\2\23\24\3\2\2\2\24\3\3\2\2\2\25"+
+		"\26\7\3\2\2\26\31\7\25\2\2\27\30\7\b\2\2\30\32\7\25\2\2\31\27\3\2\2\2"+
+		"\31\32\3\2\2\2\32\33\3\2\2\2\33!\7\30\2\2\34\35\5\6\4\2\35\36\7\27\2\2"+
+		"\36 \3\2\2\2\37\34\3\2\2\2 #\3\2\2\2!\37\3\2\2\2!\"\3\2\2\2\"$\3\2\2\2"+
+		"#!\3\2\2\2$%\7\31\2\2%\5\3\2\2\2&\'\7\24\2\2\'\60\7\34\2\2(-\5\b\5\2)"+
+		"*\7\33\2\2*,\5\b\5\2+)\3\2\2\2,/\3\2\2\2-+\3\2\2\2-.\3\2\2\2.\61\3\2\2"+
+		"\2/-\3\2\2\2\60(\3\2\2\2\60\61\3\2\2\2\61\62\3\2\2\2\62\63\7\35\2\2\63"+
+		"\64\7\32\2\2\64\65\7\25\2\2\65\66\7\30\2\2\66\67\5\n\6\2\678\7\31\2\2"+
+		"8A\3\2\2\29:\7\24\2\2:;\7\32\2\2;>\7\25\2\2<=\7(\2\2=?\5\n\6\2><\3\2\2"+
+		"\2>?\3\2\2\2?A\3\2\2\2@&\3\2\2\2@9\3\2\2\2A\7\3\2\2\2BC\7\24\2\2CD\7\32"+
+		"\2\2DE\7\25\2\2E\t\3\2\2\2FG\b\6\1\2GH\7\24\2\2HI\7(\2\2I\u0083\5\n\6"+
+		"\32JK\7\24\2\2KT\7\34\2\2LQ\5\n\6\2MN\7\33\2\2NP\5\n\6\2OM\3\2\2\2PS\3"+
+		"\2\2\2QO\3\2\2\2QR\3\2\2\2RU\3\2\2\2SQ\3\2\2\2TL\3\2\2\2TU\3\2\2\2UV\3"+
+		"\2\2\2V\u0083\7\35\2\2WX\7\6\2\2XY\5\n\6\2YZ\7\f\2\2Z[\5\n\6\2[\\\7\4"+
+		"\2\2\\]\5\n\6\2]^\7\5\2\2^\u0083\3\2\2\2_`\7\r\2\2`a\5\n\6\2ab\7\n\2\2"+
+		"bc\5\n\6\2cd\7\13\2\2d\u0083\3\2\2\2ei\7\30\2\2fg\5\n\6\2gh\7\27\2\2h"+
+		"j\3\2\2\2if\3\2\2\2jk\3\2\2\2ki\3\2\2\2kl\3\2\2\2lm\3\2\2\2mn\7\31\2\2"+
+		"n\u0083\3\2\2\2op\7\22\2\2p\u0083\5\f\7\2qr\7\16\2\2r\u0083\7\25\2\2s"+
+		"t\7\t\2\2t\u0083\5\n\6\22uv\7 \2\2v\u0083\5\n\6\rwx\7\17\2\2x\u0083\5"+
+		"\n\6\tyz\7\34\2\2z{\5\n\6\2{|\7\35\2\2|\u0083\3\2\2\2}\u0083\7\24\2\2"+
+		"~\u0083\7\23\2\2\177\u0083\7\26\2\2\u0080\u0083\7\21\2\2\u0081\u0083\7"+
+		"\20\2\2\u0082F\3\2\2\2\u0082J\3\2\2\2\u0082W\3\2\2\2\u0082_\3\2\2\2\u0082"+
+		"e\3\2\2\2\u0082o\3\2\2\2\u0082q\3\2\2\2\u0082s\3\2\2\2\u0082u\3\2\2\2"+
+		"\u0082w\3\2\2\2\u0082y\3\2\2\2\u0082}\3\2\2\2\u0082~\3\2\2\2\u0082\177"+
+		"\3\2\2\2\u0082\u0080\3\2\2\2\u0082\u0081\3\2\2\2\u0083\u00ae\3\2\2\2\u0084"+
+		"\u0085\f\21\2\2\u0085\u0086\7!\2\2\u0086\u00ad\5\n\6\22\u0087\u0088\f"+
+		"\20\2\2\u0088\u0089\7\"\2\2\u0089\u00ad\5\n\6\21\u008a\u008b\f\17\2\2"+
+		"\u008b\u008c\7#\2\2\u008c\u00ad\5\n\6\20\u008d\u008e\f\16\2\2\u008e\u008f"+
+		"\7$\2\2\u008f\u00ad\5\n\6\17\u0090\u0091\f\f\2\2\u0091\u0092\7&\2\2\u0092"+
+		"\u00ad\5\n\6\r\u0093\u0094\f\13\2\2\u0094\u0095\7\'\2\2\u0095\u00ad\5"+
+		"\n\6\f\u0096\u0097\f\n\2\2\u0097\u0098\7%\2\2\u0098\u00ad\5\n\6\13\u0099"+
+		"\u009c\f\31\2\2\u009a\u009b\7\37\2\2\u009b\u009d\7\25\2\2\u009c\u009a"+
+		"\3\2\2\2\u009c\u009d\3\2\2\2\u009d\u009e\3\2\2\2\u009e\u009f\7\36\2\2"+
+		"\u009f\u00a0\7\24\2\2\u00a0\u00a9\7\34\2\2\u00a1\u00a6\5\n\6\2\u00a2\u00a3"+
+		"\7\33\2\2\u00a3\u00a5\5\n\6\2\u00a4\u00a2\3\2\2\2\u00a5\u00a8\3\2\2\2"+
+		"\u00a6\u00a4\3\2\2\2\u00a6\u00a7\3\2\2\2\u00a7\u00aa\3\2\2\2\u00a8\u00a6"+
+		"\3\2\2\2\u00a9\u00a1\3\2\2\2\u00a9\u00aa\3\2\2\2\u00aa\u00ab\3\2\2\2\u00ab"+
+		"\u00ad\7\35\2\2\u00ac\u0084\3\2\2\2\u00ac\u0087\3\2\2\2\u00ac\u008a\3"+
+		"\2\2\2\u00ac\u008d\3\2\2\2\u00ac\u0090\3\2\2\2\u00ac\u0093\3\2\2\2\u00ac"+
+		"\u0096\3\2\2\2\u00ac\u0099\3\2\2\2\u00ad\u00b0\3\2\2\2\u00ae\u00ac\3\2"+
+		"\2\2\u00ae\u00af\3\2\2\2\u00af\13\3\2\2\2\u00b0\u00ae\3\2\2\2\u00b1\u00b2"+
+		"\7\24\2\2\u00b2\u00b3\7\32\2\2\u00b3\u00b4\7\25\2\2\u00b4\u00b5\7\33\2"+
+		"\2\u00b5\u00cc\5\f\7\2\u00b6\u00b7\7\24\2\2\u00b7\u00b8\7\32\2\2\u00b8"+
+		"\u00b9\7\25\2\2\u00b9\u00ba\7\7\2\2\u00ba\u00cc\5\n\6\2\u00bb\u00bc\7"+
+		"\24\2\2\u00bc\u00bd\7\32\2\2\u00bd\u00be\7\25\2\2\u00be\u00bf\7(\2\2\u00bf"+
+		"\u00c0\5\n\6\2\u00c0\u00c1\7\33\2\2\u00c1\u00c2\5\f\7\2\u00c2\u00cc\3"+
+		"\2\2\2\u00c3\u00c4\7\24\2\2\u00c4\u00c5\7\32\2\2\u00c5\u00c6\7\25\2\2"+
+		"\u00c6\u00c7\7(\2\2\u00c7\u00c8\5\n\6\2\u00c8\u00c9\7\7\2\2\u00c9\u00ca"+
+		"\5\n\6\2\u00ca\u00cc\3\2\2\2\u00cb\u00b1\3\2\2\2\u00cb\u00b6\3\2\2\2\u00cb"+
+		"\u00bb\3\2\2\2\u00cb\u00c3\3\2\2\2\u00cc\r\3\2\2\2\23\23\31!-\60>@QTk"+
+		"\u0082\u009c\u00a6\u00a9\u00ac\u00ae\u00cb";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
