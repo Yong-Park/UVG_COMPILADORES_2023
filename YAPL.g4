@@ -2,9 +2,7 @@ grammar YAPL;
 
 program   : classDefine+ # start
           ;
-classDefine : CLASS CLASSTYPE (inherit)? OPENBRACE (feature SEMICOLON)* CLOSEBRACE  SEMICOLON # defClase
-          ;
-inherit   : INHERITS CLASSTYPE # inherits
+classDefine : CLASS CLASSTYPE (INHERITS CLASSTYPE)? OPENBRACE (feature SEMICOLON)* CLOSEBRACE  SEMICOLON # defClase
           ;
 feature   : ID OPENPARENTHESES (formal (COMMA formal)*)? CLOSEPARENTHESES COLON CLASSTYPE OPENBRACE expr CLOSEBRACE 
           | ID COLON CLASSTYPE (ASSIGN expr )? 
@@ -24,7 +22,7 @@ expr      : ID ASSIGN expr # assign
           | expr SUB expr # sub
           | expr MUL expr # mul
           | expr DIV expr # div
-          | INTEGER_NEGATIVE expr # invert
+          | TILDE expr # invert
           | expr LT expr # lt
           | expr LTEQ expr # lteq
           | expr EQUAL expr # equal
@@ -63,8 +61,8 @@ LET: L E T;
 
 // Definicion de integer, Identificadores y Cadenas
 NUM: [0-9]+;                                                                            // Integer
-ID: [a-z_][a-zA-Z0-9_]*;                                                                // Identificador
-CLASSTYPE: 'SELF_TYPE' | [A-Z][a-zA-Z_0-9]*;                                            // Identificador especial
+ID: [a-z_][a-zA-Z0-9_]*;                                                                // Identificador de objeto
+CLASSTYPE: 'self' | 'SELF_TYPE' | [A-Z][a-zA-Z_0-9]*;                                   // Identificador de tipo
 STRING: '"' (('\\'|'\t'|'\r\n'|'\r'|'\n'|'\\"') | ~('\\'|'\t'|'\r'|'\n'|'"'))* '"';     // Cadena
 
 // Caracteres especiales que se utilizaran para la construccion
@@ -77,7 +75,7 @@ OPENPARENTHESES: '(';
 CLOSEPARENTHESES: ')';
 DOT: '.';
 AT: '@';
-INTEGER_NEGATIVE: '~';
+TILDE: '~';
 ADD: '+';
 SUB: '-';
 MUL: '*';
