@@ -1,0 +1,16 @@
+class B inherits A {
+  f : Int;
+  foo: A;
+
+  init(): Int {
+    {
+      f <- 0;
+    }
+  };
+
+  createFoo(): A {
+    {
+      f <- (new A).init(0, "TAC Example");
+    }
+  };
+};
