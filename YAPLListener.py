@@ -224,15 +224,6 @@ class YAPLListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by YAPLParser#assign.
-    def enterAssign(self, ctx:YAPLParser.AssignContext):
-        pass
-
-    # Exit a parse tree produced by YAPLParser#assign.
-    def exitAssign(self, ctx:YAPLParser.AssignContext):
-        pass
-
-
     # Enter a parse tree produced by YAPLParser#ownMethodCall.
     def enterOwnMethodCall(self, ctx:YAPLParser.OwnMethodCallContext):
         pass
@@ -248,6 +239,15 @@ class YAPLListener(ParseTreeListener):
 
     # Exit a parse tree produced by YAPLParser#INTEGER.
     def exitINTEGER(self, ctx:YAPLParser.INTEGERContext):
+        pass
+
+
+    # Enter a parse tree produced by YAPLParser#assign.
+    def enterAssign(self, ctx:YAPLParser.AssignContext):
+        pass
+
+    # Exit a parse tree produced by YAPLParser#assign.
+    def exitAssign(self, ctx:YAPLParser.AssignContext):
         pass
 
 

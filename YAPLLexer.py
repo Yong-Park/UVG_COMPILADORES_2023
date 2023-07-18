@@ -118,8 +118,8 @@ def serializedATN():
         1,0,0,0,264,265,5,44,0,0,265,50,1,0,0,0,266,267,5,40,0,0,267,52,
         1,0,0,0,268,269,5,41,0,0,269,54,1,0,0,0,270,271,5,46,0,0,271,56,
         1,0,0,0,272,273,5,64,0,0,273,58,1,0,0,0,274,275,5,126,0,0,275,60,
-        1,0,0,0,276,277,5,43,0,0,277,62,1,0,0,0,278,279,5,45,0,0,279,64,
-        1,0,0,0,280,281,5,42,0,0,281,66,1,0,0,0,282,283,5,47,0,0,283,68,
+        1,0,0,0,276,277,5,42,0,0,277,62,1,0,0,0,278,279,5,43,0,0,279,64,
+        1,0,0,0,280,281,5,45,0,0,281,66,1,0,0,0,282,283,5,47,0,0,283,68,
         1,0,0,0,284,285,5,61,0,0,285,70,1,0,0,0,286,287,5,60,0,0,287,72,
         1,0,0,0,288,289,5,60,0,0,289,290,5,61,0,0,290,74,1,0,0,0,291,292,
         5,60,0,0,292,293,5,45,0,0,293,76,1,0,0,0,294,295,5,45,0,0,295,296,
@@ -183,9 +183,9 @@ class YAPLLexer(Lexer):
     DOT = 28
     AT = 29
     TILDE = 30
-    ADD = 31
-    SUB = 32
-    MUL = 33
+    MUL = 31
+    ADD = 32
+    SUB = 33
     DIV = 34
     EQUAL = 35
     LT = 36
@@ -202,7 +202,7 @@ class YAPLLexer(Lexer):
 
     literalNames = [ "<INVALID>",
             "'false'", "'true'", "';'", "'{'", "'}'", "':'", "','", "'('", 
-            "')'", "'.'", "'@'", "'~'", "'+'", "'-'", "'*'", "'/'", "'='", 
+            "')'", "'.'", "'@'", "'~'", "'*'", "'+'", "'-'", "'/'", "'='", 
             "'<'", "'<='", "'<-'" ]
 
     symbolicNames = [ "<INVALID>",
@@ -210,15 +210,15 @@ class YAPLLexer(Lexer):
             "POOL", "THEN", "WHILE", "NEW", "NOT", "FALSE", "TRUE", "LET", 
             "INTEGER", "ID", "TYPE", "STRING", "SEMICOLON", "OPENBRACE", 
             "CLOSEBRACE", "COLON", "COMMA", "OPENPARENTHESES", "CLOSEPARENTHESES", 
-            "DOT", "AT", "TILDE", "ADD", "SUB", "MUL", "DIV", "EQUAL", "LT", 
+            "DOT", "AT", "TILDE", "MUL", "ADD", "SUB", "DIV", "EQUAL", "LT", 
             "LTEQ", "ASSIGN", "SINGLECOMMENT", "MULTICOMMENT", "WS", "ERROR" ]
 
     ruleNames = [ "CLASS", "ELSE", "FI", "IF", "IN", "INHERITS", "ISVOID", 
                   "LOOP", "POOL", "THEN", "WHILE", "NEW", "NOT", "FALSE", 
                   "TRUE", "LET", "INTEGER", "ID", "TYPE", "STRING", "SEMICOLON", 
                   "OPENBRACE", "CLOSEBRACE", "COLON", "COMMA", "OPENPARENTHESES", 
-                  "CLOSEPARENTHESES", "DOT", "AT", "TILDE", "ADD", "SUB", 
-                  "MUL", "DIV", "EQUAL", "LT", "LTEQ", "ASSIGN", "SINGLECOMMENT", 
+                  "CLOSEPARENTHESES", "DOT", "AT", "TILDE", "MUL", "ADD", 
+                  "SUB", "DIV", "EQUAL", "LT", "LTEQ", "ASSIGN", "SINGLECOMMENT", 
                   "MULTICOMMENT", "WS", "ERROR", "A", "B", "C", "D", "E", 
                   "F", "H", "I", "L", "N", "O", "P", "R", "S", "T", "V", 
                   "W", "ESC", "UNICODE", "HEX" ]

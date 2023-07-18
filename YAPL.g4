@@ -9,22 +9,21 @@ feature   : ID OPENPARENTHESES (formal (COMMA formal)*)? CLOSEPARENTHESES COLON 
           ;
 formal    : ID COLON TYPE # forml
           ;
-expr      : ID ASSIGN expr # assign
-          | expr(AT TYPE)? DOT ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPARENTHESES #methodCall
+expr      : expr(AT TYPE)? DOT ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPARENTHESES #methodCall
           | ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPARENTHESES #ownMethodCall
           | IF expr THEN expr ELSE expr FI # if
           | WHILE expr LOOP expr POOL # while
           | OPENBRACE (expr SEMICOLON)+ CLOSEBRACE #block
           | LET let_expr # let
           | NEW TYPE # newObject
+          | TILDE expr # invert
           | ISVOID expr # void
-          | expr ADD expr # add
-          | expr SUB expr # sub
           | expr MUL expr # mul
           | expr DIV expr # div
-          | TILDE expr # invert
-          | expr LT expr # lt
+          | expr ADD expr # add
+          | expr SUB expr # sub
           | expr LTEQ expr # lteq
+          | expr LT expr # lt
           | expr EQUAL expr # equal
           | NOT expr # not
           | OPENPARENTHESES expr CLOSEPARENTHESES # factExpr
@@ -33,6 +32,7 @@ expr      : ID ASSIGN expr # assign
           | STRING # string
           | TRUE # true
           | FALSE # false
+          | ID ASSIGN expr # assign
           ;
 
 let_expr  : ID COLON TYPE COMMA let_expr 
@@ -76,9 +76,9 @@ CLOSEPARENTHESES: ')';
 DOT: '.';
 AT: '@';
 TILDE: '~';
+MUL: '*';
 ADD: '+';
 SUB: '-';
-MUL: '*';
 DIV: '/';
 EQUAL: '=';
 LT: '<';
