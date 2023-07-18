@@ -116,15 +116,6 @@ class YAPLListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by YAPLParser#num.
-    def enterNum(self, ctx:YAPLParser.NumContext):
-        pass
-
-    # Exit a parse tree produced by YAPLParser#num.
-    def exitNum(self, ctx:YAPLParser.NumContext):
-        pass
-
-
     # Enter a parse tree produced by YAPLParser#false.
     def enterFalse(self, ctx:YAPLParser.FalseContext):
         pass
@@ -248,6 +239,15 @@ class YAPLListener(ParseTreeListener):
 
     # Exit a parse tree produced by YAPLParser#ownMethodCall.
     def exitOwnMethodCall(self, ctx:YAPLParser.OwnMethodCallContext):
+        pass
+
+
+    # Enter a parse tree produced by YAPLParser#INTEGER.
+    def enterINTEGER(self, ctx:YAPLParser.INTEGERContext):
+        pass
+
+    # Exit a parse tree produced by YAPLParser#INTEGER.
+    def exitINTEGER(self, ctx:YAPLParser.INTEGERContext):
         pass
 
 

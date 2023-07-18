@@ -29,7 +29,7 @@ expr      : ID ASSIGN expr # assign
           | NOT expr # not
           | OPENPARENTHESES expr CLOSEPARENTHESES # factExpr
           | ID # id
-          | NUM # num
+          | INTEGER # INTEGER
           | STRING # string
           | TRUE # true
           | FALSE # false
@@ -60,10 +60,10 @@ TRUE: 'true';
 LET: L E T;
 
 // Definicion de integer, Identificadores y Cadenas
-NUM: [0-9]+;                                                                            // Integer
-ID: [a-z_][a-zA-Z0-9_]*;                                                                // Identificador de objeto
-TYPE: 'self' | 'SELF_TYPE' | [A-Z][a-zA-Z_0-9]*;                                   // Identificador de tipo
-STRING: '"' (('\\'|'\t'|'\r\n'|'\r'|'\n'|'\\"') | ~('\\'|'\t'|'\r'|'\n'|'"'))* '"';     // Cadena
+INTEGER: [0-9]+;                                                                            // Integer
+ID: [a-z][a-zA-Z0-9_]*;                                                                    // Identificador de objeto
+TYPE: 'self' | 'SELF_TYPE' | [A-Z][a-zA-Z_0-9]*;                                            // Identificador de tipo
+STRING: '"' (('\\'|'\t'|'\r\n'|'\r'|'\n'|'\\"') | ~('\\'|'\t'|'\r'|'\n'|'"'))* '"';         // Cadena
 
 // Caracteres especiales que se utilizaran para la construccion
 SEMICOLON: ';';

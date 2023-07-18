@@ -28,7 +28,7 @@ def serializedATN():
         19,1,0,0,0,4,62,1,0,0,0,6,64,1,0,0,0,8,128,1,0,0,0,10,201,1,0,0,
         0,12,13,3,2,1,0,13,14,5,21,0,0,14,16,1,0,0,0,15,12,1,0,0,0,16,17,
         1,0,0,0,17,15,1,0,0,0,17,18,1,0,0,0,18,1,1,0,0,0,19,20,5,1,0,0,20,
-        23,5,19,0,0,21,22,5,8,0,0,22,24,5,19,0,0,23,21,1,0,0,0,23,24,1,0,
+        23,5,19,0,0,21,22,5,6,0,0,22,24,5,19,0,0,23,21,1,0,0,0,23,24,1,0,
         0,0,24,25,1,0,0,0,25,31,5,22,0,0,26,27,3,4,2,0,27,28,5,21,0,0,28,
         30,1,0,0,0,29,26,1,0,0,0,30,33,1,0,0,0,31,29,1,0,0,0,31,32,1,0,0,
         0,32,34,1,0,0,0,33,31,1,0,0,0,34,35,5,23,0,0,35,3,1,0,0,0,36,37,
@@ -44,17 +44,17 @@ def serializedATN():
         0,73,82,5,26,0,0,74,79,3,8,4,0,75,76,5,25,0,0,76,78,3,8,4,0,77,75,
         1,0,0,0,78,81,1,0,0,0,79,77,1,0,0,0,79,80,1,0,0,0,80,83,1,0,0,0,
         81,79,1,0,0,0,82,74,1,0,0,0,82,83,1,0,0,0,83,84,1,0,0,0,84,129,5,
-        27,0,0,85,86,5,6,0,0,86,87,3,8,4,0,87,88,5,12,0,0,88,89,3,8,4,0,
-        89,90,5,2,0,0,90,91,3,8,4,0,91,92,5,5,0,0,92,129,1,0,0,0,93,94,5,
-        13,0,0,94,95,3,8,4,0,95,96,5,10,0,0,96,97,3,8,4,0,97,98,5,11,0,0,
-        98,129,1,0,0,0,99,103,5,22,0,0,100,101,3,8,4,0,101,102,5,21,0,0,
-        102,104,1,0,0,0,103,100,1,0,0,0,104,105,1,0,0,0,105,103,1,0,0,0,
-        105,106,1,0,0,0,106,107,1,0,0,0,107,108,5,23,0,0,108,129,1,0,0,0,
-        109,110,5,16,0,0,110,129,3,10,5,0,111,112,5,14,0,0,112,129,5,19,
-        0,0,113,114,5,9,0,0,114,129,3,8,4,16,115,116,5,30,0,0,116,129,3,
-        8,4,11,117,118,5,15,0,0,118,129,3,8,4,7,119,120,5,26,0,0,120,121,
-        3,8,4,0,121,122,5,27,0,0,122,129,1,0,0,0,123,129,5,18,0,0,124,129,
-        5,17,0,0,125,129,5,20,0,0,126,129,5,4,0,0,127,129,5,3,0,0,128,68,
+        27,0,0,85,86,5,4,0,0,86,87,3,8,4,0,87,88,5,10,0,0,88,89,3,8,4,0,
+        89,90,5,2,0,0,90,91,3,8,4,0,91,92,5,3,0,0,92,129,1,0,0,0,93,94,5,
+        11,0,0,94,95,3,8,4,0,95,96,5,8,0,0,96,97,3,8,4,0,97,98,5,9,0,0,98,
+        129,1,0,0,0,99,103,5,22,0,0,100,101,3,8,4,0,101,102,5,21,0,0,102,
+        104,1,0,0,0,103,100,1,0,0,0,104,105,1,0,0,0,105,103,1,0,0,0,105,
+        106,1,0,0,0,106,107,1,0,0,0,107,108,5,23,0,0,108,129,1,0,0,0,109,
+        110,5,16,0,0,110,129,3,10,5,0,111,112,5,12,0,0,112,129,5,19,0,0,
+        113,114,5,7,0,0,114,129,3,8,4,16,115,116,5,30,0,0,116,129,3,8,4,
+        11,117,118,5,13,0,0,118,129,3,8,4,7,119,120,5,26,0,0,120,121,3,8,
+        4,0,121,122,5,27,0,0,122,129,1,0,0,0,123,129,5,18,0,0,124,129,5,
+        17,0,0,125,129,5,20,0,0,126,129,5,15,0,0,127,129,5,14,0,0,128,68,
         1,0,0,0,128,72,1,0,0,0,128,85,1,0,0,0,128,93,1,0,0,0,128,99,1,0,
         0,0,128,109,1,0,0,0,128,111,1,0,0,0,128,113,1,0,0,0,128,115,1,0,
         0,0,128,117,1,0,0,0,128,119,1,0,0,0,128,123,1,0,0,0,128,124,1,0,
@@ -75,11 +75,11 @@ def serializedATN():
         151,1,0,0,0,171,174,1,0,0,0,172,170,1,0,0,0,172,173,1,0,0,0,173,
         9,1,0,0,0,174,172,1,0,0,0,175,176,5,18,0,0,176,177,5,24,0,0,177,
         178,5,19,0,0,178,179,5,25,0,0,179,202,3,10,5,0,180,181,5,18,0,0,
-        181,182,5,24,0,0,182,183,5,19,0,0,183,184,5,7,0,0,184,202,3,8,4,
+        181,182,5,24,0,0,182,183,5,19,0,0,183,184,5,5,0,0,184,202,3,8,4,
         0,185,186,5,18,0,0,186,187,5,24,0,0,187,188,5,19,0,0,188,189,5,38,
         0,0,189,190,3,8,4,0,190,191,5,25,0,0,191,192,3,10,5,0,192,202,1,
         0,0,0,193,194,5,18,0,0,194,195,5,24,0,0,195,196,5,19,0,0,196,197,
-        5,38,0,0,197,198,3,8,4,0,198,199,5,7,0,0,199,200,3,8,4,0,200,202,
+        5,38,0,0,197,198,3,8,4,0,198,199,5,5,0,0,199,200,3,8,4,0,200,202,
         1,0,0,0,201,175,1,0,0,0,201,180,1,0,0,0,201,185,1,0,0,0,201,193,
         1,0,0,0,202,11,1,0,0,0,17,17,23,31,43,46,60,62,79,82,105,128,154,
         164,167,170,172,201
@@ -95,19 +95,19 @@ class YAPLParser ( Parser ):
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "'false'", "'true'", 
+    literalNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
+                     "<INVALID>", "<INVALID>", "'false'", "'true'", "<INVALID>", 
                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
                      "';'", "'{'", "'}'", "':'", "','", "'('", "')'", "'.'", 
                      "'@'", "'~'", "'+'", "'-'", "'*'", "'/'", "'='", "'<'", 
                      "'<='", "'<-'" ]
 
-    symbolicNames = [ "<INVALID>", "CLASS", "ELSE", "FALSE", "TRUE", "FI", 
-                      "IF", "IN", "INHERITS", "ISVOID", "LOOP", "POOL", 
-                      "THEN", "WHILE", "NEW", "NOT", "LET", "NUM", "ID", 
-                      "TYPE", "STRING", "SEMICOLON", "OPENBRACE", "CLOSEBRACE", 
+    symbolicNames = [ "<INVALID>", "CLASS", "ELSE", "FI", "IF", "IN", "INHERITS", 
+                      "ISVOID", "LOOP", "POOL", "THEN", "WHILE", "NEW", 
+                      "NOT", "FALSE", "TRUE", "LET", "INTEGER", "ID", "TYPE", 
+                      "STRING", "SEMICOLON", "OPENBRACE", "CLOSEBRACE", 
                       "COLON", "COMMA", "OPENPARENTHESES", "CLOSEPARENTHESES", 
                       "DOT", "AT", "TILDE", "ADD", "SUB", "MUL", "DIV", 
                       "EQUAL", "LT", "LTEQ", "ASSIGN", "SINGLECOMMENT", 
@@ -126,21 +126,21 @@ class YAPLParser ( Parser ):
     EOF = Token.EOF
     CLASS=1
     ELSE=2
-    FALSE=3
-    TRUE=4
-    FI=5
-    IF=6
-    IN=7
-    INHERITS=8
-    ISVOID=9
-    LOOP=10
-    POOL=11
-    THEN=12
-    WHILE=13
-    NEW=14
-    NOT=15
+    FI=3
+    IF=4
+    IN=5
+    INHERITS=6
+    ISVOID=7
+    LOOP=8
+    POOL=9
+    THEN=10
+    WHILE=11
+    NEW=12
+    NOT=13
+    FALSE=14
+    TRUE=15
     LET=16
-    NUM=17
+    INTEGER=17
     ID=18
     TYPE=19
     STRING=20
@@ -325,7 +325,7 @@ class YAPLParser ( Parser ):
             self.state = 23
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==8:
+            if _la==6:
                 self.state = 21
                 self.match(YAPLParser.INHERITS)
                 self.state = 22
@@ -755,24 +755,6 @@ class YAPLParser ( Parser ):
                 listener.exitLteq(self)
 
 
-    class NumContext(ExprContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a YAPLParser.ExprContext
-            super().__init__(parser)
-            self.copyFrom(ctx)
-
-        def NUM(self):
-            return self.getToken(YAPLParser.NUM, 0)
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterNum" ):
-                listener.enterNum(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitNum" ):
-                listener.exitNum(self)
-
-
     class FalseContext(ExprContext):
 
         def __init__(self, parser, ctx:ParserRuleContext): # actually a YAPLParser.ExprContext
@@ -1106,6 +1088,24 @@ class YAPLParser ( Parser ):
                 listener.exitOwnMethodCall(self)
 
 
+    class INTEGERContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a YAPLParser.ExprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def INTEGER(self):
+            return self.getToken(YAPLParser.INTEGER, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterINTEGER" ):
+                listener.enterINTEGER(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitINTEGER" ):
+                listener.exitINTEGER(self)
+
+
     class MethodCallContext(ExprContext):
 
         def __init__(self, parser, ctx:ParserRuleContext): # actually a YAPLParser.ExprContext
@@ -1183,7 +1183,7 @@ class YAPLParser ( Parser ):
                 self.state = 82
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if (((_la) & ~0x3f) == 0 and ((1 << _la) & 1146610264) != 0):
+                if (((_la) & ~0x3f) == 0 and ((1 << _la) & 1146615952) != 0):
                     self.state = 74
                     self.expr(0)
                     self.state = 79
@@ -1257,7 +1257,7 @@ class YAPLParser ( Parser ):
                     self.state = 105 
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & 1146610264) != 0)):
+                    if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & 1146615952) != 0)):
                         break
 
                 self.state = 107
@@ -1335,11 +1335,11 @@ class YAPLParser ( Parser ):
                 pass
 
             elif la_ == 13:
-                localctx = YAPLParser.NumContext(self, localctx)
+                localctx = YAPLParser.INTEGERContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
                 self.state = 124
-                self.match(YAPLParser.NUM)
+                self.match(YAPLParser.INTEGER)
                 pass
 
             elif la_ == 14:
@@ -1496,7 +1496,7 @@ class YAPLParser ( Parser ):
                         self.state = 167
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
-                        if (((_la) & ~0x3f) == 0 and ((1 << _la) & 1146610264) != 0):
+                        if (((_la) & ~0x3f) == 0 and ((1 << _la) & 1146615952) != 0):
                             self.state = 159
                             self.expr(0)
                             self.state = 164
