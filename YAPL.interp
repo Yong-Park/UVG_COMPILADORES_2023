@@ -91,7 +91,7 @@ ERROR
 rule names:
 program
 classDefine
-feature
+defin
 formal
 expr
 let_expr

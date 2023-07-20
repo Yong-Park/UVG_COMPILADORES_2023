@@ -115,12 +115,12 @@ class YAPLParser ( Parser ):
 
     RULE_program = 0
     RULE_classDefine = 1
-    RULE_feature = 2
+    RULE_defin = 2
     RULE_formal = 3
     RULE_expr = 4
     RULE_let_expr = 5
 
-    ruleNames =  [ "program", "classDefine", "feature", "formal", "expr", 
+    ruleNames =  [ "program", "classDefine", "defin", "formal", "expr", 
                    "let_expr" ]
 
     EOF = Token.EOF
@@ -288,11 +288,11 @@ class YAPLParser ( Parser ):
             return self.getToken(YAPLParser.CLOSEBRACE, 0)
         def INHERITS(self):
             return self.getToken(YAPLParser.INHERITS, 0)
-        def feature(self, i:int=None):
+        def defin(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(YAPLParser.FeatureContext)
+                return self.getTypedRuleContexts(YAPLParser.DefinContext)
             else:
-                return self.getTypedRuleContext(YAPLParser.FeatureContext,i)
+                return self.getTypedRuleContext(YAPLParser.DefinContext,i)
 
         def SEMICOLON(self, i:int=None):
             if i is None:
@@ -339,7 +339,7 @@ class YAPLParser ( Parser ):
             _la = self._input.LA(1)
             while _la==18:
                 self.state = 26
-                self.feature()
+                self.defin()
                 self.state = 27
                 self.match(YAPLParser.SEMICOLON)
                 self.state = 33
@@ -357,7 +357,7 @@ class YAPLParser ( Parser ):
         return localctx
 
 
-    class FeatureContext(ParserRuleContext):
+    class DefinContext(ParserRuleContext):
         __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
@@ -406,23 +406,23 @@ class YAPLParser ( Parser ):
             return self.getToken(YAPLParser.ASSIGN, 0)
 
         def getRuleIndex(self):
-            return YAPLParser.RULE_feature
+            return YAPLParser.RULE_defin
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFeature" ):
-                listener.enterFeature(self)
+            if hasattr( listener, "enterDefin" ):
+                listener.enterDefin(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFeature" ):
-                listener.exitFeature(self)
+            if hasattr( listener, "exitDefin" ):
+                listener.exitDefin(self)
 
 
 
 
-    def feature(self):
+    def defin(self):
 
-        localctx = YAPLParser.FeatureContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 4, self.RULE_feature)
+        localctx = YAPLParser.DefinContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 4, self.RULE_defin)
         self._la = 0 # Token type
         try:
             self.state = 62

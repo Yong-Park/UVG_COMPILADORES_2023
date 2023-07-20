@@ -1,4 +1,7 @@
 class Main inherits IO {
+  a: Int;
+  b: Int;
+  c: Int;
   main(): Object {
     a = a + b * c
   };
