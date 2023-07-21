@@ -1,9 +1,19 @@
 import tkinter as tk
 from tkinter import scrolledtext, filedialog
 from antlr4 import *
-from YAPLLexer import YAPLLexer
-from YAPLParser import YAPLParser
+from build.YAPLLexer import YAPLLexer
+from build.YAPLParser import YAPLParser
+from build.YAPLVisitor import YAPLVisitor
 from subprocess import *
+
+def print_tree(tree, indent=0):
+    tree_str = " " * indent + str(tree.getPayload())
+
+    for i in range(tree.getChildCount()):
+        child = tree.getChild(i)
+        tree_str += "\n" + print_tree(child, indent + 2)
+
+    return tree_str
 
 class IDE(tk.Tk):
     def __init__(self):
@@ -32,6 +42,7 @@ class IDE(tk.Tk):
         # Centrar el button_frame
         button_frame.place(relx=0.5, rely=0.9, anchor=tk.CENTER)
         
+        
     def upload_file(self):
         file_path = filedialog.askopenfilename(filetypes=(("Text files", "*.txt"), ("All files", "*.*")))
         if file_path:
@@ -40,19 +51,6 @@ class IDE(tk.Tk):
                 self.code_input.delete("1.0", tk.END)
                 self.code_input.insert(tk.END, code)
 
-
-    """def run_antlr(self):
-        try:
-            input_code = self.code_input.get("1.0", tk.END)
-            process = Popen(['antlr4-parse', 'Expr.g4', 'prog', '-gui'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-            output, error = process.communicate(input_code.encode())
-
-            self.output.delete("1.0", tk.END)
-            self.output.insert(tk.END, output.decode())
-        except Exception as e:
-            self.output.delete("1.0", tk.END)
-            self.output.insert(tk.END, str(e))
-"""
     def run_antlr(self):
         input_code = self.code_input.get("1.0", tk.END)
         process = Popen(['antlr4-parse', 'YAPL.g4', 'program', '-gui'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -66,18 +64,20 @@ class IDE(tk.Tk):
         # Crear el parser y construir el árbol sintáctico
         parser = YAPLParser(stream)
         parser.removeErrorListeners()  # Desactivar los listeners de errores para evitar mensajes por consola
-
+        
         try:
             tree = parser.program()
+            print(print_tree(tree))
+
         except RecognitionException as e:
             error_occurred = True
 
-        self.output.delete("1.0", tk.END)
+        # self.output.delete("1.0", tk.END)
         if error_occurred and error:
             self.output.insert(tk.END, str(e) + "\n", "red")
         else:
             self.output.insert(tk.END, output.decode())
-            self.output.insert(tk.END, tree.toStringTree(recog=parser))
+            # self.output.insert(tk.END, tree.toStringTree(recog=parser))
 
 if __name__ == "__main__":
     ide = IDE()

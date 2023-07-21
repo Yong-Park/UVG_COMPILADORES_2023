@@ -17,10 +17,10 @@ public class YAPLLexer extends Lexer {
 		new PredictionContextCache();
 	public static final int
 		CLASS=1, ELSE=2, FI=3, IF=4, IN=5, INHERITS=6, ISVOID=7, LOOP=8, POOL=9, 
-		THEN=10, WHILE=11, NEW=12, NOT=13, FALSE=14, TRUE=15, LET=16, NUM=17, 
+		THEN=10, WHILE=11, NEW=12, NOT=13, FALSE=14, TRUE=15, LET=16, INTEGER=17, 
 		ID=18, TYPE=19, STRING=20, SEMICOLON=21, OPENBRACE=22, CLOSEBRACE=23, 
 		COLON=24, COMMA=25, OPENPARENTHESES=26, CLOSEPARENTHESES=27, DOT=28, AT=29, 
-		TILDE=30, ADD=31, SUB=32, MUL=33, DIV=34, EQUAL=35, LT=36, LTEQ=37, ASSIGN=38, 
+		TILDE=30, MUL=31, ADD=32, SUB=33, DIV=34, EQUAL=35, LT=36, LTEQ=37, ASSIGN=38, 
 		SINGLECOMMENT=39, MULTICOMMENT=40, WS=41, ERROR=42;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
@@ -33,12 +33,12 @@ public class YAPLLexer extends Lexer {
 	private static String[] makeRuleNames() {
 		return new String[] {
 			"CLASS", "ELSE", "FI", "IF", "IN", "INHERITS", "ISVOID", "LOOP", "POOL", 
-			"THEN", "WHILE", "NEW", "NOT", "FALSE", "TRUE", "LET", "NUM", "ID", "TYPE", 
-			"STRING", "SEMICOLON", "OPENBRACE", "CLOSEBRACE", "COLON", "COMMA", "OPENPARENTHESES", 
-			"CLOSEPARENTHESES", "DOT", "AT", "TILDE", "ADD", "SUB", "MUL", "DIV", 
-			"EQUAL", "LT", "LTEQ", "ASSIGN", "SINGLECOMMENT", "MULTICOMMENT", "WS", 
-			"ERROR", "A", "B", "C", "D", "E", "F", "H", "I", "L", "N", "O", "P", 
-			"R", "S", "T", "V", "W", "ESC", "UNICODE", "HEX"
+			"THEN", "WHILE", "NEW", "NOT", "FALSE", "TRUE", "LET", "INTEGER", "ID", 
+			"TYPE", "STRING", "SEMICOLON", "OPENBRACE", "CLOSEBRACE", "COLON", "COMMA", 
+			"OPENPARENTHESES", "CLOSEPARENTHESES", "DOT", "AT", "TILDE", "MUL", "ADD", 
+			"SUB", "DIV", "EQUAL", "LT", "LTEQ", "ASSIGN", "SINGLECOMMENT", "MULTICOMMENT", 
+			"WS", "ERROR", "A", "B", "C", "D", "E", "F", "H", "I", "L", "N", "O", 
+			"P", "R", "S", "T", "V", "W", "ESC", "UNICODE", "HEX"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -47,18 +47,18 @@ public class YAPLLexer extends Lexer {
 		return new String[] {
 			null, null, null, null, null, null, null, null, null, null, null, null, 
 			null, null, "'false'", "'true'", null, null, null, null, null, "';'", 
-			"'{'", "'}'", "':'", "','", "'('", "')'", "'.'", "'@'", "'~'", "'+'", 
-			"'-'", "'*'", "'/'", "'='", "'<'", "'<='", "'<-'"
+			"'{'", "'}'", "':'", "','", "'('", "')'", "'.'", "'@'", "'~'", "'*'", 
+			"'+'", "'-'", "'/'", "'='", "'<'", "'<='", "'<-'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
 			null, "CLASS", "ELSE", "FI", "IF", "IN", "INHERITS", "ISVOID", "LOOP", 
-			"POOL", "THEN", "WHILE", "NEW", "NOT", "FALSE", "TRUE", "LET", "NUM", 
+			"POOL", "THEN", "WHILE", "NEW", "NOT", "FALSE", "TRUE", "LET", "INTEGER", 
 			"ID", "TYPE", "STRING", "SEMICOLON", "OPENBRACE", "CLOSEBRACE", "COLON", 
 			"COMMA", "OPENPARENTHESES", "CLOSEPARENTHESES", "DOT", "AT", "TILDE", 
-			"ADD", "SUB", "MUL", "DIV", "EQUAL", "LT", "LTEQ", "ASSIGN", "SINGLECOMMENT", 
+			"MUL", "ADD", "SUB", "DIV", "EQUAL", "LT", "LTEQ", "ASSIGN", "SINGLECOMMENT", 
 			"MULTICOMMENT", "WS", "ERROR"
 		};
 	}
@@ -149,7 +149,7 @@ public class YAPLLexer extends Lexer {
 		"\13\7\r\b\17\t\21\n\23\13\25\f\27\r\31\16\33\17\35\20\37\21!\22#\23%\24"+
 		"\'\25)\26+\27-\30/\31\61\32\63\33\65\34\67\359\36;\37= ?!A\"C#E$G%I&K"+
 		"\'M(O)Q*S+U,W\2Y\2[\2]\2_\2a\2c\2e\2g\2i\2k\2m\2o\2q\2s\2u\2w\2y\2{\2"+
-		"}\2\3\2\35\3\2\62;\4\2aac|\6\2\62;C\\aac|\3\2C\\\4\2\13\13^^\4\2\f\f\17"+
+		"}\2\3\2\35\3\2\62;\3\2c|\6\2\62;C\\aac|\3\2C\\\4\2\13\13^^\4\2\f\f\17"+
 		"\17\6\2\13\f\17\17$$^^\5\2\13\f\16\17\"\"\4\2CCcc\4\2DDdd\4\2EEee\4\2"+
 		"FFff\4\2GGgg\4\2HHhh\4\2JJjj\4\2KKkk\4\2NNnn\4\2PPpp\4\2QQqq\4\2RRrr\4"+
 		"\2TTtt\4\2UUuu\4\2VVvv\4\2XXxx\4\2YYyy\n\2$$\61\61^^ddhhppttvv\5\2\62"+
@@ -216,8 +216,8 @@ public class YAPLLexer extends Lexer {
 		"\60\3\2\2\2\u0108\u0109\7<\2\2\u0109\62\3\2\2\2\u010a\u010b\7.\2\2\u010b"+
 		"\64\3\2\2\2\u010c\u010d\7*\2\2\u010d\66\3\2\2\2\u010e\u010f\7+\2\2\u010f"+
 		"8\3\2\2\2\u0110\u0111\7\60\2\2\u0111:\3\2\2\2\u0112\u0113\7B\2\2\u0113"+
-		"<\3\2\2\2\u0114\u0115\7\u0080\2\2\u0115>\3\2\2\2\u0116\u0117\7-\2\2\u0117"+
-		"@\3\2\2\2\u0118\u0119\7/\2\2\u0119B\3\2\2\2\u011a\u011b\7,\2\2\u011bD"+
+		"<\3\2\2\2\u0114\u0115\7\u0080\2\2\u0115>\3\2\2\2\u0116\u0117\7,\2\2\u0117"+
+		"@\3\2\2\2\u0118\u0119\7-\2\2\u0119B\3\2\2\2\u011a\u011b\7/\2\2\u011bD"+
 		"\3\2\2\2\u011c\u011d\7\61\2\2\u011dF\3\2\2\2\u011e\u011f\7?\2\2\u011f"+
 		"H\3\2\2\2\u0120\u0121\7>\2\2\u0121J\3\2\2\2\u0122\u0123\7>\2\2\u0123\u0124"+
 		"\7?\2\2\u0124L\3\2\2\2\u0125\u0126\7>\2\2\u0126\u0127\7/\2\2\u0127N\3"+
