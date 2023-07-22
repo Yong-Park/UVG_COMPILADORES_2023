@@ -6,3 +6,12 @@ class Main inherits IO {
     a = a + b * c
   };
 };
+
+class Main inherits IO {
+  a: Char;
+  b: Char;
+  c: Int;
+  main(): Object {
+    a = a + b
+  };
+};

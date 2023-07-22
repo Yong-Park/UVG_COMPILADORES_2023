@@ -8,6 +8,9 @@ class SymbolTable:
     def get_symbol_type(self, name):
         return self.symbols.get(name)
     
+    def contains_symbol(self, name):
+        return name in self.symbols
+
     def __str__(self):
         table_str = "Symbol Table:\n"
         for name, type in self.symbols.items():

@@ -255,6 +255,17 @@ public class YAPLParser extends Parser {
 	}
 
 	public static class FeatureContext extends ParserRuleContext {
+		public FeatureContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_feature; }
+	 
+		public FeatureContext() { }
+		public void copyFrom(FeatureContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class MethodContext extends FeatureContext {
 		public TerminalNode ID() { return getToken(YAPLParser.ID, 0); }
 		public TerminalNode OPENPARENTHESES() { return getToken(YAPLParser.OPENPARENTHESES, 0); }
 		public TerminalNode CLOSEPARENTHESES() { return getToken(YAPLParser.CLOSEPARENTHESES, 0); }
@@ -275,11 +286,17 @@ public class YAPLParser extends Parser {
 		public TerminalNode COMMA(int i) {
 			return getToken(YAPLParser.COMMA, i);
 		}
+		public MethodContext(FeatureContext ctx) { copyFrom(ctx); }
+	}
+	public static class PropertyContext extends FeatureContext {
+		public TerminalNode ID() { return getToken(YAPLParser.ID, 0); }
+		public TerminalNode COLON() { return getToken(YAPLParser.COLON, 0); }
+		public TerminalNode TYPE() { return getToken(YAPLParser.TYPE, 0); }
 		public TerminalNode ASSIGN() { return getToken(YAPLParser.ASSIGN, 0); }
-		public FeatureContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
 		}
-		@Override public int getRuleIndex() { return RULE_feature; }
+		public PropertyContext(FeatureContext ctx) { copyFrom(ctx); }
 	}
 
 	public final FeatureContext feature() throws RecognitionException {
@@ -291,6 +308,7 @@ public class YAPLParser extends Parser {
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,6,_ctx) ) {
 			case 1:
+				_localctx = new MethodContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(36);
@@ -338,6 +356,7 @@ public class YAPLParser extends Parser {
 				}
 				break;
 			case 2:
+				_localctx = new PropertyContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(55);
@@ -1065,6 +1084,55 @@ public class YAPLParser extends Parser {
 	}
 
 	public static class Let_exprContext extends ParserRuleContext {
+		public Let_exprContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_let_expr; }
+	 
+		public Let_exprContext() { }
+		public void copyFrom(Let_exprContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class LetInContext extends Let_exprContext {
+		public TerminalNode ID() { return getToken(YAPLParser.ID, 0); }
+		public TerminalNode COLON() { return getToken(YAPLParser.COLON, 0); }
+		public TerminalNode TYPE() { return getToken(YAPLParser.TYPE, 0); }
+		public TerminalNode IN() { return getToken(YAPLParser.IN, 0); }
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public LetInContext(Let_exprContext ctx) { copyFrom(ctx); }
+	}
+	public static class LetAssignLetContext extends Let_exprContext {
+		public TerminalNode ID() { return getToken(YAPLParser.ID, 0); }
+		public TerminalNode COLON() { return getToken(YAPLParser.COLON, 0); }
+		public TerminalNode TYPE() { return getToken(YAPLParser.TYPE, 0); }
+		public TerminalNode ASSIGN() { return getToken(YAPLParser.ASSIGN, 0); }
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public TerminalNode COMMA() { return getToken(YAPLParser.COMMA, 0); }
+		public Let_exprContext let_expr() {
+			return getRuleContext(Let_exprContext.class,0);
+		}
+		public LetAssignLetContext(Let_exprContext ctx) { copyFrom(ctx); }
+	}
+	public static class LetAssignInContext extends Let_exprContext {
+		public TerminalNode ID() { return getToken(YAPLParser.ID, 0); }
+		public TerminalNode COLON() { return getToken(YAPLParser.COLON, 0); }
+		public TerminalNode TYPE() { return getToken(YAPLParser.TYPE, 0); }
+		public TerminalNode ASSIGN() { return getToken(YAPLParser.ASSIGN, 0); }
+		public List<ExprContext> expr() {
+			return getRuleContexts(ExprContext.class);
+		}
+		public ExprContext expr(int i) {
+			return getRuleContext(ExprContext.class,i);
+		}
+		public TerminalNode IN() { return getToken(YAPLParser.IN, 0); }
+		public LetAssignInContext(Let_exprContext ctx) { copyFrom(ctx); }
+	}
+	public static class NestedLetContext extends Let_exprContext {
 		public TerminalNode ID() { return getToken(YAPLParser.ID, 0); }
 		public TerminalNode COLON() { return getToken(YAPLParser.COLON, 0); }
 		public TerminalNode TYPE() { return getToken(YAPLParser.TYPE, 0); }
@@ -1072,18 +1140,7 @@ public class YAPLParser extends Parser {
 		public Let_exprContext let_expr() {
 			return getRuleContext(Let_exprContext.class,0);
 		}
-		public TerminalNode IN() { return getToken(YAPLParser.IN, 0); }
-		public List<ExprContext> expr() {
-			return getRuleContexts(ExprContext.class);
-		}
-		public ExprContext expr(int i) {
-			return getRuleContext(ExprContext.class,i);
-		}
-		public TerminalNode ASSIGN() { return getToken(YAPLParser.ASSIGN, 0); }
-		public Let_exprContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_let_expr; }
+		public NestedLetContext(Let_exprContext ctx) { copyFrom(ctx); }
 	}
 
 	public final Let_exprContext let_expr() throws RecognitionException {
@@ -1094,6 +1151,7 @@ public class YAPLParser extends Parser {
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,16,_ctx) ) {
 			case 1:
+				_localctx = new NestedLetContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(175);
@@ -1109,6 +1167,7 @@ public class YAPLParser extends Parser {
 				}
 				break;
 			case 2:
+				_localctx = new LetInContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(180);
@@ -1124,6 +1183,7 @@ public class YAPLParser extends Parser {
 				}
 				break;
 			case 3:
+				_localctx = new LetAssignLetContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(185);
@@ -1143,6 +1203,7 @@ public class YAPLParser extends Parser {
 				}
 				break;
 			case 4:
+				_localctx = new LetAssignInContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(193);

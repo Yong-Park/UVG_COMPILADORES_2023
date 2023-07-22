@@ -67,13 +67,17 @@ class IDE(tk.Tk):
         
         try:
             tree = parser.program()
-            print(print_tree(tree))
+            # print(print_tree(tree))
             print("=====")
 
              # Crear una instancia del visitor y visitar el árbol sintáctico
             visitor = YAPLVisit()
-            visitor.visit(tree)
-
+            result = visitor.visit(tree)
+            if result != None:
+                print("visit result: ", result)
+                print("All good")
+            else:
+                print("Error de tipo ")
              # Imprimir el resultado del análisis semántico
             print(visitor.symbol_table.symbols)
 
