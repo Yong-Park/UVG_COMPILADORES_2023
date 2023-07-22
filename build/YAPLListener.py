@@ -26,12 +26,21 @@ class YAPLListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by YAPLParser#feature.
-    def enterFeature(self, ctx:YAPLParser.FeatureContext):
+    # Enter a parse tree produced by YAPLParser#method.
+    def enterMethod(self, ctx:YAPLParser.MethodContext):
         pass
 
-    # Exit a parse tree produced by YAPLParser#feature.
-    def exitFeature(self, ctx:YAPLParser.FeatureContext):
+    # Exit a parse tree produced by YAPLParser#method.
+    def exitMethod(self, ctx:YAPLParser.MethodContext):
+        pass
+
+
+    # Enter a parse tree produced by YAPLParser#property.
+    def enterProperty(self, ctx:YAPLParser.PropertyContext):
+        pass
+
+    # Exit a parse tree produced by YAPLParser#property.
+    def exitProperty(self, ctx:YAPLParser.PropertyContext):
         pass
 
 
@@ -260,12 +269,39 @@ class YAPLListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by YAPLParser#let_expr.
-    def enterLet_expr(self, ctx:YAPLParser.Let_exprContext):
+    # Enter a parse tree produced by YAPLParser#nestedLet.
+    def enterNestedLet(self, ctx:YAPLParser.NestedLetContext):
         pass
 
-    # Exit a parse tree produced by YAPLParser#let_expr.
-    def exitLet_expr(self, ctx:YAPLParser.Let_exprContext):
+    # Exit a parse tree produced by YAPLParser#nestedLet.
+    def exitNestedLet(self, ctx:YAPLParser.NestedLetContext):
+        pass
+
+
+    # Enter a parse tree produced by YAPLParser#letIn.
+    def enterLetIn(self, ctx:YAPLParser.LetInContext):
+        pass
+
+    # Exit a parse tree produced by YAPLParser#letIn.
+    def exitLetIn(self, ctx:YAPLParser.LetInContext):
+        pass
+
+
+    # Enter a parse tree produced by YAPLParser#letAssignLet.
+    def enterLetAssignLet(self, ctx:YAPLParser.LetAssignLetContext):
+        pass
+
+    # Exit a parse tree produced by YAPLParser#letAssignLet.
+    def exitLetAssignLet(self, ctx:YAPLParser.LetAssignLetContext):
+        pass
+
+
+    # Enter a parse tree produced by YAPLParser#letAssignIn.
+    def enterLetAssignIn(self, ctx:YAPLParser.LetAssignInContext):
+        pass
+
+    # Exit a parse tree produced by YAPLParser#letAssignIn.
+    def exitLetAssignIn(self, ctx:YAPLParser.LetAssignInContext):
         pass
 
 

@@ -4,8 +4,8 @@ program   : (classDefine SEMICOLON)+ # start
           ;
 classDefine : CLASS TYPE (INHERITS TYPE)? OPENBRACE (feature SEMICOLON)* CLOSEBRACE # defClase
           ;
-feature   : ID OPENPARENTHESES (formal (COMMA formal)*)? CLOSEPARENTHESES COLON TYPE OPENBRACE expr CLOSEBRACE 
-          | ID COLON TYPE (ASSIGN expr )? 
+feature   : ID OPENPARENTHESES (formal (COMMA formal)*)? CLOSEPARENTHESES COLON TYPE OPENBRACE expr CLOSEBRACE # method
+          | ID COLON TYPE (ASSIGN expr )? # property
           ;
 formal    : ID COLON TYPE # forml
           ;
@@ -35,10 +35,10 @@ expr      : expr(AT TYPE)? DOT ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPA
           | ID ASSIGN expr # assign
           ;
 
-let_expr  : ID COLON TYPE COMMA let_expr 
-          | ID COLON TYPE IN expr 
-          | ID COLON TYPE ASSIGN expr COMMA let_expr 
-          | ID COLON TYPE ASSIGN expr IN expr 
+let_expr  : ID COLON TYPE COMMA let_expr # nestedLet
+          | ID COLON TYPE IN expr # letIn
+          | ID COLON TYPE ASSIGN expr COMMA let_expr # letAssignLet
+          | ID COLON TYPE ASSIGN expr IN expr # letAssignIn
           ;
 
 // Palabras reservadas

@@ -376,37 +376,44 @@ class YAPLParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
+
+        def getRuleIndex(self):
+            return YAPLParser.RULE_feature
+
+     
+        def copyFrom(self, ctx:ParserRuleContext):
+            super().copyFrom(ctx)
+
+
+
+    class MethodContext(FeatureContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a YAPLParser.FeatureContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
         def ID(self):
             return self.getToken(YAPLParser.ID, 0)
-
         def OPENPARENTHESES(self):
             return self.getToken(YAPLParser.OPENPARENTHESES, 0)
-
         def CLOSEPARENTHESES(self):
             return self.getToken(YAPLParser.CLOSEPARENTHESES, 0)
-
         def COLON(self):
             return self.getToken(YAPLParser.COLON, 0)
-
         def TYPE(self):
             return self.getToken(YAPLParser.TYPE, 0)
-
         def OPENBRACE(self):
             return self.getToken(YAPLParser.OPENBRACE, 0)
-
         def expr(self):
             return self.getTypedRuleContext(YAPLParser.ExprContext,0)
 
-
         def CLOSEBRACE(self):
             return self.getToken(YAPLParser.CLOSEBRACE, 0)
-
         def formal(self, i:int=None):
             if i is None:
                 return self.getTypedRuleContexts(YAPLParser.FormalContext)
             else:
                 return self.getTypedRuleContext(YAPLParser.FormalContext,i)
-
 
         def COMMA(self, i:int=None):
             if i is None:
@@ -414,26 +421,52 @@ class YAPLParser ( Parser ):
             else:
                 return self.getToken(YAPLParser.COMMA, i)
 
-        def ASSIGN(self):
-            return self.getToken(YAPLParser.ASSIGN, 0)
-
-        def getRuleIndex(self):
-            return YAPLParser.RULE_feature
-
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFeature" ):
-                listener.enterFeature(self)
+            if hasattr( listener, "enterMethod" ):
+                listener.enterMethod(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFeature" ):
-                listener.exitFeature(self)
+            if hasattr( listener, "exitMethod" ):
+                listener.exitMethod(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitFeature" ):
-                return visitor.visitFeature(self)
+            if hasattr( visitor, "visitMethod" ):
+                return visitor.visitMethod(self)
             else:
                 return visitor.visitChildren(self)
 
+
+    class PropertyContext(FeatureContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a YAPLParser.FeatureContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def ID(self):
+            return self.getToken(YAPLParser.ID, 0)
+        def COLON(self):
+            return self.getToken(YAPLParser.COLON, 0)
+        def TYPE(self):
+            return self.getToken(YAPLParser.TYPE, 0)
+        def ASSIGN(self):
+            return self.getToken(YAPLParser.ASSIGN, 0)
+        def expr(self):
+            return self.getTypedRuleContext(YAPLParser.ExprContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterProperty" ):
+                listener.enterProperty(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitProperty" ):
+                listener.exitProperty(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitProperty" ):
+                return visitor.visitProperty(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -447,6 +480,7 @@ class YAPLParser ( Parser ):
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,6,self._ctx)
             if la_ == 1:
+                localctx = YAPLParser.MethodContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
                 self.state = 36
                 self.match(YAPLParser.ID)
@@ -487,6 +521,7 @@ class YAPLParser ( Parser ):
                 pass
 
             elif la_ == 2:
+                localctx = YAPLParser.PropertyContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
                 self.state = 55
                 self.match(YAPLParser.ID)
@@ -1706,52 +1741,156 @@ class YAPLParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
+
+        def getRuleIndex(self):
+            return YAPLParser.RULE_let_expr
+
+     
+        def copyFrom(self, ctx:ParserRuleContext):
+            super().copyFrom(ctx)
+
+
+
+    class LetInContext(Let_exprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a YAPLParser.Let_exprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
         def ID(self):
             return self.getToken(YAPLParser.ID, 0)
-
         def COLON(self):
             return self.getToken(YAPLParser.COLON, 0)
-
         def TYPE(self):
             return self.getToken(YAPLParser.TYPE, 0)
+        def IN(self):
+            return self.getToken(YAPLParser.IN, 0)
+        def expr(self):
+            return self.getTypedRuleContext(YAPLParser.ExprContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterLetIn" ):
+                listener.enterLetIn(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitLetIn" ):
+                listener.exitLetIn(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitLetIn" ):
+                return visitor.visitLetIn(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class LetAssignLetContext(Let_exprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a YAPLParser.Let_exprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def ID(self):
+            return self.getToken(YAPLParser.ID, 0)
+        def COLON(self):
+            return self.getToken(YAPLParser.COLON, 0)
+        def TYPE(self):
+            return self.getToken(YAPLParser.TYPE, 0)
+        def ASSIGN(self):
+            return self.getToken(YAPLParser.ASSIGN, 0)
+        def expr(self):
+            return self.getTypedRuleContext(YAPLParser.ExprContext,0)
 
         def COMMA(self):
             return self.getToken(YAPLParser.COMMA, 0)
-
         def let_expr(self):
             return self.getTypedRuleContext(YAPLParser.Let_exprContext,0)
 
 
-        def IN(self):
-            return self.getToken(YAPLParser.IN, 0)
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterLetAssignLet" ):
+                listener.enterLetAssignLet(self)
 
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitLetAssignLet" ):
+                listener.exitLetAssignLet(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitLetAssignLet" ):
+                return visitor.visitLetAssignLet(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class LetAssignInContext(Let_exprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a YAPLParser.Let_exprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def ID(self):
+            return self.getToken(YAPLParser.ID, 0)
+        def COLON(self):
+            return self.getToken(YAPLParser.COLON, 0)
+        def TYPE(self):
+            return self.getToken(YAPLParser.TYPE, 0)
+        def ASSIGN(self):
+            return self.getToken(YAPLParser.ASSIGN, 0)
         def expr(self, i:int=None):
             if i is None:
                 return self.getTypedRuleContexts(YAPLParser.ExprContext)
             else:
                 return self.getTypedRuleContext(YAPLParser.ExprContext,i)
 
-
-        def ASSIGN(self):
-            return self.getToken(YAPLParser.ASSIGN, 0)
-
-        def getRuleIndex(self):
-            return YAPLParser.RULE_let_expr
+        def IN(self):
+            return self.getToken(YAPLParser.IN, 0)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterLet_expr" ):
-                listener.enterLet_expr(self)
+            if hasattr( listener, "enterLetAssignIn" ):
+                listener.enterLetAssignIn(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitLet_expr" ):
-                listener.exitLet_expr(self)
+            if hasattr( listener, "exitLetAssignIn" ):
+                listener.exitLetAssignIn(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitLet_expr" ):
-                return visitor.visitLet_expr(self)
+            if hasattr( visitor, "visitLetAssignIn" ):
+                return visitor.visitLetAssignIn(self)
             else:
                 return visitor.visitChildren(self)
 
+
+    class NestedLetContext(Let_exprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a YAPLParser.Let_exprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def ID(self):
+            return self.getToken(YAPLParser.ID, 0)
+        def COLON(self):
+            return self.getToken(YAPLParser.COLON, 0)
+        def TYPE(self):
+            return self.getToken(YAPLParser.TYPE, 0)
+        def COMMA(self):
+            return self.getToken(YAPLParser.COMMA, 0)
+        def let_expr(self):
+            return self.getTypedRuleContext(YAPLParser.Let_exprContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterNestedLet" ):
+                listener.enterNestedLet(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitNestedLet" ):
+                listener.exitNestedLet(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitNestedLet" ):
+                return visitor.visitNestedLet(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -1764,6 +1903,7 @@ class YAPLParser ( Parser ):
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,16,self._ctx)
             if la_ == 1:
+                localctx = YAPLParser.NestedLetContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
                 self.state = 175
                 self.match(YAPLParser.ID)
@@ -1778,6 +1918,7 @@ class YAPLParser ( Parser ):
                 pass
 
             elif la_ == 2:
+                localctx = YAPLParser.LetInContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
                 self.state = 180
                 self.match(YAPLParser.ID)
@@ -1792,6 +1933,7 @@ class YAPLParser ( Parser ):
                 pass
 
             elif la_ == 3:
+                localctx = YAPLParser.LetAssignLetContext(self, localctx)
                 self.enterOuterAlt(localctx, 3)
                 self.state = 185
                 self.match(YAPLParser.ID)
@@ -1810,6 +1952,7 @@ class YAPLParser ( Parser ):
                 pass
 
             elif la_ == 4:
+                localctx = YAPLParser.LetAssignInContext(self, localctx)
                 self.enterOuterAlt(localctx, 4)
                 self.state = 193
                 self.match(YAPLParser.ID)

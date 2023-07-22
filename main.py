@@ -3,7 +3,7 @@ from tkinter import scrolledtext, filedialog
 from antlr4 import *
 from build.YAPLLexer import YAPLLexer
 from build.YAPLParser import YAPLParser
-from build.YAPLVisitor import YAPLVisitor
+from YAPLVisit import YAPLVisit
 from subprocess import *
 
 def print_tree(tree, indent=0):
@@ -68,6 +68,14 @@ class IDE(tk.Tk):
         try:
             tree = parser.program()
             print(print_tree(tree))
+            print("=====")
+
+             # Crear una instancia del visitor y visitar el árbol sintáctico
+            visitor = YAPLVisit()
+            visitor.visit(tree)
+
+             # Imprimir el resultado del análisis semántico
+            print(visitor.symbol_table.symbols)
 
         except RecognitionException as e:
             error_occurred = True
