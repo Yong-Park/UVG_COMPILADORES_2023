@@ -5,6 +5,7 @@ from build.YAPLLexer import YAPLLexer
 from build.YAPLParser import YAPLParser
 from YAPLVisit import YAPLVisit
 from subprocess import *
+from tkinter import ttk
 
 def print_tree(tree, indent=0):
     tree_str = " " * indent + str(tree.getPayload())
@@ -51,6 +52,31 @@ class IDE(tk.Tk):
                 self.code_input.delete("1.0", tk.END)
                 self.code_input.insert(tk.END, code)
 
+    def imprimir_tabla(self, diccionario):
+        # Crear una ventana
+        ventana = tk.Tk()
+        ventana.title("Tabla de Diccionario")
+
+        # Crear un Treeview (Tabla)
+        tabla = ttk.Treeview(ventana)
+        tabla["columns"] = ("Tipo")
+        tabla.heading("#0", text="Variable")
+        tabla.heading("Tipo", text="Tipo")
+
+        # Agregar datos al Treeview
+        for clave, valor in diccionario.items():
+            tabla.insert("", "end", text=clave, values=(valor))
+
+        # Ajustar el ancho de las columnas para que se vean correctamente los datos
+        tabla.column("#0", width=100)
+        tabla.column("Tipo", width=100)
+
+        # Empaquetar el Treeview
+        tabla.pack()
+
+        # Ejecutar la ventana
+        ventana.mainloop()
+        
     def run_antlr(self):
         input_code = self.code_input.get("1.0", tk.END)
         process = Popen(['antlr4-parse', 'YAPL.g4', 'program', '-gui'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -73,13 +99,17 @@ class IDE(tk.Tk):
              # Crear una instancia del visitor y visitar el árbol sintáctico
             visitor = YAPLVisit()
             result = visitor.visit(tree)
+            #print("tipo de result: ", type(result))
             if result != None:
-                print("visit result: ", result)
-                print("All good")
+                #Generamos la información en la consola
+                self.output.insert(tk.END, "Código correcto")
+                """print("visit result: ", result)
+                print("All good")"""
             else:
-                print("Error de tipo ")
+                self.output.insert(tk.END, "Código incorrecto, error de tipo", "red")
              # Imprimir el resultado del análisis semántico
-            print(visitor.symbol_table.symbols)
+            self.imprimir_tabla(visitor.symbol_table.symbols)
+            #print(visitor.symbol_table.symbols)
 
         except RecognitionException as e:
             error_occurred = True
