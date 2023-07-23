@@ -34,23 +34,8 @@ class YAPLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by YAPLParser#add.
-    def visitAdd(self, ctx:YAPLParser.AddContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by YAPLParser#sub.
     def visitSub(self, ctx:YAPLParser.SubContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by YAPLParser#void.
-    def visitVoid(self, ctx:YAPLParser.VoidContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by YAPLParser#invert.
-    def visitInvert(self, ctx:YAPLParser.InvertContext):
         return self.visitChildren(ctx)
 
 
@@ -64,18 +49,8 @@ class YAPLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by YAPLParser#factExpr.
-    def visitFactExpr(self, ctx:YAPLParser.FactExprContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by YAPLParser#lteq.
     def visitLteq(self, ctx:YAPLParser.LteqContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by YAPLParser#false.
-    def visitFalse(self, ctx:YAPLParser.FalseContext):
         return self.visitChildren(ctx)
 
 
@@ -94,11 +69,6 @@ class YAPLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by YAPLParser#equal.
-    def visitEqual(self, ctx:YAPLParser.EqualContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by YAPLParser#not.
     def visitNot(self, ctx:YAPLParser.NotContext):
         return self.visitChildren(ctx)
@@ -109,8 +79,8 @@ class YAPLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by YAPLParser#true.
-    def visitTrue(self, ctx:YAPLParser.TrueContext):
+    # Visit a parse tree produced by YAPLParser#and.
+    def visitAnd(self, ctx:YAPLParser.AndContext):
         return self.visitChildren(ctx)
 
 
@@ -141,6 +111,46 @@ class YAPLVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#INTEGER.
     def visitINTEGER(self, ctx:YAPLParser.INTEGERContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by YAPLParser#add.
+    def visitAdd(self, ctx:YAPLParser.AddContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by YAPLParser#void.
+    def visitVoid(self, ctx:YAPLParser.VoidContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by YAPLParser#or.
+    def visitOr(self, ctx:YAPLParser.OrContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by YAPLParser#invert.
+    def visitInvert(self, ctx:YAPLParser.InvertContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by YAPLParser#factExpr.
+    def visitFactExpr(self, ctx:YAPLParser.FactExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by YAPLParser#false.
+    def visitFalse(self, ctx:YAPLParser.FalseContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by YAPLParser#equal.
+    def visitEqual(self, ctx:YAPLParser.EqualContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by YAPLParser#true.
+    def visitTrue(self, ctx:YAPLParser.TrueContext):
         return self.visitChildren(ctx)
 
 

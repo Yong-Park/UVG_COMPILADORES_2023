@@ -39,6 +39,8 @@ class YAPLVisit(ParseTreeVisitor):
                 defclaseType = tip
             elif tip == "Char":
                 defclaseType = tip
+            elif tip == "Bool":
+                defclaseType = tip
         return defclaseType
 
 
@@ -88,7 +90,28 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#forml.
     def visitForml(self, ctx:YAPLParser.FormlContext):
         return self.visitChildren(ctx)
-
+    
+    # Visit a parse tree produced by YAPLParser#or.
+    def visitOr(self, ctx:YAPLParser.OrContext):
+        left = self.visit(ctx.expr(0))
+        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        right = self.visit(ctx.expr(1))
+        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        if left_type == "Bool" and right_type == "Bool":
+            return left_type
+        else:
+            return None
+    
+    # Visit a parse tree produced by YAPLParser#and.
+    def visitAnd(self, ctx:YAPLParser.AndContext):
+        left = self.visit(ctx.expr(0))
+        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        right = self.visit(ctx.expr(1))
+        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        if left_type == "Bool" and right_type == "Bool":
+            return left_type
+        else:
+            return None
 
     # Visit a parse tree produced by YAPLParser#add.
     def visitAdd(self, ctx:YAPLParser.AddContext):

@@ -18,6 +18,8 @@ expr      : expr(AT TYPE)? DOT ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPA
           | NEW TYPE # newObject
           | TILDE expr # invert
           | ISVOID expr # void
+          | expr OR expr # or
+          | expr AND expr # and
           | expr MUL expr # mul
           | expr DIV expr # div
           | expr ADD expr # add
@@ -84,6 +86,8 @@ EQUAL: '=';
 LT: '<';
 LTEQ: '<=';
 ASSIGN: '<-';
+OR: '|';
+AND: '&';
 
 // Tokens de ingorar
 SINGLECOMMENT: '--' ~[\r\n]* -> skip;                     // Un solo comentario
