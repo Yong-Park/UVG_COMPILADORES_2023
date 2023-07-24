@@ -18,7 +18,6 @@ expr      : expr(AT TYPE)? DOT ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPA
           | NEW TYPE # newObject
           | TILDE expr # invert
           | ISVOID expr # void
-          | ID ASSIGN expr # assign
           | expr OR expr # or
           | expr AND expr # and
           | expr MUL expr # mul
@@ -35,6 +34,7 @@ expr      : expr(AT TYPE)? DOT ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPA
           | STRING # string
           | TRUE # true
           | FALSE # false
+          | ID ASSIGN expr # assign
           ;
 
 let_expr  : ID COLON TYPE COMMA let_expr # nestedLet

@@ -19,5 +19,6 @@ class Main inherits IO {
 class Main inherits IO {
   a: Int;
   b: Int;
+  isNil() : Bool { false };
   c: Int <- a + b;
 };
