@@ -52,10 +52,10 @@ class IDE(tk.Tk):
                 self.code_input.delete("1.0", tk.END)
                 self.code_input.insert(tk.END, code)
 
-    def imprimir_tabla(self, diccionario):
+    def SymbolTablePrint(self, diccionario):
         # Crear una ventana
         ventana = tk.Tk()
-        ventana.title("Tabla de Diccionario")
+        ventana.title("Symbol Table")
 
         # Crear un Treeview (Tabla)
         tabla = ttk.Treeview(ventana)
@@ -109,7 +109,7 @@ class IDE(tk.Tk):
             else:
                 self.output.insert(tk.END, "Código incorrecto, error de tipo", "red")
              # Imprimir el resultado del análisis semántico
-            self.imprimir_tabla(visitor.symbol_table.symbols)
+            self.SymbolTablePrint(visitor.symbol_table.symbols)
             #print(visitor.symbol_table.symbols)
 
         except RecognitionException as e:
