@@ -94,11 +94,12 @@ class IDE(tk.Tk):
         try:
             tree = parser.program()
             # print(print_tree(tree))
-            print("=====")
+            # print("=====")
 
              # Crear una instancia del visitor y visitar el árbol sintáctico
             visitor = YAPLVisit()
             result = visitor.visit(tree)
+            self.output.delete(1.0, tk.END)
             #print("tipo de result: ", type(result))
             if result != None:
                 #Generamos la información en la consola

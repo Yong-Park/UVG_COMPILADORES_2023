@@ -65,27 +65,39 @@ class YAPLVisit(ParseTreeVisitor):
     def visitProperty(self, ctx:YAPLParser.PropertyContext):
         var_name = ctx.ID().getText()
         var_type = ctx.TYPE().getText()
-        # print('var_name: ', var_name, '\n')
-        # print('var_type: ', var_type, '\n')
-        if ctx.expr():
-            # Si hay una expresión de asignación, verificar su tipo
-            initial_value_type = self.visit(ctx.expr())
-            if initial_value_type != var_type:
+        self.symbol_table.add_symbol(var_name, var_type)
+        var_expr = self.visit(ctx.expr()) if ctx.expr() != None else None
+        var_assign = ctx.ASSIGN()
+        # print("var_expr: ",var_expr)
+        # print('var_name: ', var_name)
+        # print('var_type: ', var_type)
+        # print('var_assign: ', var_assign, '\n')
+        # revisar si es del mismo tipo la asignacion cuando se realice
+        if var_assign != None:
+            if var_type != var_expr:
                 return None
-                # Manejar el error de tipos para la asignación inicial
-                raise TypeError(f"Error de tipos en la asignación inicial de '{var_name}': "
-                                f"se esperaba '{var_type}', pero se obtuvo '{initial_value_type}'")
+        
+        # if ctx.expr():
+        #     # Si hay una expresión de asignación, verificar su tipo
+        #     initial_value_type = self.visit(ctx.expr())
+        #     if initial_value_type != var_type:
+        #         return None
+        #         # Manejar el error de tipos para la asignación inicial
+        #         raise TypeError(f"Error de tipos en la asignación inicial de '{var_name}': "
+        #                         f"se esperaba '{var_type}', pero se obtuvo '{initial_value_type}'")
             
-            # Agregar la variable a la Tabla de Símbolos con su tipo y valor inicial
-            self.symbol_table.add_symbol(var_name, var_type, initial_value_type)
-        else:
+        #     # Agregar la variable a la Tabla de Símbolos con su tipo y valor inicial
+        #     print('var_name: ', var_name, '\n')
+        #     print('var_type: ', var_type, '\n')
+        #     print('initial_value_type: ', initial_value_type, '\n')
+        #     self.symbol_table.add_symbol(var_name, var_type, initial_value_type)
+        # else:
             # Si no hay asignación inicial, agregar la variable a la Tabla de Símbolos solo con su tipo
-            self.symbol_table.add_symbol(var_name, var_type)
+        
         # print("symbol table: ", self.symbol_table)
         # print("++++++++++++++++++++++") 
         # Continuar con el recorrido del árbol sintáctico
-        return self.visitChildren(ctx)
-
+        return var_expr
 
     # Visit a parse tree produced by YAPLParser#forml.
     def visitForml(self, ctx:YAPLParser.FormlContext):
@@ -290,7 +302,7 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#assign.
     def visitAssign(self, ctx:YAPLParser.AssignContext):
-        # print("Visiting Assign node")
+        print("Visiting Assign node")
         return self.visitChildren(ctx)
 
 
