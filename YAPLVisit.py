@@ -24,12 +24,41 @@ class YAPLVisit(ParseTreeVisitor):
             # print("start tipo:", tip)
             if tip != None:
                 startType = tip
+        print("symbol table: ", self.symbol_table)
         return startType
 
 
     # Visit a parse tree produced by YAPLParser#defClase.
     def visitDefClase(self, ctx:YAPLParser.DefClaseContext):
-        # print("DefClase visitado")
+        # print("DefClase visitado"
+        defclaseClass = ctx.CLASS()
+        # print(defclaseClass)
+        
+        defclaseTypeList = ctx.TYPE()
+        classtype = defclaseTypeList[0]
+        # print(classtype)
+        
+        defclaseInherits = ctx.INHERITS() #revisar si existe la funcion inherits
+        # print(defclaseInherits)
+        if defclaseInherits:
+            inheritPosition = defclaseTypeList[1]
+            self.symbol_table.add_symbol(classtype, defclaseClass, inherits=inheritPosition)
+            # print(inheritPosition)
+            if str(inheritPosition) == "IO":
+                pass
+            else:
+                if self.symbol_table.contains_symbol(inheritPosition):
+                    pass
+                else:
+                    print("No existe")
+                    return None
+                
+        else:
+            self.symbol_table.add_symbol(classtype, defclaseClass)
+            
+        #revisar si existe el inherits que esta buscando
+        
+        
         defclaseType = None
         tipos = ctx.feature()
         for tipo in tipos:
@@ -65,13 +94,22 @@ class YAPLVisit(ParseTreeVisitor):
     def visitProperty(self, ctx:YAPLParser.PropertyContext):
         var_name = ctx.ID().getText()
         var_type = ctx.TYPE().getText()
-        self.symbol_table.add_symbol(var_name, var_type)
+        
         var_expr = self.visit(ctx.expr()) if ctx.expr() != None else None
         var_assign = ctx.ASSIGN()
         # print("var_expr: ",var_expr)
         # print('var_name: ', var_name)
         # print('var_type: ', var_type)
         # print('var_assign: ', var_assign, '\n')
+        #asignar el width setun si tipo
+        if var_type == "Int":
+            self.symbol_table.add_symbol(var_name, var_type,displacement="global",width=8)
+        elif var_type == "Char":
+            self.symbol_table.add_symbol(var_name, var_type,displacement="global",width=4)
+        else:
+            self.symbol_table.add_symbol(var_name, var_type,displacement="global")
+            
+        
         # revisar si es del mismo tipo la asignacion cuando se realice
         if var_assign != None:
             if var_type != var_expr:
@@ -302,7 +340,7 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#assign.
     def visitAssign(self, ctx:YAPLParser.AssignContext):
-        print("Visiting Assign node")
+        # print("Visiting Assign node")
         return self.visitChildren(ctx)
 
 
