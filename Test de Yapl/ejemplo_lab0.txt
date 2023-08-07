@@ -22,3 +22,12 @@ class Main inherits IO {
   isNil() : Bool { false };
   c: Int <- a + b;
 };
+
+class Main inherits IO {
+  a: Bool;
+  b: Bool;
+  c: Bool;
+  main(): Object {
+    c = a + b
+  };
+};

@@ -101,13 +101,13 @@ class IDE(tk.Tk):
             result = visitor.visit(tree)
             self.output.delete(1.0, tk.END)
             #print("tipo de result: ", type(result))
-            if result != None:
+            if result in ["Int","Char","Bool"]:
                 #Generamos la información en la consola
                 self.output.insert(tk.END, "Código correcto")
                 """print("visit result: ", result)
                 print("All good")"""
             else:
-                self.output.insert(tk.END, "Código incorrecto, error de tipo", "red")
+                self.output.insert(tk.END, "Código incorrecto, error de tipo: " + result, "red") if result != None else self.output.insert(tk.END, "Código incorrecto, error de tipo", "red")
              # Imprimir el resultado del análisis semántico
             self.SymbolTablePrint(visitor.symbol_table.symbols)
             #print(visitor.symbol_table.symbols)

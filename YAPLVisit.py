@@ -70,6 +70,17 @@ class YAPLVisit(ParseTreeVisitor):
                 defclaseType = tip
             elif tip == "Bool":
                 defclaseType = tip
+            elif tip == "boolAr":
+                defclaseType = "no se puede operar operaciones aritmetricas entre Bools"
+            elif tip == "intchar":
+                defclaseType = "no se puede operar operaciones aritmetricas Int y Char"
+            elif tip == "charAr":
+                defclaseType = "no se puede operaciones aritmetricas entre chars"
+            elif tip == "assignEr":
+                defclaseType = "no se puede asignar variables ya que no es del mismo tipo"
+            elif tip == "notequal":
+                defclaseType = "no se puede asignar variables ya que no es del mismo tipo"
+        print("defclaseType: ",defclaseType)
         return defclaseType
 
 
@@ -87,7 +98,7 @@ class YAPLVisit(ParseTreeVisitor):
         # print("++++++++++++++++++++++") 
         # Continuar con el recorrido del árbol sintáctico
         method_expr_type = self.visit(ctx.expr())
-        # print("method expr type: ", method_expr_type)
+        print("method expr type: ", method_expr_type)
         return method_expr_type
 
     # Visit a parse tree produced by YAPLParser#property.
@@ -113,7 +124,7 @@ class YAPLVisit(ParseTreeVisitor):
         # revisar si es del mismo tipo la asignacion cuando se realice
         if var_assign != None:
             if var_type != var_expr:
-                return None
+                return "assignEr"
         
         # if ctx.expr():
         #     # Si hay una expresión de asignación, verificar su tipo
@@ -179,6 +190,13 @@ class YAPLVisit(ParseTreeVisitor):
             return left_type
         elif left_type == "Char" and right_type == "Char":
             return left_type
+        # errors
+        elif left_type == "Int" and right_type == "Char":
+            return "intchar"
+        elif left_type == "Char" and right_type == "Int":
+            return "intchar"
+        elif left_type == "Bool" and right_type == "Bool":
+            return "boolAr"
         else:
             return None
             # Manejar el error de tipos para la operación de suma
@@ -193,6 +211,15 @@ class YAPLVisit(ParseTreeVisitor):
         right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
         if left_type == "Int" and right_type == "Int":
             return left_type
+        # errors
+        elif left_type == "Char" and right_type == "Char":
+            return "charAr"
+        elif left_type == "Int" and right_type == "Char":
+            return "intchar"
+        elif left_type == "Char" and right_type == "Int":
+            return "intchar"
+        elif left_type == "Bool" and right_type == "Bool":
+            return "boolAr"
         else:
             return None
             # Manejar el error de tipos para la operación de resta
@@ -228,6 +255,15 @@ class YAPLVisit(ParseTreeVisitor):
         # print('right mul type:', right_type)
         if left_type == "Int" and right_type == "Int":
             return left_type
+        # errors
+        elif left_type == "Char" and right_type == "Char":
+            return "charAr"
+        elif left_type == "Int" and right_type == "Char":
+            return "intchar"
+        elif left_type == "Char" and right_type == "Int":
+            return "intchar"
+        elif left_type == "Bool" and right_type == "Bool":
+            return "boolAr"
         else:
             return None
             # Manejar el error de tipos para la operación de multiplicación
@@ -268,6 +304,15 @@ class YAPLVisit(ParseTreeVisitor):
         right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
         if left_type == "Int" and right_type == "Int":
             return left_type
+        # errors
+        elif left_type == "Char" and right_type == "Char":
+            return "charAr"
+        elif left_type == "Int" and right_type == "Char":
+            return "intchar"
+        elif left_type == "Char" and right_type == "Int":
+            return "intchar"
+        elif left_type == "Bool" and right_type == "Bool":
+            return "boolAr"
         else:
             return None
             # Manejar el error de tipos para la operación de división
@@ -283,10 +328,13 @@ class YAPLVisit(ParseTreeVisitor):
         # print('left equal type: ',left_type)
         right = self.visit(ctx.expr(1))
         # print("right equal", right)
-        if left_type == right:
-            return left_type
+        if right in ["Int","Char","Bool"]:
+            if left_type == right:
+                return left_type
+            else:
+                return "notequal"
         else:
-            return None
+            return right
             # Manejar el error de tipos para la operación de división
             raise TypeError("Error de tipos: la igualdad solo se puede en variables del mismo tipo")
 
