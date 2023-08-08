@@ -4,17 +4,20 @@ class SymbolTable:
         self.inherits = {}
         self.width = {}
         self.displacement = {}
-        self.environment = {}
+        self.contains = {}
 
-    def add_symbol(self, name, type, inherits=None, width=None, displacement=None, environment=None):
+    def add_symbol(self, name, type, inherits=None, width=None, displacement=None, contains=None):
         self.symbols[name] = type
         self.inherits[name] = inherits
         self.width[name] = width
         self.displacement[name] = displacement
-        self.environment[name] = environment
+        self.contains[name] = contains
 
     def get_symbol_type(self, name):
         return self.symbols.get(name)
+    
+    def variable_class(self,classname, name):
+        return name in self.contains[classname]
 
     def contains_symbol(self, name):
         return name in self.symbols
@@ -26,7 +29,7 @@ class SymbolTable:
             table_str += f"\tInherits: {self.inherits.get(name, 'N/A')}\n"
             table_str += f"\tWidth: {self.width.get(name, 'N/A')}\n"
             table_str += f"\tDisplacement: {self.displacement.get(name, 'N/A')}\n"
-            table_str += f"\tEnvironment: {self.environment.get(name, 'N/A')}\n"
+            table_str += f"\tContains: {self.contains.get(name, 'N/A')}\n"
         return table_str
     
 

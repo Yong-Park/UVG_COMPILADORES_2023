@@ -13,6 +13,8 @@ class YAPLVisit(ParseTreeVisitor):
 
     def __init__(self):
         self.symbol_table = SymbolTable()
+        self.actual_class = None
+        self.actual_method = None
 
     # Visit a parse tree produced by YAPLParser#start.
     def visitStart(self, ctx:YAPLParser.StartContext):
@@ -30,19 +32,32 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#defClase.
     def visitDefClase(self, ctx:YAPLParser.DefClaseContext):
-        # print("DefClase visitado"
+        print("DefClase visitado")
         defclaseClass = ctx.CLASS()
         # print(defclaseClass)
+        
+        #definir la clase actual en la que esta
         
         defclaseTypeList = ctx.TYPE()
         classtype = defclaseTypeList[0]
         # print(classtype)
+        self.actual_class = classtype
         
+        #agregar todos las variables
+        variables = ctx.feature()
+        variable_array = []
+        for variable in variables:
+            # print("variable :", variable.ID().getText())
+            if variable.ID().getText():
+                variable_array.append(variable.ID().getText())
         defclaseInherits = ctx.INHERITS() #revisar si existe la funcion inherits
         # print(defclaseInherits)
         if defclaseInherits:
             inheritPosition = defclaseTypeList[1]
-            self.symbol_table.add_symbol(classtype, defclaseClass, inherits=inheritPosition)
+            if len(variable_array) > 0: 
+                self.symbol_table.add_symbol(classtype, defclaseClass, inherits=inheritPosition, contains=variable_array)
+            else:
+                self.symbol_table.add_symbol(classtype, defclaseClass, inherits=inheritPosition)
             # print(inheritPosition)
             if str(inheritPosition) == "IO":
                 pass
@@ -54,16 +69,18 @@ class YAPLVisit(ParseTreeVisitor):
                     return None
                 
         else:
-            self.symbol_table.add_symbol(classtype, defclaseClass)
+            if len(variable_array) > 0:
+                self.symbol_table.add_symbol(classtype, defclaseClass,contains=variable_array)
+            else:
+                self.symbol_table.add_symbol(classtype, defclaseClass)
             
-        #revisar si existe el inherits que esta buscando
         
         
         defclaseType = None
         tipos = ctx.feature()
         for tipo in tipos:
             tip = self.visit(tipo)
-            # print("DefClase tipo:", tip)
+            print("DefClase tipo:", tip)
             if tip == "Int":
                 defclaseType = tip
             elif tip == "Char":
@@ -80,6 +97,8 @@ class YAPLVisit(ParseTreeVisitor):
                 defclaseType = "no se puede asignar variables ya que no es del mismo tipo"
             elif tip == "notequal":
                 defclaseType = "no se puede asignar variables ya que no es del mismo tipo"
+            elif tip == "noValue":
+                defclaseType = "no se puede debido a una variable no existe o no puede ser utilizada en ese entorno"
         print("defclaseType: ",defclaseType)
         return defclaseType
 
@@ -156,8 +175,14 @@ class YAPLVisit(ParseTreeVisitor):
     def visitOr(self, ctx:YAPLParser.OrContext):
         left = self.visit(ctx.expr(0))
         left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        if left_type == "noValue":
+            return left_type
+        
         right = self.visit(ctx.expr(1))
         right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        if right_type == "noValue":
+            return right_type
+        
         if left_type == "Bool" and right_type == "Bool":
             return left_type
         else:
@@ -167,8 +192,14 @@ class YAPLVisit(ParseTreeVisitor):
     def visitAnd(self, ctx:YAPLParser.AndContext):
         left = self.visit(ctx.expr(0))
         left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        if left_type == "noValue":
+            return left_type
+        
         right = self.visit(ctx.expr(1))
         right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        if right_type == "noValue":
+            return right_type
+        
         if left_type == "Bool" and right_type == "Bool":
             return left_type
         else:
@@ -182,10 +213,16 @@ class YAPLVisit(ParseTreeVisitor):
         left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
         # print('left add: ',left)
         # print('left add type: ',left_type)
+        if left_type == "noValue":
+            return left_type
+        
         right = self.visit(ctx.expr(1))
         right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
         # print('right add:', right)
         # print('right add type:', right_type)
+        if right_type == "noValue":
+            return right_type
+        
         if left_type == "Int" and right_type == "Int":
             return left_type
         elif left_type == "Char" and right_type == "Char":
@@ -207,8 +244,14 @@ class YAPLVisit(ParseTreeVisitor):
     def visitSub(self, ctx:YAPLParser.SubContext):
         left = self.visit(ctx.expr(0))
         left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        if left_type == "noValue":
+            return left_type
+        
         right = self.visit(ctx.expr(1))
         right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        if right_type == "noValue":
+            return right_type
+        
         if left_type == "Int" and right_type == "Int":
             return left_type
         # errors
@@ -247,10 +290,15 @@ class YAPLVisit(ParseTreeVisitor):
         # print('mul')
         left = self.visit(ctx.expr(0)) 
         left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        if left_type == "noValue":
+            return left_type
+        
         # print("left mul", left)
         # print('left mul type: ',left_type)
         right = self.visit(ctx.expr(1))
         right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        if right_type == "noValue":
+            return right_type
         # print("right mul: ",right)
         # print('right mul type:', right_type)
         if left_type == "Int" and right_type == "Int":
@@ -300,8 +348,14 @@ class YAPLVisit(ParseTreeVisitor):
     def visitDiv(self, ctx:YAPLParser.DivContext):
         left = self.visit(ctx.expr(0)) 
         left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        if left_type == "noValue":
+            return left_type
+        
         right = self.visit(ctx.expr(1))
         right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        if right_type == "noValue":
+            return right_type
+        
         if left_type == "Int" and right_type == "Int":
             return left_type
         # errors
@@ -326,6 +380,12 @@ class YAPLVisit(ParseTreeVisitor):
         left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
         # print("left equal", left)
         # print('left equal type: ',left_type)
+        
+        #si no existe
+        if left_type == "noValue":
+            return  left_type
+        
+        
         right = self.visit(ctx.expr(1))
         # print("right equal", right)
         if right in ["Int","Char","Bool"]:
@@ -366,9 +426,15 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#id.
     def visitId(self, ctx:YAPLParser.IdContext):
+        # print("id visitado")
         value = ctx.ID().getText()
         # print("id value: ", value)
-        return value
+        exist = self.symbol_table.variable_class(self.actual_class, value)
+        # print("existe: ", exist)
+        if exist:
+            return value
+        else:
+            return "noValue"
 
 
     # Visit a parse tree produced by YAPLParser#if.

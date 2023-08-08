@@ -31,3 +31,11 @@ class Main inherits IO {
     c = a + b
   };
 };
+
+class Main inherits IO {
+  a: Int;
+  c: Int;
+  main(): Object {
+    c = a + b
+  };
+};
