@@ -15,6 +15,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.symbol_table = SymbolTable()
         self.actual_class = None
         self.actual_method = None
+        self.errors = ["boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess"]
 
     # Visit a parse tree produced by YAPLParser#start.
     def visitStart(self, ctx:YAPLParser.StartContext):
@@ -99,6 +100,12 @@ class YAPLVisit(ParseTreeVisitor):
                 defclaseType = "no se puede asignar variables ya que no es del mismo tipo"
             elif tip == "noValue":
                 defclaseType = "no se puede debido a una variable no existe o no puede ser utilizada en ese entorno"
+            elif tip == "ifError":
+                defclaseType = "la funcion de if esta fallando"
+            elif tip == "notLessorequal":
+                defclaseType = "No es posible, alguno de los valores al probar <= no es de tipo Int"
+            elif tip == "notLess":
+                defclaseType = "No es posible, alguno de los valores al probar < no es de tipo Int"
         print("defclaseType: ",defclaseType)
         return defclaseType
 
@@ -236,8 +243,6 @@ class YAPLVisit(ParseTreeVisitor):
             return "boolAr"
         else:
             return None
-            # Manejar el error de tipos para la operación de suma
-            raise TypeError("Error de tipos: la suma solo está definida para enteros")
 
 
     # Visit a parse tree produced by YAPLParser#sub.
@@ -265,8 +270,6 @@ class YAPLVisit(ParseTreeVisitor):
             return "boolAr"
         else:
             return None
-            # Manejar el error de tipos para la operación de resta
-            raise TypeError("Error de tipos: la resta solo está definida para enteros")
 
 
     # Visit a parse tree produced by YAPLParser#void.
@@ -281,7 +284,7 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#string.
     def visitString(self, ctx:YAPLParser.StringContext):
-        return self.visitChildren(ctx)
+        return "Char"
 
 
     # Visit a parse tree produced by YAPLParser#mul.
@@ -314,34 +317,60 @@ class YAPLVisit(ParseTreeVisitor):
             return "boolAr"
         else:
             return None
-            # Manejar el error de tipos para la operación de multiplicación
-            raise TypeError("Error de tipos: la multiplicación solo está definida para enteros")
 
 
 
     # Visit a parse tree produced by YAPLParser#factExpr.
     def visitFactExpr(self, ctx:YAPLParser.FactExprContext):
-        return self.visitChildren(ctx)
+        expresion = self.visit(ctx.expr())
+        # print("FactExpr: ",expresion)
+        return expresion
 
 
     # Visit a parse tree produced by YAPLParser#lteq.
     def visitLteq(self, ctx:YAPLParser.LteqContext):
-        return self.visitChildren(ctx)
-
+        left = self.visit(ctx.expr(0))
+        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        
+        right = self.visit(ctx.expr(1))
+        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        
+        if left_type == "Int" and right_type == "Int":
+            return left_type
+        else:
+            return "notLessorequal"
+        
 
     # Visit a parse tree produced by YAPLParser#false.
     def visitFalse(self, ctx:YAPLParser.FalseContext):
-        return self.visitChildren(ctx)
+        return "Bool"
 
 
     # Visit a parse tree produced by YAPLParser#lt.
     def visitLt(self, ctx:YAPLParser.LtContext):
-        return self.visitChildren(ctx)
-
+        left = self.visit(ctx.expr(0))
+        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        
+        right = self.visit(ctx.expr(1))
+        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        
+        if left_type == "Int" and right_type == "Int":
+            return left_type
+        else:
+            return "notLess"
 
     # Visit a parse tree produced by YAPLParser#while.
     def visitWhile(self, ctx:YAPLParser.WhileContext):
-        return self.visitChildren(ctx)
+        print("while visitado")
+        expresions = ctx.expr()
+        results = []
+        for expresion in expresions:
+            results.append(self.visit(expresion))
+        print("visitWhile results: ",results)
+        for result in results:
+            if result in self.errors:
+                return result
+        return results[0]
 
 
     # Visit a parse tree produced by YAPLParser#div.
@@ -369,13 +398,11 @@ class YAPLVisit(ParseTreeVisitor):
             return "boolAr"
         else:
             return None
-            # Manejar el error de tipos para la operación de división
-            raise TypeError("Error de tipos: la división solo está definida para enteros")
 
 
     # Visit a parse tree produced by YAPLParser#equal.
     def visitEqual(self, ctx:YAPLParser.EqualContext):
-        # print("visitando equal")
+        print("visitando equal")
         left = self.visit(ctx.expr(0)) 
         left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
         # print("left equal", left)
@@ -395,8 +422,6 @@ class YAPLVisit(ParseTreeVisitor):
                 return "notequal"
         else:
             return right
-            # Manejar el error de tipos para la operación de división
-            raise TypeError("Error de tipos: la igualdad solo se puede en variables del mismo tipo")
 
 
     # Visit a parse tree produced by YAPLParser#not.
@@ -411,12 +436,22 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#true.
     def visitTrue(self, ctx:YAPLParser.TrueContext):
-        return self.visitChildren(ctx)
+        return "Bool"
 
 
     # Visit a parse tree produced by YAPLParser#block.
     def visitBlock(self, ctx:YAPLParser.BlockContext):
-        return self.visitChildren(ctx)
+        expresions = ctx.expr()
+        results = []
+        for expresion in expresions:
+            results.append(self.visit(expresion))
+        
+        print("visitBlock result: ", results)
+        
+        for result in results:
+            if result in self.errors:
+                return result
+        return results[0]
 
 
     # Visit a parse tree produced by YAPLParser#let.
@@ -428,9 +463,9 @@ class YAPLVisit(ParseTreeVisitor):
     def visitId(self, ctx:YAPLParser.IdContext):
         # print("id visitado")
         value = ctx.ID().getText()
-        # print("id value: ", value)
+        print("id value: ", value)
         exist = self.symbol_table.variable_class(self.actual_class, value)
-        # print("existe: ", exist)
+        print("existe: ", exist)
         if exist:
             return value
         else:
@@ -439,9 +474,18 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#if.
     def visitIf(self, ctx:YAPLParser.IfContext):
-        return self.visitChildren(ctx)
-
-
+        print("if visitado")
+        expresions = ctx.expr()
+        results = []
+        for expresion in expresions:
+            results.append(self.visit(expresion))
+        print("visitIf results: ",results)
+        #revisar que de los resultados obtenido no haya ninguno que forme parte de algun error
+        for result in results:
+            if result in self.errors:
+                return "ifError"
+        return results[0]
+        
     # Visit a parse tree produced by YAPLParser#ownMethodCall.
     def visitOwnMethodCall(self, ctx:YAPLParser.OwnMethodCallContext):
         return self.visitChildren(ctx)
@@ -449,13 +493,20 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#INTEGER.
     def visitINTEGER(self, ctx:YAPLParser.INTEGERContext):
-        return self.visitChildren(ctx)
+        return "Int"
 
 
     # Visit a parse tree produced by YAPLParser#assign.
     def visitAssign(self, ctx:YAPLParser.AssignContext):
-        # print("Visiting Assign node")
-        return self.visitChildren(ctx)
+        print("assign visitado")
+        expresion = self.visit(ctx.expr())
+        left = ctx.ID().getText()
+        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else "noValue"
+        
+        if left_type == expresion:
+            return left_type
+        else:
+            return "assignEr"
 
 
     # Visit a parse tree produced by YAPLParser#methodCall.
