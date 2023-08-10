@@ -36,9 +36,9 @@ class Main inherits IO {
   a: Int;
   b: Int;
   c: Int;
-  main(): Object {
+  main(): Object {{
     if (a = 1) then b <- 1 else b <- 2 fi;
     while (c <= 9) loop c <- 1 pool;
-    c = a + b
-  };
+    c = a + b;
+  }};
 };
