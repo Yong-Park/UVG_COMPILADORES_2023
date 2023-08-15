@@ -15,7 +15,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.symbol_table = SymbolTable()
         self.actual_class = None
         self.actual_method = None
-        self.errors = ["boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess"]
+        self.errors = ["boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError"]
 
     # Visit a parse tree produced by YAPLParser#start.
     def visitStart(self, ctx:YAPLParser.StartContext):
@@ -106,6 +106,8 @@ class YAPLVisit(ParseTreeVisitor):
                 defclaseType = "No es posible, alguno de los valores al probar <= no es de tipo Int"
             elif tip == "notLess":
                 defclaseType = "No es posible, alguno de los valores al probar < no es de tipo Int"
+            elif tip == "methodError":
+                defclaseType = "El metodo tiene un problema"
         print("defclaseType: ",defclaseType)
         return defclaseType
 
@@ -323,7 +325,7 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#factExpr.
     def visitFactExpr(self, ctx:YAPLParser.FactExprContext):
         expresion = self.visit(ctx.expr())
-        # print("FactExpr: ",expresion)
+        print("FactExpr: ",expresion)
         return expresion
 
 
@@ -431,7 +433,10 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#newObject.
     def visitNewObject(self, ctx:YAPLParser.NewObjectContext):
-        return self.visitChildren(ctx)
+        print("visitNewObject")
+        print(ctx.TYPE().getText())
+        return ctx.TYPE().getText()
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by YAPLParser#true.
@@ -488,6 +493,7 @@ class YAPLVisit(ParseTreeVisitor):
         
     # Visit a parse tree produced by YAPLParser#ownMethodCall.
     def visitOwnMethodCall(self, ctx:YAPLParser.OwnMethodCallContext):
+        print("visitOwnMethodCall")
         return self.visitChildren(ctx)
 
 
@@ -511,7 +517,20 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#methodCall.
     def visitMethodCall(self, ctx:YAPLParser.MethodCallContext):
-        return self.visitChildren(ctx)
+        expresions = ctx.expr()
+        results=[] 
+        for expreion in expresions:
+            # print("visitMethodCall")
+            print("visitMethodCall: ",self.visit(expreion))
+            results.append(self.visit(expreion))
+        for result in results:
+            if result in self.errors:
+                return "methodError"
+        print("visitMethodCall results: ",results)
+        return results[0]
+            
+        
+        # return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by YAPLParser#nestedLet.
