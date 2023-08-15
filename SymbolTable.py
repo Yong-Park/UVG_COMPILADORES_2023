@@ -12,15 +12,44 @@ class SymbolTable:
         self.width[name] = width
         self.displacement[name] = displacement
         self.contains[name] = contains
+        
+    def get_contains(self, name):
+        return self.contains[name] 
 
     def get_symbol_type(self, name):
         return self.symbols.get(name)
     
     def variable_class(self,classname, name):
         return name in self.contains[classname]
+    
+    def contains_mains(self):
+        MainExist = False
+        mainExist = False
+        for name, _ in self.symbols.items():
+            if str(name) == "Main":
+                MainExist = True
+        
+        if MainExist:
+            for name, _ in self.symbols.items():
+                if str(name) == "Main":
+                    for values in self.contains.get(name):
+                        if str(values) == "main":
+                            mainExist = True
+        else:
+            return False
+        
+        if mainExist:
+            return True
+        else:
+            return False
+
 
     def contains_symbol(self, name):
-        return name in self.symbols
+        for Sname, _ in self.symbols.items():
+            if str(Sname) == name:
+                return True 
+        
+        return False
 
     def __str__(self):
         table_str = "Symbol Table:\n"

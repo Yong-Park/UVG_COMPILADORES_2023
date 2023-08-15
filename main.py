@@ -37,12 +37,22 @@ class IDE(tk.Tk):
         self.run_button = tk.Button(self, text="Ejecutar", command=self.run_antlr, width=15, height=2)
         self.run_button.pack(side=tk.RIGHT, padx=30, pady=10)
         
+        self.upload_button = tk.Button(self, text="Show tree", command=self.display_tree, width=15, height=2)
+        self.upload_button.pack(side=tk.LEFT, padx=30, pady=10)
+        
         self.upload_button = tk.Button(self, text="Upload File", command=self.upload_file, width=15, height=2)
         self.upload_button.pack(side=tk.LEFT, padx=30, pady=10)
         
         # Centrar el button_frame
         button_frame.place(relx=0.5, rely=0.9, anchor=tk.CENTER)
         
+    def display_tree(self):
+        input_code = self.code_input.get("1.0", tk.END)
+        process = Popen(['antlr4-parse', 'YAPL.g4', 'program', '-gui'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        output, error = process.communicate(input_code.encode())
+        error_occurred = False
+  
+
         
     def upload_file(self):
         file_path = filedialog.askopenfilename(filetypes=(("Text files", "*.txt"), ("All files", "*.*")))
@@ -79,9 +89,6 @@ class IDE(tk.Tk):
         
     def run_antlr(self):
         input_code = self.code_input.get("1.0", tk.END)
-        process = Popen(['antlr4-parse', 'YAPL.g4', 'program', '-gui'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        output, error = process.communicate(input_code.encode())
-        error_occurred = False
 
         # Crear el lexer y el stream de tokens
         lexer = YAPLLexer(InputStream(input_code))
@@ -101,7 +108,8 @@ class IDE(tk.Tk):
             result = visitor.visit(tree)
             self.output.delete(1.0, tk.END)
             #print("tipo de result: ", type(result))
-            if result in ["Int","Char","Bool"]:
+            # print("visitor.errors: ", visitor.errors)
+            if result not in visitor.errors:
                 #Generamos la información en la consola
                 self.output.insert(tk.END, "Código correcto")
                 """print("visit result: ", result)
@@ -113,15 +121,10 @@ class IDE(tk.Tk):
             #print(visitor.symbol_table.symbols)
 
         except RecognitionException as e:
-            error_occurred = True
+            print("Error ocurred")
 
         # self.output.delete("1.0", tk.END)
-        if error_occurred and error:
-            self.output.insert(tk.END, str(e) + "\n", "red")
-        else:
-            self.output.insert(tk.END, output.decode())
-            # self.output.insert(tk.END, tree.toStringTree(recog=parser))
-
+       
 if __name__ == "__main__":
     ide = IDE()
     ide.mainloop()
