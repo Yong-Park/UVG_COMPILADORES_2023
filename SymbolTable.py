@@ -17,10 +17,37 @@ class SymbolTable:
         return self.contains[name] 
 
     def get_symbol_type(self, name):
-        return self.symbols.get(name)
+        for Sname, type in self.symbols.items():
+            if str(Sname) == name:
+                return type 
+        
+        return False
+        # return self.symbols.get(name)
     
     def variable_class(self,classname, name):
         return name in self.contains[classname]
+    
+    def contains_element(self,name, value):
+        exist = False
+        for Sname,_ in self.symbols.items():
+            if str(Sname) == name:
+                
+                exist = True
+        if exist:
+            for Sname,_ in self.symbols.items():
+                if str(Sname) == name:
+                    print("Sname: ",Sname)
+                    print("name: ",name)
+                    if self.contains.get(name):
+                        for values in self.contains.get(name):
+                            if str(values) == value:
+                                print("values: ",values)
+                                print("value: ",value)
+                                return True
+        else:
+            return False
+        return False
+        
     
     def contains_mains(self):
         MainExist = False

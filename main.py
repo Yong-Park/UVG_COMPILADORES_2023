@@ -107,9 +107,9 @@ class IDE(tk.Tk):
             visitor = YAPLVisit()
             result = visitor.visit(tree)
             self.output.delete(1.0, tk.END)
-            #print("tipo de result: ", type(result))
+            # print("tipo de result: ", result)
             # print("visitor.errors: ", visitor.errors)
-            if result not in visitor.errors:
+            if visitor.startType not in visitor.errors:
                 #Generamos la información en la consola
                 self.output.insert(tk.END, "Código correcto")
                 """print("visit result: ", result)
