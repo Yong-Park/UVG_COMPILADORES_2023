@@ -18,7 +18,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.actual_method = None
         self.actual_method_type = None
         self.startType = None
-        self.errors = ["inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
+        self.errors = ["invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
 
     # Visit a parse tree produced by YAPLParser#start.
     def visitStart(self, ctx:YAPLParser.StartContext):
@@ -78,6 +78,8 @@ class YAPLVisit(ParseTreeVisitor):
             message = "El metodo no existe y por ello no se le puede asignar a una variable"
         elif self.startType == "inheritProblem":
             message = "Problema con la herencia (inherits)"
+        elif self.startType == "invertNotInt":
+            message = "No es posible realizar la inversa ya que no es un tipo Int"
         else:
             message = self.startType
         print("self.startType to send: ",message)
@@ -189,7 +191,7 @@ class YAPLVisit(ParseTreeVisitor):
         print('var_type: ', var_type)
         print('var_assign: ', var_assign, '\n')
         #revisar que la variable si no es int, char o bool sea algo que exista en la tabla
-        if str(var_type) not in ["Int","Char","Bool"]:
+        if str(var_type) not in ["Int","Char","Bool","String"]:
             print("toca buscar")
             if self.symbol_table.contains_symbol(var_type):
                 print("Si existe")
@@ -400,7 +402,16 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#invert.
     def visitInvert(self, ctx:YAPLParser.InvertContext):
-        return self.visitChildren(ctx)
+        print("visitInvert")
+        value = self.visit(ctx.expr())
+        value = self.symbol_table.get_symbol_type(value) if self.symbol_table.get_symbol_type(value) else value
+        print("visitInvert value: ",value)
+        if value == "Int":
+            return "Int"
+        else:
+            return "invertNotInt"
+        
+        
 
 
     # Visit a parse tree produced by YAPLParser#string.
@@ -569,9 +580,10 @@ class YAPLVisit(ParseTreeVisitor):
         
         
         right = self.visit(ctx.expr(1))
+        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.get_symbol_type(right) else right
         # print("right equal", right)
-        if right in ["Int","Char","Bool"]:
-            if left_type == right:
+        if right_type in ["Int","Char","Bool"]:
+            if left_type == right_type:
                 return left_type
             else:
                 return "notequal"
@@ -803,12 +815,65 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#letAssignLet.
     def visitLetAssignLet(self, ctx:YAPLParser.LetAssignLetContext):
+        print("visitLetAssignLet")
+        
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by YAPLParser#letAssignIn.
     def visitLetAssignIn(self, ctx:YAPLParser.LetAssignInContext):
-        return self.visitChildren(ctx)
+        print("visitLetAssignIn")
+        id = ctx.ID().getText()
+        typevisit = ctx.TYPE().getText()
+        resutls = []
+        
+        self.symbol_table.add_symbol(id,typevisit)
+        
+        print("self.actual_method: ", self.actual_method)
+        
+        #agregar el nuevo simbolo en contians del metodo
+        contains = self.symbol_table.get_contains(self.actual_method)
+        print("contains: ",contains)
+        array = []
+        if contains == None:
+            array.append(id)
+        else:
+            array.append(id)
+            for contain in contains:
+                array.append(str(contain))
+        
+        self.symbol_table.add_symbol(self.actual_method, self.actual_method_type, contains=array)
+        
+        #realizar la asignacion
+        expresions = ctx.expr()
+        assignExpresion = expresions[0]
+        
+        assignValue = self.visit(assignExpresion)
+        if type(assignValue) ==  list:
+            if typevisit in assignValue:
+                resutls.extend(assignValue)
+            else:
+                resutls.append("assignEr")
+        else:
+            assignValue = self.symbol_table.get_symbol_type(assignValue) if self.symbol_table.get_symbol_type(assignValue) else assignValue
+        
+            if assignValue == typevisit:
+                resutls.append(typevisit)
+            else:
+                resutls.append("assignEr")
+                
+        #obtener la otra expr
+        exprResult = expresions[1]
+        exprValue = self.visit(exprResult)
+        
+        if type(exprValue) == list:
+            resutls.extend(exprValue)
+        else:
+            exprValue = self.symbol_table.get_symbol_type(exprValue) if self.symbol_table.get_symbol_type(exprValue) else exprValue
+            resutls.append(exprValue)
+        
+        print("visitLetAssignIn results: ",resutls)
+        return resutls
 
 
 
