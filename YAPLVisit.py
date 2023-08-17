@@ -18,7 +18,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.actual_method = None
         self.actual_method_type = None
         self.startType = None
-        self.errors = ["invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
+        self.errors = ["newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
 
     # Visit a parse tree produced by YAPLParser#start.
     def visitStart(self, ctx:YAPLParser.StartContext):
@@ -80,6 +80,8 @@ class YAPLVisit(ParseTreeVisitor):
             message = "Problema con la herencia (inherits)"
         elif self.startType == "invertNotInt":
             message = "No es posible realizar la inversa ya que no es un tipo Int"
+        elif self.startType == "newError":
+            message = "No es posible debido a que el type para el new no existe"
         else:
             message = self.startType
         print("self.startType to send: ",message)
@@ -245,7 +247,6 @@ class YAPLVisit(ParseTreeVisitor):
             
         self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array)
         print("=============================")
-        # return self.visitChildren(ctx)
     
     # Visit a parse tree produced by YAPLParser#or.
     def visitOr(self, ctx:YAPLParser.OrContext):
@@ -608,9 +609,16 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#newObject.
     def visitNewObject(self, ctx:YAPLParser.NewObjectContext):
         print("visitNewObject")
-        print(ctx.TYPE().getText())
+        value = ctx.TYPE().getText()
+        print(value)
+        #revisar que si existe en new type
+        existNew = self.symbol_table.contains_symbol(value)
+        print("existNew: ",existNew)
         print("=============================")
-        return ctx.TYPE().getText()
+        if existNew:
+            return value
+        else:
+            return "newError"
 
 
     # Visit a parse tree produced by YAPLParser#true.
