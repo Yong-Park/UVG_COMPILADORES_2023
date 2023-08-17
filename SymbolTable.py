@@ -5,13 +5,15 @@ class SymbolTable:
         self.width = {}
         self.displacement = {}
         self.contains = {}
+        self.ambit = {}
 
-    def add_symbol(self, name, type, inherits=None, width=None, displacement=None, contains=None):
+    def add_symbol(self, name, type, inherits=None, width=None, displacement=None, contains=None,ambit=None):
         self.symbols[name] = type
         self.inherits[name] = inherits
         self.width[name] = width
         self.displacement[name] = displacement
         self.contains[name] = contains
+        self.ambit[name] = ambit
         
     def get_contains(self, name):
         return self.contains[name] 
@@ -73,7 +75,7 @@ class SymbolTable:
 
     def contains_symbol(self, name):
         for Sname, _ in self.symbols.items():
-            if str(Sname) == name:
+            if str(Sname) == str(name):
                 return True 
         
         return False
@@ -86,6 +88,7 @@ class SymbolTable:
             table_str += f"\tWidth: {self.width.get(name, 'N/A')}\n"
             table_str += f"\tDisplacement: {self.displacement.get(name, 'N/A')}\n"
             table_str += f"\tContains: {self.contains.get(name, 'N/A')}\n"
+            table_str += f"\tAmbit: {self.ambit.get(name, 'N/A')}\n"
         return table_str
     
 

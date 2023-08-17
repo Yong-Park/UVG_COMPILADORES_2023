@@ -852,84 +852,84 @@ public class YAPLParser extends Parser {
 				break;
 			case 9:
 				{
-				_localctx = new AssignContext(_localctx);
+				_localctx = new NotContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(114);
-				match(ID);
+				match(NOT);
 				setState(115);
-				match(ASSIGN);
-				setState(116);
-				expr(17);
+				expr(8);
 				}
 				break;
 			case 10:
 				{
-				_localctx = new NotContext(_localctx);
+				_localctx = new FactExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
+				setState(116);
+				match(OPENPARENTHESES);
 				setState(117);
-				match(NOT);
+				expr(0);
 				setState(118);
-				expr(7);
+				match(CLOSEPARENTHESES);
 				}
 				break;
 			case 11:
 				{
-				_localctx = new FactExprContext(_localctx);
+				_localctx = new IdContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(119);
-				match(OPENPARENTHESES);
 				setState(120);
-				expr(0);
-				setState(121);
-				match(CLOSEPARENTHESES);
+				match(ID);
 				}
 				break;
 			case 12:
 				{
-				_localctx = new IdContext(_localctx);
+				_localctx = new INTEGERContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(123);
-				match(ID);
+				setState(121);
+				match(INTEGER);
 				}
 				break;
 			case 13:
 				{
-				_localctx = new INTEGERContext(_localctx);
+				_localctx = new StringContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(124);
-				match(INTEGER);
+				setState(122);
+				match(STRING);
 				}
 				break;
 			case 14:
 				{
-				_localctx = new StringContext(_localctx);
+				_localctx = new TrueContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(125);
-				match(STRING);
+				setState(123);
+				match(TRUE);
 				}
 				break;
 			case 15:
 				{
-				_localctx = new TrueContext(_localctx);
+				_localctx = new FalseContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(126);
-				match(TRUE);
+				setState(124);
+				match(FALSE);
 				}
 				break;
 			case 16:
 				{
-				_localctx = new FalseContext(_localctx);
+				_localctx = new AssignContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
+				setState(125);
+				match(ID);
+				setState(126);
+				match(ASSIGN);
 				setState(127);
-				match(FALSE);
+				expr(1);
 				}
 				break;
 			}
@@ -950,11 +950,11 @@ public class YAPLParser extends Parser {
 						_localctx = new OrContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(130);
-						if (!(precpred(_ctx, 16))) throw new FailedPredicateException(this, "precpred(_ctx, 16)");
+						if (!(precpred(_ctx, 17))) throw new FailedPredicateException(this, "precpred(_ctx, 17)");
 						setState(131);
 						match(OR);
 						setState(132);
-						expr(17);
+						expr(18);
 						}
 						break;
 					case 2:
@@ -962,11 +962,11 @@ public class YAPLParser extends Parser {
 						_localctx = new AndContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(133);
-						if (!(precpred(_ctx, 15))) throw new FailedPredicateException(this, "precpred(_ctx, 15)");
+						if (!(precpred(_ctx, 16))) throw new FailedPredicateException(this, "precpred(_ctx, 16)");
 						setState(134);
 						match(AND);
 						setState(135);
-						expr(16);
+						expr(17);
 						}
 						break;
 					case 3:
@@ -974,11 +974,11 @@ public class YAPLParser extends Parser {
 						_localctx = new MulContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(136);
-						if (!(precpred(_ctx, 14))) throw new FailedPredicateException(this, "precpred(_ctx, 14)");
+						if (!(precpred(_ctx, 15))) throw new FailedPredicateException(this, "precpred(_ctx, 15)");
 						setState(137);
 						match(MUL);
 						setState(138);
-						expr(15);
+						expr(16);
 						}
 						break;
 					case 4:
@@ -986,11 +986,11 @@ public class YAPLParser extends Parser {
 						_localctx = new DivContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(139);
-						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
+						if (!(precpred(_ctx, 14))) throw new FailedPredicateException(this, "precpred(_ctx, 14)");
 						setState(140);
 						match(DIV);
 						setState(141);
-						expr(14);
+						expr(15);
 						}
 						break;
 					case 5:
@@ -998,11 +998,11 @@ public class YAPLParser extends Parser {
 						_localctx = new AddContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(142);
-						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
+						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
 						setState(143);
 						match(ADD);
 						setState(144);
-						expr(13);
+						expr(14);
 						}
 						break;
 					case 6:
@@ -1010,11 +1010,11 @@ public class YAPLParser extends Parser {
 						_localctx = new SubContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(145);
-						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
+						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
 						setState(146);
 						match(SUB);
 						setState(147);
-						expr(12);
+						expr(13);
 						}
 						break;
 					case 7:
@@ -1022,11 +1022,11 @@ public class YAPLParser extends Parser {
 						_localctx = new LteqContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(148);
-						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
+						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
 						setState(149);
 						match(LTEQ);
 						setState(150);
-						expr(11);
+						expr(12);
 						}
 						break;
 					case 8:
@@ -1034,11 +1034,11 @@ public class YAPLParser extends Parser {
 						_localctx = new LtContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(151);
-						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
+						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
 						setState(152);
 						match(LT);
 						setState(153);
-						expr(10);
+						expr(11);
 						}
 						break;
 					case 9:
@@ -1046,11 +1046,11 @@ public class YAPLParser extends Parser {
 						_localctx = new EqualContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(154);
-						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
+						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
 						setState(155);
 						match(EQUAL);
 						setState(156);
-						expr(9);
+						expr(10);
 						}
 						break;
 					case 10:
@@ -1289,23 +1289,23 @@ public class YAPLParser extends Parser {
 	private boolean expr_sempred(ExprContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 0:
-			return precpred(_ctx, 16);
+			return precpred(_ctx, 17);
 		case 1:
-			return precpred(_ctx, 15);
+			return precpred(_ctx, 16);
 		case 2:
-			return precpred(_ctx, 14);
+			return precpred(_ctx, 15);
 		case 3:
-			return precpred(_ctx, 13);
+			return precpred(_ctx, 14);
 		case 4:
-			return precpred(_ctx, 12);
+			return precpred(_ctx, 13);
 		case 5:
-			return precpred(_ctx, 11);
+			return precpred(_ctx, 12);
 		case 6:
-			return precpred(_ctx, 10);
+			return precpred(_ctx, 11);
 		case 7:
-			return precpred(_ctx, 9);
+			return precpred(_ctx, 10);
 		case 8:
-			return precpred(_ctx, 8);
+			return precpred(_ctx, 9);
 		case 9:
 			return precpred(_ctx, 26);
 		}
@@ -1347,42 +1347,42 @@ public class YAPLParser extends Parser {
 		"\13\2\2a\u0083\3\2\2\2bf\7\30\2\2cd\5\n\6\2de\7\27\2\2eg\3\2\2\2fc\3\2"+
 		"\2\2gh\3\2\2\2hf\3\2\2\2hi\3\2\2\2ij\3\2\2\2jk\7\31\2\2k\u0083\3\2\2\2"+
 		"lm\7\22\2\2m\u0083\5\f\7\2no\7\16\2\2o\u0083\7\25\2\2pq\7 \2\2q\u0083"+
-		"\5\n\6\25rs\7\t\2\2s\u0083\5\n\6\24tu\7\24\2\2uv\7(\2\2v\u0083\5\n\6\23"+
-		"wx\7\17\2\2x\u0083\5\n\6\tyz\7\34\2\2z{\5\n\6\2{|\7\35\2\2|\u0083\3\2"+
-		"\2\2}\u0083\7\24\2\2~\u0083\7\23\2\2\177\u0083\7\26\2\2\u0080\u0083\7"+
-		"\21\2\2\u0081\u0083\7\20\2\2\u0082F\3\2\2\2\u0082T\3\2\2\2\u0082\\\3\2"+
-		"\2\2\u0082b\3\2\2\2\u0082l\3\2\2\2\u0082n\3\2\2\2\u0082p\3\2\2\2\u0082"+
-		"r\3\2\2\2\u0082t\3\2\2\2\u0082w\3\2\2\2\u0082y\3\2\2\2\u0082}\3\2\2\2"+
-		"\u0082~\3\2\2\2\u0082\177\3\2\2\2\u0082\u0080\3\2\2\2\u0082\u0081\3\2"+
-		"\2\2\u0083\u00b4\3\2\2\2\u0084\u0085\f\22\2\2\u0085\u0086\7)\2\2\u0086"+
-		"\u00b3\5\n\6\23\u0087\u0088\f\21\2\2\u0088\u0089\7*\2\2\u0089\u00b3\5"+
-		"\n\6\22\u008a\u008b\f\20\2\2\u008b\u008c\7!\2\2\u008c\u00b3\5\n\6\21\u008d"+
-		"\u008e\f\17\2\2\u008e\u008f\7$\2\2\u008f\u00b3\5\n\6\20\u0090\u0091\f"+
-		"\16\2\2\u0091\u0092\7\"\2\2\u0092\u00b3\5\n\6\17\u0093\u0094\f\r\2\2\u0094"+
-		"\u0095\7#\2\2\u0095\u00b3\5\n\6\16\u0096\u0097\f\f\2\2\u0097\u0098\7\'"+
-		"\2\2\u0098\u00b3\5\n\6\r\u0099\u009a\f\13\2\2\u009a\u009b\7&\2\2\u009b"+
-		"\u00b3\5\n\6\f\u009c\u009d\f\n\2\2\u009d\u009e\7%\2\2\u009e\u00b3\5\n"+
-		"\6\13\u009f\u00a2\f\34\2\2\u00a0\u00a1\7\37\2\2\u00a1\u00a3\7\25\2\2\u00a2"+
-		"\u00a0\3\2\2\2\u00a2\u00a3\3\2\2\2\u00a3\u00a4\3\2\2\2\u00a4\u00a5\7\36"+
-		"\2\2\u00a5\u00a6\7\24\2\2\u00a6\u00af\7\34\2\2\u00a7\u00ac\5\n\6\2\u00a8"+
-		"\u00a9\7\33\2\2\u00a9\u00ab\5\n\6\2\u00aa\u00a8\3\2\2\2\u00ab\u00ae\3"+
-		"\2\2\2\u00ac\u00aa\3\2\2\2\u00ac\u00ad\3\2\2\2\u00ad\u00b0\3\2\2\2\u00ae"+
-		"\u00ac\3\2\2\2\u00af\u00a7\3\2\2\2\u00af\u00b0\3\2\2\2\u00b0\u00b1\3\2"+
-		"\2\2\u00b1\u00b3\7\35\2\2\u00b2\u0084\3\2\2\2\u00b2\u0087\3\2\2\2\u00b2"+
-		"\u008a\3\2\2\2\u00b2\u008d\3\2\2\2\u00b2\u0090\3\2\2\2\u00b2\u0093\3\2"+
-		"\2\2\u00b2\u0096\3\2\2\2\u00b2\u0099\3\2\2\2\u00b2\u009c\3\2\2\2\u00b2"+
-		"\u009f\3\2\2\2\u00b3\u00b6\3\2\2\2\u00b4\u00b2\3\2\2\2\u00b4\u00b5\3\2"+
-		"\2\2\u00b5\13\3\2\2\2\u00b6\u00b4\3\2\2\2\u00b7\u00b8\7\24\2\2\u00b8\u00b9"+
-		"\7\32\2\2\u00b9\u00ba\7\25\2\2\u00ba\u00bb\7\33\2\2\u00bb\u00d2\5\f\7"+
-		"\2\u00bc\u00bd\7\24\2\2\u00bd\u00be\7\32\2\2\u00be\u00bf\7\25\2\2\u00bf"+
-		"\u00c0\7\7\2\2\u00c0\u00d2\5\n\6\2\u00c1\u00c2\7\24\2\2\u00c2\u00c3\7"+
-		"\32\2\2\u00c3\u00c4\7\25\2\2\u00c4\u00c5\7(\2\2\u00c5\u00c6\5\n\6\2\u00c6"+
-		"\u00c7\7\33\2\2\u00c7\u00c8\5\f\7\2\u00c8\u00d2\3\2\2\2\u00c9\u00ca\7"+
-		"\24\2\2\u00ca\u00cb\7\32\2\2\u00cb\u00cc\7\25\2\2\u00cc\u00cd\7(\2\2\u00cd"+
-		"\u00ce\5\n\6\2\u00ce\u00cf\7\7\2\2\u00cf\u00d0\5\n\6\2\u00d0\u00d2\3\2"+
-		"\2\2\u00d1\u00b7\3\2\2\2\u00d1\u00bc\3\2\2\2\u00d1\u00c1\3\2\2\2\u00d1"+
-		"\u00c9\3\2\2\2\u00d2\r\3\2\2\2\23\23\31!-\60>@NQh\u0082\u00a2\u00ac\u00af"+
-		"\u00b2\u00b4\u00d1";
+		"\5\n\6\25rs\7\t\2\2s\u0083\5\n\6\24tu\7\17\2\2u\u0083\5\n\6\nvw\7\34\2"+
+		"\2wx\5\n\6\2xy\7\35\2\2y\u0083\3\2\2\2z\u0083\7\24\2\2{\u0083\7\23\2\2"+
+		"|\u0083\7\26\2\2}\u0083\7\21\2\2~\u0083\7\20\2\2\177\u0080\7\24\2\2\u0080"+
+		"\u0081\7(\2\2\u0081\u0083\5\n\6\3\u0082F\3\2\2\2\u0082T\3\2\2\2\u0082"+
+		"\\\3\2\2\2\u0082b\3\2\2\2\u0082l\3\2\2\2\u0082n\3\2\2\2\u0082p\3\2\2\2"+
+		"\u0082r\3\2\2\2\u0082t\3\2\2\2\u0082v\3\2\2\2\u0082z\3\2\2\2\u0082{\3"+
+		"\2\2\2\u0082|\3\2\2\2\u0082}\3\2\2\2\u0082~\3\2\2\2\u0082\177\3\2\2\2"+
+		"\u0083\u00b4\3\2\2\2\u0084\u0085\f\23\2\2\u0085\u0086\7)\2\2\u0086\u00b3"+
+		"\5\n\6\24\u0087\u0088\f\22\2\2\u0088\u0089\7*\2\2\u0089\u00b3\5\n\6\23"+
+		"\u008a\u008b\f\21\2\2\u008b\u008c\7!\2\2\u008c\u00b3\5\n\6\22\u008d\u008e"+
+		"\f\20\2\2\u008e\u008f\7$\2\2\u008f\u00b3\5\n\6\21\u0090\u0091\f\17\2\2"+
+		"\u0091\u0092\7\"\2\2\u0092\u00b3\5\n\6\20\u0093\u0094\f\16\2\2\u0094\u0095"+
+		"\7#\2\2\u0095\u00b3\5\n\6\17\u0096\u0097\f\r\2\2\u0097\u0098\7\'\2\2\u0098"+
+		"\u00b3\5\n\6\16\u0099\u009a\f\f\2\2\u009a\u009b\7&\2\2\u009b\u00b3\5\n"+
+		"\6\r\u009c\u009d\f\13\2\2\u009d\u009e\7%\2\2\u009e\u00b3\5\n\6\f\u009f"+
+		"\u00a2\f\34\2\2\u00a0\u00a1\7\37\2\2\u00a1\u00a3\7\25\2\2\u00a2\u00a0"+
+		"\3\2\2\2\u00a2\u00a3\3\2\2\2\u00a3\u00a4\3\2\2\2\u00a4\u00a5\7\36\2\2"+
+		"\u00a5\u00a6\7\24\2\2\u00a6\u00af\7\34\2\2\u00a7\u00ac\5\n\6\2\u00a8\u00a9"+
+		"\7\33\2\2\u00a9\u00ab\5\n\6\2\u00aa\u00a8\3\2\2\2\u00ab\u00ae\3\2\2\2"+
+		"\u00ac\u00aa\3\2\2\2\u00ac\u00ad\3\2\2\2\u00ad\u00b0\3\2\2\2\u00ae\u00ac"+
+		"\3\2\2\2\u00af\u00a7\3\2\2\2\u00af\u00b0\3\2\2\2\u00b0\u00b1\3\2\2\2\u00b1"+
+		"\u00b3\7\35\2\2\u00b2\u0084\3\2\2\2\u00b2\u0087\3\2\2\2\u00b2\u008a\3"+
+		"\2\2\2\u00b2\u008d\3\2\2\2\u00b2\u0090\3\2\2\2\u00b2\u0093\3\2\2\2\u00b2"+
+		"\u0096\3\2\2\2\u00b2\u0099\3\2\2\2\u00b2\u009c\3\2\2\2\u00b2\u009f\3\2"+
+		"\2\2\u00b3\u00b6\3\2\2\2\u00b4\u00b2\3\2\2\2\u00b4\u00b5\3\2\2\2\u00b5"+
+		"\13\3\2\2\2\u00b6\u00b4\3\2\2\2\u00b7\u00b8\7\24\2\2\u00b8\u00b9\7\32"+
+		"\2\2\u00b9\u00ba\7\25\2\2\u00ba\u00bb\7\33\2\2\u00bb\u00d2\5\f\7\2\u00bc"+
+		"\u00bd\7\24\2\2\u00bd\u00be\7\32\2\2\u00be\u00bf\7\25\2\2\u00bf\u00c0"+
+		"\7\7\2\2\u00c0\u00d2\5\n\6\2\u00c1\u00c2\7\24\2\2\u00c2\u00c3\7\32\2\2"+
+		"\u00c3\u00c4\7\25\2\2\u00c4\u00c5\7(\2\2\u00c5\u00c6\5\n\6\2\u00c6\u00c7"+
+		"\7\33\2\2\u00c7\u00c8\5\f\7\2\u00c8\u00d2\3\2\2\2\u00c9\u00ca\7\24\2\2"+
+		"\u00ca\u00cb\7\32\2\2\u00cb\u00cc\7\25\2\2\u00cc\u00cd\7(\2\2\u00cd\u00ce"+
+		"\5\n\6\2\u00ce\u00cf\7\7\2\2\u00cf\u00d0\5\n\6\2\u00d0\u00d2\3\2\2\2\u00d1"+
+		"\u00b7\3\2\2\2\u00d1\u00bc\3\2\2\2\u00d1\u00c1\3\2\2\2\u00d1\u00c9\3\2"+
+		"\2\2\u00d2\r\3\2\2\2\23\23\31!-\60>@NQh\u0082\u00a2\u00ac\u00af\u00b2"+
+		"\u00b4\u00d1";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

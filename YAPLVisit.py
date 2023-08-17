@@ -18,7 +18,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.actual_method = None
         self.actual_method_type = None
         self.startType = None
-        self.errors = ["newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
+        self.errors = ["whileError","DobleMain","newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
 
     # Visit a parse tree produced by YAPLParser#start.
     def visitStart(self, ctx:YAPLParser.StartContext):
@@ -82,6 +82,10 @@ class YAPLVisit(ParseTreeVisitor):
             message = "No es posible realizar la inversa ya que no es un tipo Int"
         elif self.startType == "newError":
             message = "No es posible debido a que el type para el new no existe"
+        elif self.startType == "DobleMain":
+            message = "No es posible que hayan mas de 1 Main y main"
+        elif self.startType == "whileError":
+            message = "No es posible, error en el while"
         else:
             message = self.startType
         print("self.startType to send: ",message)
@@ -118,20 +122,26 @@ class YAPLVisit(ParseTreeVisitor):
         # print(defclaseInherits)
         if defclaseInherits:
             inheritPosition = defclaseTypeList[1]
-            if len(variable_array) > 0: 
-                self.symbol_table.add_symbol(classtype, defclaseClass, inherits=inheritPosition, contains=variable_array)
-            else:
-                self.symbol_table.add_symbol(classtype, defclaseClass, inherits=inheritPosition)
-            # print(inheritPosition)
-            if str(inheritPosition) == "IO":
-                pass
-            else:
-                print("inheritPosition: ",inheritPosition)
-                if self.symbol_table.contains_symbol(str(inheritPosition)) and str(self.symbol_table.get_symbol_type(str(inheritPosition))) == "class" and str(classtype) != "Main":
+            #revisar si Main ya existe
+            existMain = self.symbol_table.contains_symbol("Main")
+            existmain = self.symbol_table.contains_symbol("main")
+            if not existMain and not existmain: 
+                if len(variable_array) > 0: 
+                    self.symbol_table.add_symbol(classtype, defclaseClass, inherits=inheritPosition, contains=variable_array, ambit="Global")
+                else:
+                    self.symbol_table.add_symbol(classtype, defclaseClass, inherits=inheritPosition)
+                # print(inheritPosition)
+                if str(inheritPosition) == "IO":
                     pass
                 else:
-                    print("No existe")
-                    return "inheritProblem"
+                    print("inheritPosition: ",inheritPosition)
+                    if self.symbol_table.contains_symbol(str(inheritPosition)) and str(self.symbol_table.get_symbol_type(str(inheritPosition))) == "class" and str(classtype) != "Main":
+                        pass
+                    else:
+                        print("No existe")
+                        return "inheritProblem"
+            else:
+                return "DobleMain"
                 
         else:
             if len(variable_array) > 0:
@@ -161,7 +171,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("visitMethod")
         method_name = ctx.ID().getText()
         method_type = ctx.TYPE().getText()
-        self.symbol_table.add_symbol(method_name, method_type)
+        self.symbol_table.add_symbol(method_name, method_type,ambit="Local")
         formlExist = ctx.formal()
         self.actual_method = method_name
         self.actual_method_type = method_type
@@ -178,7 +188,17 @@ class YAPLVisit(ParseTreeVisitor):
         method_expr_type = self.symbol_table.get_symbol_type(method_expr_type) if self.symbol_table.get_symbol_type(method_expr_type) else method_expr_type
         print("method expr type: ", method_expr_type)
         print("=============================")
-        return method_expr_type
+        
+        #revisar si tiene un valor igual al tipo del metodo 
+        if self.actual_method_type in method_expr_type:
+            return self.actual_method_type
+        else:
+            #revisar si su tipo es SELF_TYPE
+            if self.actual_method_type == "SELF_TYPE":
+                if "Void" in method_expr_type:
+                    return "Void"
+            return "methodError"
+        # return method_expr_type
 
     # Visit a parse tree produced by YAPLParser#property.
     def visitProperty(self, ctx:YAPLParser.PropertyContext):
@@ -203,11 +223,11 @@ class YAPLVisit(ParseTreeVisitor):
         
         #asignar el width setun si tipo
         if var_type == "Int":
-            self.symbol_table.add_symbol(var_name, var_type,width=8)
+            self.symbol_table.add_symbol(var_name, var_type,width=8, ambit="Local")
         elif var_type == "Char":
-            self.symbol_table.add_symbol(var_name, var_type,width=4)
+            self.symbol_table.add_symbol(var_name, var_type,width=4, ambit="Local")
         else:
-            self.symbol_table.add_symbol(var_name, var_type)
+            self.symbol_table.add_symbol(var_name, var_type, ambit="Local")
             
         
         # revisar si es del mismo tipo la asignacion cuando se realice
@@ -518,10 +538,11 @@ class YAPLVisit(ParseTreeVisitor):
                 results.append(val)
         print("visitWhile results: ",results)
         print("=============================")
-        for result in results:
-            if result in self.errors:
-                return result
-        return results
+        
+        if "Bool" not in results:
+            return "whileError"
+
+        return "Object"
 
 
     # Visit a parse tree produced by YAPLParser#div.
@@ -612,8 +633,11 @@ class YAPLVisit(ParseTreeVisitor):
         value = ctx.TYPE().getText()
         print(value)
         #revisar que si existe en new type
-        existNew = self.symbol_table.contains_symbol(value)
-        print("existNew: ",existNew)
+        if value not in ["Object"]:
+            existNew = self.symbol_table.contains_symbol(value)
+            print("existNew: ",existNew)
+        else:
+            existNew = True
         print("=============================")
         if existNew:
             return value
@@ -689,6 +713,13 @@ class YAPLVisit(ParseTreeVisitor):
     def visitIf(self, ctx:YAPLParser.IfContext):
         print("if visitado")
         expresions = ctx.expr()
+        
+        ifstate = expresions[0] #if
+        elsestate = expresions[1] #else
+        thenstate = expresions[2] #then
+        
+        #correr el de if y en caso no es de tipo bool regresar error
+        
         results = []
         for expresion in expresions:
             val = self.visit(expresion)
@@ -702,6 +733,11 @@ class YAPLVisit(ParseTreeVisitor):
         for result in results:
             if result in self.errors:
                 return "ifError"
+            
+        #revisar que tenga un variable Bool
+        if "Bool" not in results:
+            return "ifError"
+            
         return results
         
     # Visit a parse tree produced by YAPLParser#ownMethodCall.
@@ -763,6 +799,13 @@ class YAPLVisit(ParseTreeVisitor):
     def visitMethodCall(self, ctx:YAPLParser.MethodCallContext):
         expresions = ctx.expr()
         results=[] 
+        # id = ctx.ID().getText() if ctx.ID() else False
+        
+        # print("visitMethodCall id: ",id)
+        # if id:
+        #     if str(id) == "abort":
+        #         results.append("Object")
+        
         for expreion in expresions:
             # print("visitMethodCall")
             val = self.visit(expreion)
