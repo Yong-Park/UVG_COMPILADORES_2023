@@ -188,15 +188,17 @@ class YAPLVisit(ParseTreeVisitor):
         method_expr_type = self.symbol_table.get_symbol_type(method_expr_type) if self.symbol_table.get_symbol_type(method_expr_type) else method_expr_type
         print("method expr type: ", method_expr_type)
         print("=============================")
-        
+        voidBasicType = ["Void","Int","Char","Bool"]
         #revisar si tiene un valor igual al tipo del metodo 
         if self.actual_method_type in method_expr_type:
             return self.actual_method_type
         else:
             #revisar si su tipo es SELF_TYPE
             if self.actual_method_type == "SELF_TYPE":
-                if "Void" in method_expr_type:
-                    return "Void"
+                # return method_expr_type
+                for types in voidBasicType:
+                    if types in method_expr_type:
+                        return types
             return "methodError"
         # return method_expr_type
 
@@ -528,21 +530,40 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#while.
     def visitWhile(self, ctx:YAPLParser.WhileContext):
         print("while visitado")
+        whileIsBool = False
+        
         expresions = ctx.expr()
-        results = []
-        for expresion in expresions:
-            val = self.visit(expresion)
-            if type(val) == list:
-                results.extend(val)
+        if len(expresions) != 2:
+            return "whileError"
+        
+        whilestate = expresions[0] #esto es lo del while que tiene que ser bool
+        print("corriendo while")
+        whileResult = self.visit(whilestate)
+        print("while result: ",whileResult)
+        
+        if type(whileResult) == list:
+            if "Bool" not in whileResult:
+                return "whileError"
             else:
-                results.append(val)
-        print("visitWhile results: ",results)
+                whileIsBool = True
+        else:
+            if whileResult != "Bool":
+                return "whileError"
+            else:
+                whileIsBool = True
+                
+        loopstate = expresions[1] #esto es el contenido del loop
+        print("corriendo loop")
+        loopResult = self.visit(loopstate)
+        
+        
+        print("visitWhile results (loop): ",loopResult)
         print("=============================")
         
-        if "Bool" not in results:
+        if whileIsBool:
+            return "Object"
+        else:
             return "whileError"
-
-        return "Object"
 
 
     # Visit a parse tree produced by YAPLParser#div.
@@ -714,29 +735,57 @@ class YAPLVisit(ParseTreeVisitor):
         print("if visitado")
         expresions = ctx.expr()
         
+        #if there are not three expresion return error
+        if len(expresions) != 3:
+            return "ifError"
+        
         ifstate = expresions[0] #if
-        elsestate = expresions[1] #else
-        thenstate = expresions[2] #then
+        print("corriendo el if")
+        ifResult = self.visit(ifstate)
         
-        #correr el de if y en caso no es de tipo bool regresar error
+        if type(ifResult) == list:
+            if "Bool" not in ifResult:
+                return "ifError"
+        else:
+            if ifResult != "Bool":
+                return "ifError"
+            
+        print("ifResult: ",ifResult)
+            
+        #obtener los resultados de elstate y thenstate
+        thenstate = expresions[1] #then
+        print("Corriendo el then")
+        thenResult = self.visit(thenstate)
         
+        elsestate = expresions[2] #else
+        print("Corriendo el else")
+        elseResult = self.visit(elsestate)
+        
+        #agregar los resultados en el results
         results = []
-        for expresion in expresions:
-            val = self.visit(expresion)
-            if type(val) == list:
-                results.extend(val)
-            else:
-                results.append(val)
+        
+        if type(thenResult) == list:
+            results.extend(thenResult)
+        else:
+            results.append(thenResult)
+            
+        if type(elseResult) == list:
+            results.extend(elseResult)
+        else:
+            results.append(elseResult)
+        
+        # for expresion in expresions:
+        #     val = self.visit(expresion)
+        #     if type(val) == list:
+        #         results.extend(val)
+        #     else:
+        #         results.append(val)
         print("visitIf results: ",results)
         print("=============================")
         #revisar que de los resultados obtenido no haya ninguno que forme parte de algun error
         for result in results:
             if result in self.errors:
                 return "ifError"
-            
-        #revisar que tenga un variable Bool
-        if "Bool" not in results:
-            return "ifError"
             
         return results
         
@@ -836,26 +885,28 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#letIn.
     def visitLetIn(self, ctx:YAPLParser.LetInContext):
         print("visitLetIn")
-        print(ctx.ID().getText())
-        print(ctx.TYPE().getText())
+        id = ctx.ID().getText()
+        letinType = ctx.TYPE().getText()
+        print("id: ",id)
+        print("letinType: ",letinType)
         print("=============================")
-        if str(ctx.TYPE().getText()) == "Int":
-            self.symbol_table.add_symbol(ctx.ID().getText(),ctx.TYPE().getText(),width=8)
-        elif  str(ctx.TYPE().getText()) == "Char":
-            self.symbol_table.add_symbol(ctx.ID().getText(),ctx.TYPE().getText(),width=4)
-        elif str(ctx.TYPE().getText()) == "Bool":
-            self.symbol_table.add_symbol(ctx.ID().getText(),ctx.TYPE().getText())
+        if str(letinType) == "Int":
+            self.symbol_table.add_symbol(id,letinType,width=8)
+        elif  str(letinType) == "Char":
+            self.symbol_table.add_symbol(id,letinType,width=4)
+        elif str(letinType) == "Bool":
+            self.symbol_table.add_symbol(id,letinType)
         # print("self.actual_method: ",self.actual_method)
         #agregarlo en su contains
         
         contains = self.symbol_table.get_contains(self.actual_method)
         array = []
         if contains == None:
-            array.append(ctx.ID().getText())
+            array.append(id)
         else:
             for contain in contains:
                 array.append(contain)
-            array.append(ctx.ID().getText())
+            array.append(id)
         
         self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array)
         
