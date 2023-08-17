@@ -482,7 +482,7 @@ class YAPLVisit(ParseTreeVisitor):
         right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
         
         if left_type == "Int" and right_type == "Int":
-            return left_type
+            return "Bool"
         else:
             return "notLessorequal"
         
@@ -501,7 +501,7 @@ class YAPLVisit(ParseTreeVisitor):
         right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
         
         if left_type == "Int" and right_type == "Int":
-            return left_type
+            return "Bool"
         else:
             return "notLess"
 
@@ -585,11 +585,11 @@ class YAPLVisit(ParseTreeVisitor):
         # print("right equal", right)
         if right_type in ["Int","Char","Bool"]:
             if left_type == right_type:
-                return left_type
+                return "Bool"
             else:
                 return "notequal"
         else:
-            return right
+            return "Bool"
 
 
     # Visit a parse tree produced by YAPLParser#not.
