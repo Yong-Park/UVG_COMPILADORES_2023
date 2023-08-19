@@ -794,6 +794,17 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#ownMethodCall.
     def visitOwnMethodCall(self, ctx:YAPLParser.OwnMethodCallContext):
         print("visitOwnMethodCall")
+        inherist = self.symbol_table.get_inherits(self.actual_class)
+        print("inherist: ",inherist)
+        id = ctx.ID().getText() 
+        print("visitOwnMethodCall id: ",id)
+        if str(inherist) != "IO":
+        #revisar que el id en este caso el metodo que se esta llamando si exista en donde se este llamando
+            containsMethod = self.symbol_table.get_contains(self.actual_class)
+        
+            if id not in containsMethod:
+                return "methodError"
+        
         expresions = ctx.expr()
         results = []
         for expresion in expresions:

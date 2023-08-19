@@ -16,7 +16,14 @@ class SymbolTable:
         self.ambit[name] = ambit
         
     def get_contains(self, name):
-        return self.contains[name] 
+        for Sname,_ in self.symbols.items():
+            if str(Sname) == str(name):
+                if self.contains.get(Sname or name):
+                    return self.contains[Sname]
+        # return self.contains[name] 
+    
+    def get_inherits(self,name):
+        return self.inherits[name] if self.inherits[name] else False
 
     def get_symbol_type(self, name):
         for Sname, type in self.symbols.items():
@@ -30,25 +37,20 @@ class SymbolTable:
         return name in self.contains[classname]
     
     def contains_element(self,name, value):
-        exist = False
+        print("name: ",name)
+        print("value: ",value)
         for Sname,_ in self.symbols.items():
             if str(Sname) == name:
-                
-                exist = True
-        if exist:
-            for Sname,_ in self.symbols.items():
-                if str(Sname) == name:
-                    print("Sname: ",Sname)
-                    print("name: ",name)
-                    if self.contains.get(name):
-                        for values in self.contains.get(name):
-                            if str(values) == value:
-                                print("values: ",values)
-                                print("value: ",value)
-                                return True
-        else:
-            return False
-        return False
+                print("Sname: ",Sname)
+                print("name: ",name)
+                if self.contains.get(Sname):
+                    for values in self.contains.get(Sname):
+                        if str(values) == str(value):
+                            print("values: ",values)
+                            print("value: ",value)
+                            return True
+            else:
+                return False
         
     
     def contains_mains(self):
