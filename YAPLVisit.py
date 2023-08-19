@@ -190,18 +190,31 @@ class YAPLVisit(ParseTreeVisitor):
         print("=============================")
         # voidBasicType = ["Void","Int","Char","Bool"]
         #revisar si tiene un valor igual al tipo del metodo 
-        if self.actual_method_type in method_expr_type:
-            return self.actual_method_type
+        if type(method_expr_type) == list:
+            
+            if self.actual_method_type in method_expr_type:
+                return self.actual_method_type
+            else:
+                # #revisar si su tipo es SELF_TYPE
+                # if self.actual_method_type == "SELF_TYPE":
+                #     # return method_expr_type
+                #     for types in voidBasicType:
+                #         if types in method_expr_type:
+                #             return types
+                return "methodError"
         else:
-            # #revisar si su tipo es SELF_TYPE
-            # if self.actual_method_type == "SELF_TYPE":
-            #     # return method_expr_type
-            #     for types in voidBasicType:
-            #         if types in method_expr_type:
-            #             return types
-            return "methodError"
-        # return method_expr_type
-
+            if method_expr_type in self.errors:
+                return method_expr_type
+            
+            if self.actual_method_type == method_expr_type:
+                return self.actual_method_type
+            else:
+                method_expr_type = self.symbol_table.get_symbol_type(method_expr_type) if self.symbol_table.get_symbol_type(method_expr_type) else method_expr_type
+                if self.actual_method_type == method_expr_type:
+                    return self.actual_method_type
+                else:
+                    return "methodError"
+       
     # Visit a parse tree produced by YAPLParser#property.
     def visitProperty(self, ctx:YAPLParser.PropertyContext):
         print("\nvisitProperty")
@@ -794,7 +807,7 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#ownMethodCall.
     def visitOwnMethodCall(self, ctx:YAPLParser.OwnMethodCallContext):
         print("\nvisitOwnMethodCall")
-        message = ""
+        message = "methodError"
         expresions = ctx.expr()
         
         inherist = self.symbol_table.get_inherits(self.actual_class)
@@ -803,44 +816,10 @@ class YAPLVisit(ParseTreeVisitor):
         id = ctx.ID().getText() 
         print("visitOwnMethodCall id: ",id)
         
-        if str(inherist) != "IO":
+        
+
         #revisar que el id en este caso el metodo que se esta llamando si exista en donde se este llamando
-            if id == "abort":
-                message = "Object"
-            elif id == "type_name":
-                message = "Char"
-            elif id == "copy":
-                message = "SELF_TYPE"
-            elif id == "length":
-                message = "Int"
-            elif id == "concat":
-                second = expresions.pop(0)
-                secondType = self.visit(second)
-                if secondType == "Char":
-                    message = "Char"
-            elif id == "substr":
-                second = expresions.pop(0)
-                secondType = self.visit(second)
-                third = expresions.pop(0)
-                thirdType = self.visit(third)
-                
-                if secondType == "Int" and thirdType == "Int":
-                    message = "Char"
-            else:
-                containsMethod = self.symbol_table.get_contains(self.actual_class)
-                message = []
-                if id not in containsMethod:
-                    return "methodError"
-                else:
-                    for expresion in expresions:
-                        val = self.visit(expresion)
-                        if type(val) == list:
-                            message.extend(val)
-                        else:
-                            message.append(val)
-                
-        else:
-            
+        if str(inherist) == "IO":
             if id == "out_string":
                 first = expresions.pop(0)
                 firstType = self.visit(first)
@@ -858,100 +837,30 @@ class YAPLVisit(ParseTreeVisitor):
             elif id == "in_int":
                 message = "Int"
             else:
-                message = "methodError"
-        print("visitOwnMethodCall message: ",message)
-        return message
-        # results = []
-        # for expresion in expresions:
-        #     val = self.visit(expresion)
-        #     if type(val)==list:
-        #         results.extend(val)
-        #     else:
-        #         val = self.symbol_table.get_symbol_type(val) if self.symbol_table.get_symbol_type(val) else val
-        #         results.append(val)
-            
-        # print("visitOwnMethodCall results: ", results)
-        # print("=============================")
-        # for result in results:
-        #     if result in self.errors:
-        #         return "methodError"
-        
-        # return results
+                claseContains = self.symbol_table.get_contains(self.actual_class)
+                idContains = self.symbol_table.get_contains(id)
+                results = []
+                expresionResults = []
+                if id in claseContains:
+                    if idContains != None:
+                        for c in idContains:
+                            results.append(self.symbol_table.get_symbol_type(c))
 
-
-    # Visit a parse tree produced by YAPLParser#INTEGER.
-    def visitINTEGER(self, ctx:YAPLParser.INTEGERContext):
-        return "Int"
-
-
-    # Visit a parse tree produced by YAPLParser#assign.
-    def visitAssign(self, ctx:YAPLParser.AssignContext):
-        print("\nassign visitado")
-        expresion = self.visit(ctx.expr())
-        expresionType = self.symbol_table.get_symbol_type(expresion) if self.symbol_table.get_symbol_type(expresion) else expresion
-        left = ctx.ID().getText()
-        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.get_symbol_type(left) else "noValue"
-        print("expresion: ",expresion)
-        # expresion = self.symbol_table.get_symbol_type(expresion) if self.symbol_table.get_symbol_type(expresion) else expresion
-        # print("expresion later: ",expresion)
-        print("left: ",left)
-        print("left_type: ",left_type)
-        
-        
-        
-        if expresionType not in ["Int","Char","Bool","Void","Object"]:
-            #obtener los contains
-            array = []
-            expresionContains = self.symbol_table.get_contains(expresion)
-            leftContains = self.symbol_table.get_contains(left)
-
-            if leftContains == None:
-                array.extend(expresionContains)
-            else:
-                array.extend(leftContains)
-                array.extend(expresionContains)
-
-            self.symbol_table.add_symbol(left,left_type,contains=array)
-        
-        print("=============================")
-        if type(expresion) == list:
-            print("es una lista")
-            if left_type in expresion:
-                return left_type
-            return "assignEr"
-        else:
-            if left_type == expresion:
-                return left_type
-            else:
-                expresion = self.symbol_table.get_symbol_type(expresion) if self.symbol_table.get_symbol_type(expresion) else expresion
-                if left_type == expresion:
-                    return left_type
+                        for expresion in expresions:
+                            val = self.visit(expresion)
+                            
+                            if type(val) == list:
+                                expresionResults.extend(val)
+                            else:
+                                val = self.symbol_table.get_symbol_type(val) if self.symbol_table.get_symbol_type(val) else val
+                                expresionResults.append(val)    
+                                
+                        for exp in expresionResults:
+                            if exp in results:
+                                message = exp
+                            
                 else:
-                    return "assignEr"
-
-
-    # Visit a parse tree produced by YAPLParser#methodCall.
-    def visitMethodCall(self, ctx:YAPLParser.MethodCallContext):
-        expresions = ctx.expr()
-        
-        inherist = self.symbol_table.get_inherits(self.actual_class)
-        print("visitMethodCall inherist: ",inherist)
-        
-        #obtener el primer tipo y segun ello trabajarlo
-        first = expresions.pop(0)
-        firstType = self.visit(first)
-        
-        print("\nvisitMethodCall")
-        message = ""
-        # results=[] 
-        
-        id = ctx.ID().getText()
-        print("visitMethodCall id: ",id)
-        
-        if firstType in self.errors:
-            return firstType
-        
-        print("visitMethodCall firstType",firstType)
+                    message = "methodError"
         
         if id == "abort":
             message = "Object"
@@ -974,47 +883,163 @@ class YAPLVisit(ParseTreeVisitor):
             
             if secondType == "Int" and thirdType == "Int":
                 message = "Char"
-            else:
-                message = "methodError"
-        else:
-            if str(inherist) == "IO":
-                if id == "out_string":
-                    first = expresions.pop(0)
-                    firstType = self.visit(first)
-                    
-                    if firstType == "Char":
-                        message = "SELF_TYPE"
-                elif id == "out_int":
-                    first = expresions.pop(0)
-                    firstType = self.visit(first)
-                    
-                    if firstType == "Int":
-                        message = "SELF_TYPE"
-                elif id == "in_string":
-                    message = "Char"
-                elif id == "in_int":
-                    message = "Int"
-                else:
-                    firstContains = self.symbol_table.get_contains(firstType)
-                    if id in firstContains:
-                        message = []
-                        for expresion in expresions:
-                            val = self.visit(expresion)
-                            if type(val) == list:
-                                message.extend(val)
-                            else:
-                                message.append(val)
-
-                        idContains = self.symbol_table.get_contains(id)
-                        for mes in message:
-                            if mes not in idContains:
-                                message = "methodError"
-                        message = self.symbol_table.get_symbol_type(id)
-                    else:
-                        message = "methodError"
-            else:
-                message = "methodError"
+        # else:
+        #     containsMethod = self.symbol_table.get_contains(self.actual_class)
+        #     message = []
+        #     if id not in containsMethod:
+        #         return "methodError"
+        #     else:
+        #         for expresion in expresions:
+        #             val = self.visit(expresion)
+        #             if type(val) == list:
+        #                 message.extend(val)
+        #             else:
+        #                 message.append(val)    
                 
+        print("visitOwnMethodCall message: ",message)
+        return message
+
+
+    # Visit a parse tree produced by YAPLParser#INTEGER.
+    def visitINTEGER(self, ctx:YAPLParser.INTEGERContext):
+        return "Int"
+
+
+    # Visit a parse tree produced by YAPLParser#assign.
+    def visitAssign(self, ctx:YAPLParser.AssignContext):
+        print("\nassign visitado")
+        expresion = self.visit(ctx.expr())
+        expresionType = self.symbol_table.get_symbol_type(expresion) if self.symbol_table.get_symbol_type(expresion) else expresion
+        left = ctx.ID().getText()
+        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.get_symbol_type(left) else "noValue"
+        print("expresion: ",expresion)
+        print("expresionType: ",expresionType)
+        # expresion = self.symbol_table.get_symbol_type(expresion) if self.symbol_table.get_symbol_type(expresion) else expresion
+        # print("expresion later: ",expresion)
+        print("left: ",left)
+        print("left_type: ",left_type)
+        
+        
+        
+        if expresionType not in ["Int","Char","Bool","Void","Object"]:
+            #obtener los contains
+            array = []
+            expresionContains = self.symbol_table.get_contains(expresion)
+            leftContains = self.symbol_table.get_contains(left)
+
+            if leftContains == None:
+                if expresionContains != None:
+                    array.extend(expresionContains)
+            else:
+                array.extend(leftContains)
+                array.extend(expresionContains)
+
+            self.symbol_table.add_symbol(left,left_type,contains=array)
+        
+        print("=============================")
+        if type(expresion) == list:
+            print("es una lista")
+            if left_type in expresion:
+                return left_type
+            return "assignEr"
+        else:
+            print("No es una lista")
+            if str(left_type) == str(expresion):
+                print("Se esta regresando este: ",left_type)
+                return left_type
+            else:
+                expresion = self.symbol_table.get_symbol_type(expresion) if self.symbol_table.get_symbol_type(expresion) else expresion
+                if left_type == expresion:
+                    return left_type
+                else:
+                    return "assignEr"
+
+
+    # Visit a parse tree produced by YAPLParser#methodCall.
+    def visitMethodCall(self, ctx:YAPLParser.MethodCallContext):
+        expresions = ctx.expr()
+        
+        inherist = self.symbol_table.get_inherits(self.actual_class)
+        print("visitMethodCall inherist: ",inherist)
+        
+        #obtener el primer tipo y segun ello trabajarlo
+        first = expresions.pop(0)
+        firstType = self.visit(first)
+        
+        print("\nvisitMethodCall")
+        message = "methodError"
+        # results=[] 
+        
+        id = ctx.ID().getText()
+        print("visitMethodCall id: ",id)
+        print("visitMethodCall firstType",firstType)
+        if firstType in self.errors:
+            return firstType
+        
+        if id == "abort":
+            message = "Object"
+        elif id == "type_name":
+            message = "Char"
+        elif id == "copy":
+            message = "SELF_TYPE"
+        elif id == "length":
+            message = "Int"
+        elif id == "concat":
+            second = expresions.pop(0)
+            secondType = self.visit(second)
+            if secondType == "Char":
+                message = "Char"
+        elif id == "substr":
+            second = expresions.pop(0)
+            secondType = self.visit(second)
+            third = expresions.pop(0)
+            thirdType = self.visit(third)
+            # print("substr secondType: ",secondType)
+            # print("substr thirdType: ",thirdType)
+            if secondType == "Int" and thirdType == "Int":
+                message = "Char"
+            else:
+                message = "methodError"
+        elif id == "isNil":
+            message = "Bool"
+        
+        if str(inherist) == "IO":
+            if id == "out_string":
+                first = expresions.pop(0)
+                firstType = self.visit(first)
+                
+                if firstType == "Char":
+                    message = "SELF_TYPE"
+            elif id == "out_int":
+                first = expresions.pop(0)
+                firstType = self.visit(first)
+                
+                if firstType == "Int":
+                    message = "SELF_TYPE"
+            elif id == "in_string":
+                message = "Char"
+            elif id == "in_int":
+                message = "Int"
+             
+        # firstContains = self.symbol_table.get_contains(firstType)
+        # if firstContains != None:
+        #     if id in firstContains:
+        #         message = []
+        #         for expresion in expresions:
+        #             val = self.visit(expresion)
+        #             if type(val) == list:
+        #                 message.extend(val)
+        #             else:
+        #                 message.append(val)
+
+        #         idContains = self.symbol_table.get_contains(id)
+        #         print("idContains: ",idContains)
+        #         print("message: ",message)
+        #         for mes in message:
+        #             if mes not in idContains:
+        #                 message = "methodError"
+        #         message = self.symbol_table.get_symbol_type(id)
+
         print("visitMethodCall message: ",message)
         return message
 
