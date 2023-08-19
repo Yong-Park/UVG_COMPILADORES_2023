@@ -62,24 +62,41 @@ class IDE(tk.Tk):
                 self.code_input.delete("1.0", tk.END)
                 self.code_input.insert(tk.END, code)
 
-    def SymbolTablePrint(self, diccionario):
+    def SymbolTablePrint(self, visitor):
         # Crear una ventana
         ventana = tk.Tk()
         ventana.title("Symbol Table")
 
         # Crear un Treeview (Tabla)
         tabla = ttk.Treeview(ventana)
-        tabla["columns"] = ("Tipo")
+        tabla["columns"] = ("Tipo", "Inherits", "Width", "Displacement", "Contains", "Ambit")
         tabla.heading("#0", text="Variable")
         tabla.heading("Tipo", text="Tipo")
+        tabla.heading("Inherits", text="Inherits")
+        tabla.heading("Width", text="Width")
+        tabla.heading("Displacement", text="Displacement")
+        tabla.heading("Contains", text="Contains")
+        tabla.heading("Ambit", text="Ambit")
 
         # Agregar datos al Treeview
-        for clave, valor in diccionario.items():
-            tabla.insert("", "end", text=clave, values=(valor))
+        for clave, valor in visitor.symbol_table.symbols.items():
+            tipo = valor
+            inherits = visitor.symbol_table.inherits.get(clave, "None")
+            width = str(visitor.symbol_table.width.get(clave, "None"))
+            displacement = str(visitor.symbol_table.displacement.get(clave, "None"))
+            contains = str(visitor.symbol_table.contains.get(clave, "None"))
+            ambit = visitor.symbol_table.ambit.get(clave, "None")
+            
+            tabla.insert("", "end", text=clave, values=(tipo, inherits, width, displacement, contains, ambit))
 
         # Ajustar el ancho de las columnas para que se vean correctamente los datos
         tabla.column("#0", width=100)
         tabla.column("Tipo", width=100)
+        tabla.column("Inherits", width=100)
+        tabla.column("Width", width=100)
+        tabla.column("Displacement", width=100)
+        tabla.column("Contains", width=100)
+        tabla.column("Ambit", width=100)
 
         # Empaquetar el Treeview
         tabla.pack()
@@ -117,7 +134,7 @@ class IDE(tk.Tk):
             else:
                 self.output.insert(tk.END, "Código incorrecto, error de tipo: " + result, "red") if result != None else self.output.insert(tk.END, "Código incorrecto, error de tipo", "red")
              # Imprimir el resultado del análisis semántico
-            self.SymbolTablePrint(visitor.symbol_table.symbols)
+            self.SymbolTablePrint(visitor)
             #print(visitor.symbol_table.symbols)
 
         except RecognitionException as e:

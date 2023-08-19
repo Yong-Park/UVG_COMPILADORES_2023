@@ -228,6 +228,8 @@ class YAPLVisit(ParseTreeVisitor):
             self.symbol_table.add_symbol(var_name, var_type,width=8, ambit="Local")
         elif var_type == "Char":
             self.symbol_table.add_symbol(var_name, var_type,width=4, ambit="Local")
+        elif var_type == "String":
+            self.symbol_table.add_symbol(var_name, var_type,width=2, ambit="Local")
         else:
             self.symbol_table.add_symbol(var_name, var_type, ambit="Local")
             
