@@ -6,14 +6,30 @@ class SymbolTable:
         self.displacement = {}
         self.contains = {}
         self.ambit = {}
+        self.recieves = {}
 
-    def add_symbol(self, name, type, inherits=None, width=None, displacement=None, contains=None,ambit=None):
+    def add_symbol(self, name, type, inherits=None, width=None, displacement=None, contains=None, ambit=None, recieves=None):
+        # print("new contains: ",contains)
+        # print("new recieves: ",recieves)
         self.symbols[name] = type
-        self.inherits[name] = inherits
-        self.width[name] = width
-        self.displacement[name] = displacement
-        self.contains[name] = contains
-        self.ambit[name] = ambit
+        if inherits is not None:
+            self.inherits[name] = inherits
+        if width is not None:
+            self.width[name] = width
+        if displacement is not None:
+            self.displacement[name] = displacement
+        if contains is not None:
+            self.contains[name] = contains
+        if ambit is not None:
+            self.ambit[name] = ambit
+        if recieves is not None:
+            self.recieves[name] = recieves
+        # print("name: ",name)
+        # print("self.recieves[name]: ",self.recieves[name])
+        
+        
+    def get_recieves(self,name):
+        return self.recieves.get(name, False)
         
     def get_contains(self, name):
         for Sname,_ in self.symbols.items():
@@ -23,7 +39,7 @@ class SymbolTable:
         # return self.contains[name] 
     
     def get_inherits(self,name):
-        return self.inherits[name] if self.inherits[name] else False
+        return self.inherits.get(name, False)
 
     def get_symbol_type(self, name):
         for Sname, type in self.symbols.items():
@@ -91,6 +107,7 @@ class SymbolTable:
             table_str += f"\tDisplacement: {self.displacement.get(name, 'N/A')}\n"
             table_str += f"\tContains: {self.contains.get(name, 'N/A')}\n"
             table_str += f"\tAmbit: {self.ambit.get(name, 'N/A')}\n"
+            table_str += f"\trecieves: {self.recieves.get(name, 'N/A')}\n"
         return table_str
     
 

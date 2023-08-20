@@ -107,8 +107,9 @@ class YAPLVisit(ParseTreeVisitor):
         #definir la clase actual en la que esta
         
         defclaseTypeList = ctx.TYPE()
-        classtype = defclaseTypeList[0]
+        classtype = defclaseTypeList[0].getText()
         # print(classtype)
+        print("classtype: type", type(classtype))
         self.actual_class = classtype
         
         #agregar todos las variables
@@ -136,9 +137,24 @@ class YAPLVisit(ParseTreeVisitor):
                 else:
                     print("inheritPosition: ",inheritPosition)
                     if self.symbol_table.contains_symbol(str(inheritPosition)) and str(self.symbol_table.get_symbol_type(str(inheritPosition))) == "class" and str(classtype) != "Main":
+                        print("inheritPosition si existe")
+                        typeContains = self.symbol_table.get_contains(self.actual_class)
+                        typeInheritContains = self.symbol_table.get_contains(inheritPosition)
+                        print("visitDefClase typeContains: ",typeContains)
+                        print("visitDefClase typeInheritContains: ",typeInheritContains)
+                        array = []
+                        if typeContains == None:
+                            array.extend(typeInheritContains)
+                        else:
+                            array.extend(typeContains)
+                            array.extend(typeInheritContains)
+                            
+                        self.symbol_table.add_symbol(classtype,defclaseClass,contains=array)
+                        
+                        
                         pass
                     else:
-                        print("No existe")
+                        print("inheritPosition No existe")
                         return "inheritProblem"
             else:
                 return "DobleMain"
@@ -173,12 +189,25 @@ class YAPLVisit(ParseTreeVisitor):
         method_type = ctx.TYPE().getText()
         self.symbol_table.add_symbol(method_name, method_type,ambit="Local")
         formlExist = ctx.formal()
+        # print("method_name type: ", type(method_name))
+        # print("method_type type: ", type(method_type))
+        
         self.actual_method = method_name
         self.actual_method_type = method_type
         print('method_name: ', method_name, '\n')
         print('method_type: ', method_type, '\n')
         for form in formlExist:
-            print(self.visit(form))
+            res= self.visit(form)
+            if res in self.errors:
+                print("visitMethod found error: ",res)
+                return "res"
+        # contains = self.symbol_table.get_contains(self.actual_method)
+        # recieve = self.symbol_table.get_recieves(self.actual_method)
+        # print("visitMethod contains: ",contains)
+        # print("visitMethod recieve: ",recieve)    
+        
+        # self.symbol_table.add_symbol(self.actual_method,self.actual_method_type)
+        
         # Agregar el método a la Tabla de Símbolos
         
         # print("symbol table: ", self.symbol_table)
@@ -269,7 +298,27 @@ class YAPLVisit(ParseTreeVisitor):
         print("idtext: ",idtext)
         print("tipo: ",tipo)
         self.symbol_table.add_symbol(idtext,tipo)
-        # print("self.actual_method: ",self.actual_method)
+        if tipo not in ["Int","Char","Bool","Object"]:
+            print("buscar si el tipo existe")
+            tipoExiste = self.symbol_table.contains_symbol(tipo)
+            print("tipoExiste: ",tipoExiste)
+            if tipoExiste:
+                classContains = self.symbol_table.get_contains(tipo)
+                formContains = self.symbol_table.get_contains(idtext)
+                formArray = []
+                if formContains == None:
+                    formArray.extend(classContains)
+                else:
+                    formArray.extend(formContains)
+                    formArray.extend(classContains)
+                self.symbol_table.add_symbol(idtext,tipo,contains=formArray)
+            else:
+                print("visitForml found: methodError")
+                return "methodError"
+        
+        print("self.actual_method: ",self.actual_method)
+        print("self.actual_method Type: ",type(self.actual_method))
+        # print("self.actual_method_type: ",self.actual_method_type)
         #agregarlo en su contains
         contains = self.symbol_table.get_contains(self.actual_method)
         array = []
@@ -279,10 +328,16 @@ class YAPLVisit(ParseTreeVisitor):
             array.append(idtext)
             for ele in contains:
                 array.append(str(ele))
-            
-        
-            
-        self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array)
+                
+        recieves = self.symbol_table.get_recieves(self.actual_method)
+        recieveArray = []
+        if recieves == False:
+            recieveArray.append(tipo)
+        else:
+            recieveArray.extend(recieves)
+            recieveArray.append(tipo)
+        print("visitForml array: ",array)
+        self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array,recieves=recieveArray)
         print("=============================")
     
     # Visit a parse tree produced by YAPLParser#or.
@@ -721,7 +776,9 @@ class YAPLVisit(ParseTreeVisitor):
         print("\nid value: ", value)
         #revisar si es de tipo self
         if str(value) == "self":
-            self.symbol_table.add_symbol(value, "Void")
+            print("self.actual_method: ",self.actual_method)
+            print("self.actual_method_type: ",self.actual_method_type)
+            self.symbol_table.add_symbol(value, self.actual_method_type)
             # print("self.actual_method: ",self.actual_method)
             tipo = self.symbol_table.get_symbol_type(self.actual_method)
             # print("tipo: ",tipo)
@@ -733,7 +790,7 @@ class YAPLVisit(ParseTreeVisitor):
                 contain.append(value)
             self.symbol_table.add_symbol(self.actual_method,tipo,contains=contain)
       
-            return "Void"
+            return str(self.actual_method_type)
         else:
             exist = self.symbol_table.variable_class(self.actual_class, value) if self.symbol_table.variable_class(self.actual_class, value) else self.symbol_table.variable_class(self.actual_method, value)
         
@@ -815,10 +872,9 @@ class YAPLVisit(ParseTreeVisitor):
         
         id = ctx.ID().getText() 
         print("visitOwnMethodCall id: ",id)
-        
-        
+        # print("visitOwnMethodCall id Type: ",type(id))
 
-        #revisar que el id en este caso el metodo que se esta llamando si exista en donde se este llamando
+        #tiene el io inheritado
         if str(inherist) == "IO":
             if id == "out_string":
                 first = expresions.pop(0)
@@ -831,37 +887,17 @@ class YAPLVisit(ParseTreeVisitor):
                 firstType = self.visit(first)
                 if firstType == "Int":
                     message = "SELF_TYPE"
+                else:
+                    firstType = self.symbol_table.get_symbol_type(firstType) if self.symbol_table.get_symbol_type(firstType) else firstType
+                    if firstType == "Int":
+                        message = "SELF_TYPE"
                     
             elif id == "in_string":
                 message = "String"
             elif id == "in_int":
                 message = "Int"
-            else:
-                claseContains = self.symbol_table.get_contains(self.actual_class)
-                idContains = self.symbol_table.get_contains(id)
-                results = []
-                expresionResults = []
-                if id in claseContains:
-                    if idContains != None:
-                        for c in idContains:
-                            results.append(self.symbol_table.get_symbol_type(c))
-
-                        for expresion in expresions:
-                            val = self.visit(expresion)
-                            
-                            if type(val) == list:
-                                expresionResults.extend(val)
-                            else:
-                                val = self.symbol_table.get_symbol_type(val) if self.symbol_table.get_symbol_type(val) else val
-                                expresionResults.append(val)    
-                                
-                        for exp in expresionResults:
-                            if exp in results:
-                                message = exp
-                            
-                else:
-                    message = "methodError"
-        
+                    
+        #cumple con alguno de los string o object
         if id == "abort":
             message = "Object"
         elif id == "type_name":
@@ -883,20 +919,37 @@ class YAPLVisit(ParseTreeVisitor):
             
             if secondType == "Int" and thirdType == "Int":
                 message = "Char"
-        # else:
-        #     containsMethod = self.symbol_table.get_contains(self.actual_class)
-        #     message = []
-        #     if id not in containsMethod:
-        #         return "methodError"
-        #     else:
-        #         for expresion in expresions:
-        #             val = self.visit(expresion)
-        #             if type(val) == list:
-        #                 message.extend(val)
-        #             else:
-        #                 message.append(val)    
+                
+        #el id es un metodo que se esta volviendo a llamar?
+        actualClassContains = self.symbol_table.get_contains(self.actual_class)
+        if actualClassContains != None:
+            if id in actualClassContains:
+                first = expresions.pop(0) if len(expresions) > 0 else False
+                if first != False:
+                    firstType = self.visit(first)
+                    print("visitOwnMethodCall firstType: ",firstType)
+                    print("visitOwnMethodCall id: ",id , " :", type(id))
+                    recieveMethod = self.symbol_table.get_recieves(id)
+                    print("visitOwnMethodCall recieveMethod: ",recieveMethod)
+
+                    if type(firstType) != list:
+                        firstType = [firstType]
+                    
+                    if len(firstType) == len(recieveMethod):
+                        for ft in firstType:
+                            if ft in recieveMethod:
+                                message = str(self.symbol_table.get_symbol_type(id))
+                            else:
+                                ft = self.symbol_table.get_symbol_type(ft) if self.symbol_table.get_symbol_type(ft) else ft
+                                if ft in recieveMethod:
+                                    message = str(self.symbol_table.get_symbol_type(id))
+                                else:
+                                    message = "methodError"
+                                    break
                 
         print("visitOwnMethodCall message: ",message)
+        
+        
         return message
 
 
@@ -919,7 +972,8 @@ class YAPLVisit(ParseTreeVisitor):
         print("left: ",left)
         print("left_type: ",left_type)
         
-        
+        if expresionType in self.errors:
+            return expresionType
         
         if expresionType not in ["Int","Char","Bool","Void","Object"]:
             #obtener los contains
@@ -998,8 +1052,6 @@ class YAPLVisit(ParseTreeVisitor):
             # print("substr thirdType: ",thirdType)
             if secondType == "Int" and thirdType == "Int":
                 message = "Char"
-            else:
-                message = "methodError"
         elif id == "isNil":
             message = "Bool"
         
@@ -1021,24 +1073,38 @@ class YAPLVisit(ParseTreeVisitor):
             elif id == "in_int":
                 message = "Int"
              
-        # firstContains = self.symbol_table.get_contains(firstType)
-        # if firstContains != None:
-        #     if id in firstContains:
-        #         message = []
-        #         for expresion in expresions:
-        #             val = self.visit(expresion)
-        #             if type(val) == list:
-        #                 message.extend(val)
-        #             else:
-        #                 message.append(val)
-
-        #         idContains = self.symbol_table.get_contains(id)
-        #         print("idContains: ",idContains)
-        #         print("message: ",message)
-        #         for mes in message:
-        #             if mes not in idContains:
-        #                 message = "methodError"
-        #         message = self.symbol_table.get_symbol_type(id)
+        #revisar si el id es un metodo llamda utuilziando la primera expresion   
+        firstContains = self.symbol_table.get_contains(firstType)
+        print("visitMethodCall firstContains: ", firstContains)
+        if firstContains != None:
+            if id in firstContains:
+                nextArray = []
+                while(len(expresions) > 0):
+                    next = expresions.pop(0) if len(expresions) > 0 else False
+                    if next != False:
+                        nextType = self.visit(next)
+                        print("visitMethodCall nextType: ",nextType)
+                        nextType = self.symbol_table.get_symbol_type(nextType) if self.symbol_table.get_symbol_type(nextType) else nextType
+                        print("visitMethodCall nextType after: ",nextType)
+                        
+                        if type(nextType) != list:
+                            nextArray.append(nextType)
+                        else:
+                            nextArray.extend(nextType)
+                            
+                idRecieves = self.symbol_table.get_recieves(id)
+                print("visitMethodCall idRecieves: ",idRecieves)
+                if idRecieves != False:
+                    print("visitMethodCall nextArray: ",nextArray)
+                    if len(nextArray) == len(idRecieves):
+                        for nt in nextArray:
+                            if nt in idRecieves:
+                                message = str(self.symbol_table.get_symbol_type(id))
+                            else:
+                                message = "methodError"
+                                break
+                else:
+                    message = str(self.symbol_table.get_symbol_type(id))
 
         print("visitMethodCall message: ",message)
         return message
@@ -1089,12 +1155,13 @@ class YAPLVisit(ParseTreeVisitor):
         #agregarlo en su contains
         
         contains = self.symbol_table.get_contains(self.actual_method)
+        # recieve = self.symbol_table.get_recieves(self.actual_method)
+        # print("visitLetIn recieves: ",recieve)
         array = []
         if contains == None:
             array.append(id)
         else:
-            for contain in contains:
-                array.append(contain)
+            array.extend(contains)
             array.append(id)
         
         self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array)
@@ -1116,6 +1183,8 @@ class YAPLVisit(ParseTreeVisitor):
         print("\nvisitLetAssignIn")
         id = ctx.ID().getText()
         typevisit = ctx.TYPE().getText()
+        print("visitLetAssignIn typevisit: ",typevisit)
+        
         resutls = []
         
         self.symbol_table.add_symbol(id,typevisit)
@@ -1140,9 +1209,12 @@ class YAPLVisit(ParseTreeVisitor):
         assignExpresion = expresions[0]
         
         assignValue = self.visit(assignExpresion)
+        print("visitLetAssignIn assignValue: ",assignValue)
+        
         if type(assignValue) ==  list:
             if typevisit in assignValue:
                 resutls.extend(assignValue)
+                resutls.append(typevisit)
             else:
                 resutls.append("assignEr")
         else:
