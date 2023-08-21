@@ -1034,7 +1034,10 @@ class YAPLVisit(ParseTreeVisitor):
             exprInhertis = self.symbol_table.get_inherits(expr)
             print("exprInhertis: ",exprInhertis)
             if exprInhertis != False:
-                expresion.append(str(exprInhertis))
+                if str(exprInhertis) not in expresion:
+                    expresion.append(str(exprInhertis))
+                else:
+                    exprInhertis = False
             
         
         print("=============================")
