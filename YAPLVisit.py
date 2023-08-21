@@ -166,9 +166,9 @@ class YAPLVisit(ParseTreeVisitor):
                 
         else:
             if len(variable_array) > 0:
-                self.symbol_table.add_symbol(classtype, defclaseClass,contains=variable_array)
+                self.symbol_table.add_symbol(classtype, defclaseClass,contains=variable_array,ambit="Global")
             else:
-                self.symbol_table.add_symbol(classtype, defclaseClass)
+                self.symbol_table.add_symbol(classtype, defclaseClass,ambit="Global")
         
         defclaseType = None
         tipos = ctx.feature()
