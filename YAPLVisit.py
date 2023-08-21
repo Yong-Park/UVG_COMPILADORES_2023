@@ -123,6 +123,11 @@ class YAPLVisit(ParseTreeVisitor):
         # print(defclaseInherits)
         if defclaseInherits:
             inheritPosition = defclaseTypeList[1]
+            
+            #revisar que no sea recursivo
+            if inheritPosition == classtype:
+                return "methodError"
+            
             #revisar si Main ya existe
             existMain = self.symbol_table.contains_symbol("Main")
             existmain = self.symbol_table.contains_symbol("main")
@@ -185,6 +190,7 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#method.
     def visitMethod(self, ctx:YAPLParser.MethodContext):
         print("\nvisitMethod")
+        self.forml_type = False
         method_name = ctx.ID().getText()
         method_type = ctx.TYPE().getText()
         self.symbol_table.add_symbol(method_name, method_type,ambit="Local")
@@ -196,11 +202,36 @@ class YAPLVisit(ParseTreeVisitor):
         self.actual_method_type = method_type
         print('method_name: ', method_name, '\n')
         print('method_type: ', method_type, '\n')
+        
+        self.methodRecieves = []
         for form in formlExist:
             res= self.visit(form)
             if res in self.errors:
                 print("visitMethod found error: ",res)
-                return "res"
+                return res
+            
+        if len(self.methodRecieves) > 0:
+            #revisar si el metodo existe pero tiene que el recieves es falso o none
+            methodHasRecieve = self.symbol_table.get_recieves(method_name)
+            if methodHasRecieve == False:
+                self.symbol_table.add_symbol(method_name,method_type,recieves=self.methodRecieves)
+            #revisar si el class es un inhertis
+            classIsInhertis = self.symbol_table.get_inherits(self.actual_class)
+            if classIsInhertis: 
+                classInheritContains = self.symbol_table.get_contains(classIsInhertis)
+                if classInheritContains:
+                    if method_name in classInheritContains:
+                        #revisar que el forml sea del mismo tipo que el que tiene adentro y el tipo de valor de regreso
+                        classInhertisMethodRecieves = self.symbol_table.get_recieves(method_name)
+                        print("visitMethod classInhertisMethodRecieves: ",classInhertisMethodRecieves)
+                        print("visitMethod self.methodRecieves: ",self.methodRecieves)
+                        if classInhertisMethodRecieves != self.methodRecieves:
+                            return "methodError"
+                        #revisar si regresan el mismo tipo de valor
+                        inhertisMethodType = self.symbol_table.get_symbol_type(method_name)
+                        if inhertisMethodType != method_type:
+                            return "methodError"
+        
         # contains = self.symbol_table.get_contains(self.actual_method)
         # recieve = self.symbol_table.get_recieves(self.actual_method)
         # print("visitMethod contains: ",contains)
@@ -317,8 +348,9 @@ class YAPLVisit(ParseTreeVisitor):
                 return "methodError"
         
         print("self.actual_method: ",self.actual_method)
-        print("self.actual_method Type: ",type(self.actual_method))
-        # print("self.actual_method_type: ",self.actual_method_type)
+        # print("self.actual_method Type: ",type(self.actual_method))
+        print("self.actual_method_type: ",self.actual_method_type)
+        
         #agregarlo en su contains
         contains = self.symbol_table.get_contains(self.actual_method)
         array = []
@@ -328,17 +360,15 @@ class YAPLVisit(ParseTreeVisitor):
             array.append(idtext)
             for ele in contains:
                 array.append(str(ele))
-                
-        recieves = self.symbol_table.get_recieves(self.actual_method)
-        recieveArray = []
-        if recieves == False:
-            recieveArray.append(tipo)
-        else:
-            recieveArray.extend(recieves)
-            recieveArray.append(tipo)
+        
+        self.methodRecieves.append(tipo)
+        
         print("visitForml array: ",array)
-        self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array,recieves=recieveArray)
+        print("visitForml self.methodRecieves: ",self.methodRecieves)
+        self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array)
         print("=============================")
+        
+        
     
     # Visit a parse tree produced by YAPLParser#or.
     def visitOr(self, ctx:YAPLParser.OrContext):
@@ -989,10 +1019,29 @@ class YAPLVisit(ParseTreeVisitor):
                 array.extend(expresionContains)
 
             self.symbol_table.add_symbol(left,left_type,contains=array)
+            
+        #revisar si expresion inhertis de algun otro y si es asi convertirlo en lista lo de expresion
+        exprInhertis = self.symbol_table.get_inherits(expresion)
+        print("expresion type: ",type(expresion))
+        if exprInhertis !=False:
+            print("exprInhertis: ",exprInhertis)
+            expresion = [expresion]
+            expresion.append(str(exprInhertis))
+        while exprInhertis != False:
+            expr = expresion[len(expresion)-1]
+            print("expr: ",expr)
+            print("expr type: ",type(expr))
+            exprInhertis = self.symbol_table.get_inherits(expr)
+            print("exprInhertis: ",exprInhertis)
+            if exprInhertis != False:
+                expresion.append(str(exprInhertis))
+            
         
         print("=============================")
         if type(expresion) == list:
             print("es una lista")
+            print("left_type: ",left_type)
+            print("expresion: ",expresion)
             if left_type in expresion:
                 return left_type
             return "assignEr"
