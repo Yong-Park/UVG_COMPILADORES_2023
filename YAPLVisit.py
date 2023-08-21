@@ -109,7 +109,7 @@ class YAPLVisit(ParseTreeVisitor):
         defclaseTypeList = ctx.TYPE()
         classtype = defclaseTypeList[0].getText()
         # print(classtype)
-        print("classtype: type", type(classtype))
+        print("classtype type: ", classtype)
         self.actual_class = classtype
         
         #agregar todos las variables
@@ -1105,8 +1105,11 @@ class YAPLVisit(ParseTreeVisitor):
                                 break
                 else:
                     message = str(self.symbol_table.get_symbol_type(id))
-
-        print("visitMethodCall message: ",message)
+        print("visitMethodCall message original: ",message)
+        if message == "SELF_TYPE":
+            message = firstType
+        
+        print("visitMethodCall message if SELF_TYPE: ",message)
         return message
 
         
