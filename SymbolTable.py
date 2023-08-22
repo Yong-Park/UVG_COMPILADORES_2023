@@ -8,10 +8,11 @@ class SymbolTable:
         self.ambit = {}
         self.recieves = {}
 
-    def add_symbol(self, name, type, inherits=None, width=None, displacement=None, contains=None, ambit=None, recieves=None):
+    def add_symbol(self, name, type=None, inherits=None, width=None, displacement=None, contains=None, ambit=None, recieves=None):
         # print("new contains: ",contains)
         # print("new recieves: ",recieves)
-        self.symbols[name] = type
+        if type is not None:
+            self.symbols[name] = type
         if inherits is not None:
             self.inherits[name] = inherits
         if width is not None:
@@ -50,7 +51,10 @@ class SymbolTable:
         # return self.symbols.get(name)
     
     def variable_class(self,classname, name):
-        return name in self.contains[classname]
+        if classname in self.contains and name in self.contains[classname]:
+            return True 
+        else:
+            return False  
     
     def contains_element(self,name, value):
         print("name: ",name)

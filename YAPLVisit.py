@@ -19,7 +19,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.actual_method_type = None
         self.startType = None
         self.actualAmbit = "Global"
-        self.errors = ["whileError","DobleMain","newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
+        self.errors = ["methodValuesNotSame","NotSameLenght","TypeNotExist","notContainsType","diferentMethodType","diferentRecievers","recursiveInherit","whileError","DobleMain","newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
 
     # Visit a parse tree produced by YAPLParser#start.
     def visitStart(self, ctx:YAPLParser.StartContext):
@@ -78,7 +78,7 @@ class YAPLVisit(ParseTreeVisitor):
         elif self.startType == "noMethodAssign":
             message = "El metodo no existe y por ello no se le puede asignar a una variable"
         elif self.startType == "inheritProblem":
-            message = "Problema con la herencia (inherits)"
+            message = "Problema con la herencia, no existe esta clase para heredar"
         elif self.startType == "invertNotInt":
             message = "No es posible realizar la inversa ya que no es un tipo Int"
         elif self.startType == "newError":
@@ -87,6 +87,20 @@ class YAPLVisit(ParseTreeVisitor):
             message = "No es posible que hayan mas de 1 Main y main"
         elif self.startType == "whileError":
             message = "No es posible, error en el while"
+        elif self.startType == "recursiveInherit":
+            message = "No es posible que la clase herede de la misma, esto causa recurrencia"
+        elif self.startType == "diferentRecievers":
+            message = "No es posible sobre escribir el metodo debido a que el tipo de asignacion (reciever) no es el mismo"
+        elif self.startType == "diferentMethodType":
+            message = "No es posible sobre escribir este metodo debido a que son del distintos tipos"
+        elif self.startType == "notContainsType":
+            message = "No es posible debido a que no regresa el tipo que fue definido en el metodo"
+        elif self.startType == "TypeNotExist":
+            message = "No es posible dar este valor al la variable debido a que este tipo no existe"
+        elif self.startType == "NotSameLenght":
+            message = "No es posible debido a que la cantidad de valores que se esta ingresando en el metodo llamado supera o es menor al lo que se pide"
+        elif self.startType == "methodValuesNotSame":
+            message = "No es posible debido a que las variables que se estan utilizando son distintos al del metodo"
         else:
             message = self.startType
         print("self.startType to send: ",message)
@@ -127,7 +141,7 @@ class YAPLVisit(ParseTreeVisitor):
             
             #revisar que no sea recursivo
             if inheritPosition == classtype:
-                return "methodError"
+                return "recursiveInherit"
             
             #revisar si Main ya existe
             existMain = self.symbol_table.contains_symbol("Main")
@@ -154,7 +168,7 @@ class YAPLVisit(ParseTreeVisitor):
                         else:
                             array.extend(typeContains)
                             array.extend(typeInheritContains)
-                            
+                        array = list(set(array))  
                         self.symbol_table.add_symbol(classtype,defclaseClass,contains=array)
                         
                         
@@ -196,15 +210,24 @@ class YAPLVisit(ParseTreeVisitor):
         self.forml_type = False
         method_name = ctx.ID().getText()
         method_type = ctx.TYPE().getText()
-        self.symbol_table.add_symbol(method_name, method_type,ambit="Local")
+        inhertisMethodType = self.symbol_table.get_symbol_type(method_name)
+        print("visitMethod inhertisMethodType: ",inhertisMethodType)
+        
+        methodExist = self.symbol_table.contains_symbol(method_name)
+        print("visitMethod methodExist: ",methodExist)
+        if methodExist == False:
+            print("pasando por aqui")
+            self.symbol_table.add_symbol(method_name, method_type,ambit="Local")
         formlExist = ctx.formal()
         # print("method_name type: ", type(method_name))
         # print("method_type type: ", type(method_type))
-        
+        inhertisMethodType = self.symbol_table.get_symbol_type(method_name)
+        print("visitMethod inhertisMethodType: ",inhertisMethodType)
         self.actual_method = method_name
         self.actual_method_type = method_type
         print('method_name: ', method_name, '\n')
         print('method_type: ', method_type, '\n')
+        
         
         self.methodRecieves = []
         for form in formlExist:
@@ -216,12 +239,15 @@ class YAPLVisit(ParseTreeVisitor):
         if len(self.methodRecieves) > 0:
             #revisar si el metodo existe pero tiene que el recieves es falso o none
             methodHasRecieve = self.symbol_table.get_recieves(method_name)
+            print("visitMethod methodHasRecieve: ",methodHasRecieve)
             if methodHasRecieve == False:
                 self.symbol_table.add_symbol(method_name,method_type,recieves=self.methodRecieves)
             #revisar si el class es un inhertis
             classIsInhertis = self.symbol_table.get_inherits(self.actual_class)
+            print("visitMethod classIsInhertis: ",classIsInhertis)
             if classIsInhertis: 
                 classInheritContains = self.symbol_table.get_contains(classIsInhertis)
+                print("visitMethod classInheritContains: ",classInheritContains)
                 if classInheritContains:
                     if method_name in classInheritContains:
                         #revisar que el forml sea del mismo tipo que el que tiene adentro y el tipo de valor de regreso
@@ -229,11 +255,13 @@ class YAPLVisit(ParseTreeVisitor):
                         print("visitMethod classInhertisMethodRecieves: ",classInhertisMethodRecieves)
                         print("visitMethod self.methodRecieves: ",self.methodRecieves)
                         if classInhertisMethodRecieves != self.methodRecieves:
-                            return "methodError"
+                            return "diferentRecievers"
                         #revisar si regresan el mismo tipo de valor
                         inhertisMethodType = self.symbol_table.get_symbol_type(method_name)
+                        print("visitMethod inhertisMethodType: ",inhertisMethodType)
                         if inhertisMethodType != method_type:
-                            return "methodError"
+                            return "diferentMethodType"
+                        
         
         # contains = self.symbol_table.get_contains(self.actual_method)
         # recieve = self.symbol_table.get_recieves(self.actual_method)
@@ -264,7 +292,7 @@ class YAPLVisit(ParseTreeVisitor):
                 #     for types in voidBasicType:
                 #         if types in method_expr_type:
                 #             return types
-                return "methodError"
+                return "notContainsType"
         else:
             if method_expr_type in self.errors:
                 return method_expr_type
@@ -276,7 +304,7 @@ class YAPLVisit(ParseTreeVisitor):
                 if self.actual_method_type == method_expr_type:
                     return self.actual_method_type
                 else:
-                    return "methodError"
+                    return "notContainsType"
        
     # Visit a parse tree produced by YAPLParser#property.
     def visitProperty(self, ctx:YAPLParser.PropertyContext):
@@ -291,6 +319,9 @@ class YAPLVisit(ParseTreeVisitor):
         print('var_name: ', var_name)
         print('var_type: ', var_type)
         print('var_assign: ', var_assign, '\n')
+        #revisar que el var_expr no sea un tipo de error
+        if var_expr in self.errors:
+            return var_expr
         #revisar que la variable si no es int, char o bool sea algo que exista en la tabla
         if str(var_type) not in ["Int","Char","Bool","String"]:
             print("toca buscar")
@@ -346,10 +377,11 @@ class YAPLVisit(ParseTreeVisitor):
                 else:
                     formArray.extend(formContains)
                     formArray.extend(classContains)
+                formArray = list(set(formArray))
                 self.symbol_table.add_symbol(idtext,tipo,contains=formArray)
             else:
-                print("visitForml found: methodError")
-                return "methodError"
+                print("visitForml found: TypeNotExist")
+                return "TypeNotExist"
         
         print("self.actual_method: ",self.actual_method)
         # print("self.actual_method Type: ",type(self.actual_method))
@@ -367,10 +399,10 @@ class YAPLVisit(ParseTreeVisitor):
             
         
         self.methodRecieves.append(tipo)
-        
+        array = list(set(array))
         print("visitForml array: ",array)
         print("visitForml self.methodRecieves: ",self.methodRecieves)
-        self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array)
+        self.symbol_table.add_symbol(self.actual_method,contains=array)
         print("=============================")
         
         
@@ -828,7 +860,7 @@ class YAPLVisit(ParseTreeVisitor):
             return str(self.actual_method_type)
         else:
             exist = self.symbol_table.variable_class(self.actual_class, value) if self.symbol_table.variable_class(self.actual_class, value) else self.symbol_table.variable_class(self.actual_method, value)
-        
+    
         print("existe: ", exist)
         print("=============================")
         if exist:
@@ -979,8 +1011,10 @@ class YAPLVisit(ParseTreeVisitor):
                                 if ft in recieveMethod:
                                     message = str(self.symbol_table.get_symbol_type(id))
                                 else:
-                                    message = "methodError"
+                                    message = "methodValuesNotSame"
                                     break
+                    else:
+                        message = "NotSameLenght"
                 
         print("visitOwnMethodCall message: ",message)
         
@@ -1022,7 +1056,7 @@ class YAPLVisit(ParseTreeVisitor):
             else:
                 array.extend(leftContains)
                 array.extend(expresionContains)
-
+            array = list(set(array))  
             self.symbol_table.add_symbol(left,left_type,contains=array)
             
         #revisar si expresion inhertis de algun otro y si es asi convertirlo en lista lo de expresion
@@ -1153,13 +1187,29 @@ class YAPLVisit(ParseTreeVisitor):
                 print("visitMethodCall idRecieves: ",idRecieves)
                 if idRecieves != False:
                     print("visitMethodCall nextArray: ",nextArray)
+                    nextArray_copy = nextArray[:]  
+                    newidRecieves = idRecieves[:]
                     if len(nextArray) == len(idRecieves):
-                        for nt in nextArray:
-                            if nt in idRecieves:
-                                message = str(self.symbol_table.get_symbol_type(id))
+                        for nt in nextArray_copy:
+                            if nt in newidRecieves:
+                                nextArray.remove(nt)  
+                                newidRecieves.remove(nt)  
                             else:
-                                message = "methodError"
-                                break
+                                message = "methodValuesNotSame"
+                            
+                        if len(nextArray) == 0:
+                            message = str(self.symbol_table.get_symbol_type(id))
+                        else:
+                            message = "NotSameLenght"
+
+                        # for nt in nextArray:
+                        #     if nt in idRecieves:
+                        #         message = str(self.symbol_table.get_symbol_type(id))
+                        #     else:
+                        #         message = "methodError"
+                        #         break
+                    else:
+                        message = "NotSameLenght"
                 else:
                     message = str(self.symbol_table.get_symbol_type(id))
         print("visitMethodCall message original: ",message)
@@ -1223,6 +1273,7 @@ class YAPLVisit(ParseTreeVisitor):
         else:
             array.extend(contains)
             array.append(id)
+        array = list(set(array))  
         
         self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array)
         
