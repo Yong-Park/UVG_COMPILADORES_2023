@@ -361,9 +361,10 @@ class YAPLVisit(ParseTreeVisitor):
         if contains == None:
             array.append(idtext)
         else:
-            array.append(idtext)
             for ele in contains:
                 array.append(str(ele))
+            array.append(idtext)
+            
         
         self.methodRecieves.append(tipo)
         
@@ -1140,7 +1141,7 @@ class YAPLVisit(ParseTreeVisitor):
                     if next != False:
                         nextType = self.visit(next)
                         print("visitMethodCall nextType: ",nextType)
-                        nextType = self.symbol_table.get_symbol_type(nextType) if self.symbol_table.get_symbol_type(nextType) else nextType
+                        nextType = self.symbol_table.get_symbol_type(nextType) if self.symbol_table.get_symbol_type(nextType) and str(self.symbol_table.get_symbol_type(nextType))!="class" else nextType
                         print("visitMethodCall nextType after: ",nextType)
                         
                         if type(nextType) != list:
