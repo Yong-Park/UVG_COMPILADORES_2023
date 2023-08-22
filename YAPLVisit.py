@@ -18,6 +18,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.actual_method = None
         self.actual_method_type = None
         self.startType = None
+        self.actualAmbit = "Global"
         self.errors = ["whileError","DobleMain","newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
 
     # Visit a parse tree produced by YAPLParser#start.
@@ -174,6 +175,7 @@ class YAPLVisit(ParseTreeVisitor):
         tipos = ctx.feature()
         results = []
         for tipo in tipos:
+            self.actualAmbit = "Global"
             val = self.visit(tipo)
             if type(val) == list:
                 results.extend(val)
@@ -190,6 +192,7 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#method.
     def visitMethod(self, ctx:YAPLParser.MethodContext):
         print("\nvisitMethod")
+        self.actualAmbit = "Local"
         self.forml_type = False
         method_name = ctx.ID().getText()
         method_type = ctx.TYPE().getText()
@@ -278,6 +281,7 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#property.
     def visitProperty(self, ctx:YAPLParser.PropertyContext):
         print("\nvisitProperty")
+        self.actualAmbit = "Local"
         var_name = ctx.ID().getText()
         var_type = ctx.TYPE().getText()
         
@@ -328,7 +332,7 @@ class YAPLVisit(ParseTreeVisitor):
         tipo = ctx.TYPE().getText()
         print("idtext: ",idtext)
         print("tipo: ",tipo)
-        self.symbol_table.add_symbol(idtext,tipo)
+        self.symbol_table.add_symbol(idtext,tipo,ambit="Local")
         if tipo not in ["Int","Char","Bool","Object"]:
             print("buscar si el tipo existe")
             tipoExiste = self.symbol_table.contains_symbol(tipo)
@@ -808,7 +812,7 @@ class YAPLVisit(ParseTreeVisitor):
         if str(value) == "self":
             print("self.actual_method: ",self.actual_method)
             print("self.actual_method_type: ",self.actual_method_type)
-            self.symbol_table.add_symbol(value, self.actual_method_type)
+            self.symbol_table.add_symbol(value, self.actual_method_type,ambit=self.actualAmbit)
             # print("self.actual_method: ",self.actual_method)
             tipo = self.symbol_table.get_symbol_type(self.actual_method)
             # print("tipo: ",tipo)
@@ -1201,11 +1205,11 @@ class YAPLVisit(ParseTreeVisitor):
         print("letinType: ",letinType)
         print("=============================")
         if str(letinType) == "Int":
-            self.symbol_table.add_symbol(id,letinType,width=8)
+            self.symbol_table.add_symbol(id,letinType,width=8,ambit="Local")
         elif  str(letinType) == "Char":
-            self.symbol_table.add_symbol(id,letinType,width=4)
+            self.symbol_table.add_symbol(id,letinType,width=4,ambit="Local")
         elif str(letinType) == "Bool":
-            self.symbol_table.add_symbol(id,letinType)
+            self.symbol_table.add_symbol(id,letinType,ambit="Local")
         # print("self.actual_method: ",self.actual_method)
         #agregarlo en su contains
         
@@ -1242,7 +1246,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         resutls = []
         
-        self.symbol_table.add_symbol(id,typevisit)
+        self.symbol_table.add_symbol(id,typevisit,ambit="Local")
         
         print("self.actual_method: ", self.actual_method)
         
