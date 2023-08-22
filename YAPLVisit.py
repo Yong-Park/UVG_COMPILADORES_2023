@@ -210,19 +210,19 @@ class YAPLVisit(ParseTreeVisitor):
         self.forml_type = False
         method_name = ctx.ID().getText()
         method_type = ctx.TYPE().getText()
-        inhertisMethodType = self.symbol_table.get_symbol_type(method_name)
-        print("visitMethod inhertisMethodType: ",inhertisMethodType)
+        # inhertisMethodType = self.symbol_table.get_symbol_type(method_name)
+        # print("visitMethod inhertisMethodType: ",inhertisMethodType)
         
         methodExist = self.symbol_table.contains_symbol(method_name)
-        print("visitMethod methodExist: ",methodExist)
+        # print("visitMethod methodExist: ",methodExist)
         if methodExist == False:
-            print("pasando por aqui")
+            # print("pasando por aqui")
             self.symbol_table.add_symbol(method_name, method_type,ambit="Local")
         formlExist = ctx.formal()
         # print("method_name type: ", type(method_name))
         # print("method_type type: ", type(method_type))
-        inhertisMethodType = self.symbol_table.get_symbol_type(method_name)
-        print("visitMethod inhertisMethodType: ",inhertisMethodType)
+        # inhertisMethodType = self.symbol_table.get_symbol_type(method_name)
+        # print("visitMethod inhertisMethodType: ",inhertisMethodType)
         self.actual_method = method_name
         self.actual_method_type = method_type
         print('method_name: ', method_name, '\n')
