@@ -34,7 +34,7 @@ class A {
 
    method4(num1 : Int, num2 : Int) : A {  -- diff
             if num2 < num1 then
-               (let x : String in
+               (let x : Int in
 		  {
                      x <- num1 - num2;
 	             (new A).set_var(x);
@@ -192,5 +192,6 @@ class Main inherits IO {
    };
 
 };
+
 
 
