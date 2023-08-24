@@ -90,13 +90,13 @@ class IDE(tk.Tk):
             tabla.insert("", "end", text=clave, values=(tipo, inherits, width, displacement, contains, ambit))
 
         # Ajustar el ancho de las columnas para que se vean correctamente los datos
-        tabla.column("#0", width=100)
-        tabla.column("Tipo", width=100)
-        tabla.column("Inherits", width=100)
-        tabla.column("Width", width=100)
-        tabla.column("Displacement", width=100)
-        tabla.column("Contains", width=100)
-        tabla.column("Ambit", width=100)
+        tabla.column("#0" )
+        tabla.column("Tipo")
+        tabla.column("Inherits")
+        tabla.column("Width")
+        tabla.column("Displacement")
+        tabla.column("Contains")
+        tabla.column("Ambit")
 
         # Empaquetar el Treeview
         tabla.pack()
@@ -123,16 +123,18 @@ class IDE(tk.Tk):
              # Crear una instancia del visitor y visitar el árbol sintáctico
             visitor = YAPLVisit()
             result = visitor.visit(tree)
+            print("result: ",result)
             self.output.delete(1.0, tk.END)
             # print("tipo de result: ", result)
             # print("visitor.errors: ", visitor.errors)
-            if visitor.startType not in visitor.errors:
+            if len(result) == 0:
                 #Generamos la información en la consola
                 self.output.insert(tk.END, "Código correcto")
                 """print("visit result: ", result)
                 print("All good")"""
             else:
-                self.output.insert(tk.END, "Código incorrecto, error de tipo: " + result, "red") if result != None else self.output.insert(tk.END, "Código incorrecto, error de tipo", "red")
+                for r in result:
+                    self.output.insert(tk.END, "Código incorrecto, error de tipo: " + r, "red") if result != [] else self.output.insert(tk.END, "Código incorrecto, error de tipo", "red")
              # Imprimir el resultado del análisis semántico
             self.SymbolTablePrint(visitor)
             #print(visitor.symbol_table.symbols)

@@ -19,13 +19,13 @@ class YAPLVisit(ParseTreeVisitor):
         self.actual_method_type = None
         self.startType = None
         self.actualAmbit = "Global"
-        self.errors = ["assignError","methodValuesNotSame","NotSameLenght","TypeNotExist","notContainsType","diferentMethodType","diferentRecievers","recursiveInherit","whileError","DobleMain","newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
+        self.errors = ["RepeatedValue","assignError","methodValuesNotSame","NotSameLenght","TypeNotExist","notContainsType","diferentMethodType","diferentRecievers","recursiveInherit","whileError","DobleMain","newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
 
     # Visit a parse tree produced by YAPLParser#start.
     def visitStart(self, ctx:YAPLParser.StartContext):
         print("start visitado")
         
-        message = None
+        message = []
         results = []
         tipos = ctx.classDefine()
         for tipo in tipos:
@@ -46,72 +46,74 @@ class YAPLVisit(ParseTreeVisitor):
         for result in results:
             if result in self.errors:
                 self.startType = result
-                break
-        if self.startType == None:
-            self.startType = results[0]
-        print("self.startType: ",self.startType)
-        if self.startType == "Int":
-            message = self.startType
-        elif self.startType == "String":
-            message = self.startType
-        elif self.startType == "Bool":
-            message = self.startType
-        elif self.startType == "boolAr":
-            message = "no se puede operar operaciones aritmetricas entre Bools"
-        elif self.startType == "intchar":
-            message = "no se puede operar operaciones aritmetricas Int y String"
-        elif self.startType == "charAr":
-            message = "no se puede operaciones aritmetricas entre Strings"
-        elif self.startType == "assignEr":
-            message = "no se puede asignar variables ya que no es del mismo tipo"
-        elif self.startType == "notequal":
-            message = "no se puede asignar variables ya que no es del mismo tipo"
-        elif self.startType == "noValue":
-            message = "no se puede debido a una variable no existe o no puede ser utilizada en ese entorno"
-        elif self.startType == "ifError":
-            message = "la funcion de if esta fallando"
-        elif self.startType == "notLessorequal":
-            message = "No es posible, alguno de los valores al probar <= no es de tipo Int"
-        elif self.startType == "notLess":
-            message = "No es posible, alguno de los valores al probar < no es de tipo Int"
-        elif self.startType == "methodError":
-            message = "El metodo tiene un problema"
-        elif self.startType == "noMethodAssign":
-            message = "El metodo no existe y por ello no se le puede asignar a una variable"
-        elif self.startType == "inheritProblem":
-            message = "Problema con la herencia, no existe esta clase para heredar"
-        elif self.startType == "invertNotInt":
-            message = "No es posible realizar la inversa ya que no es un tipo Int"
-        elif self.startType == "newError":
-            message = "No es posible debido a que el type para el new no existe"
-        elif self.startType == "DobleMain":
-            message = "No es posible que hayan mas de 1 Main y main"
-        elif self.startType == "whileError":
-            message = "No es posible, error en el while"
-        elif self.startType == "recursiveInherit":
-            message = "No es posible que la clase herede de la misma, esto causa recurrencia"
-        elif self.startType == "diferentRecievers":
-            message = "No es posible sobre escribir el metodo debido a que el tipo de asignacion (reciever) no es el mismo"
-        elif self.startType == "diferentMethodType":
-            message = "No es posible sobre escribir este metodo debido a que son del distintos tipos"
-        elif self.startType == "notContainsType":
-            message = "No es posible debido a que no regresa el tipo que fue definido en el metodo"
-        elif self.startType == "TypeNotExist":
-            message = "No es posible dar este valor al la variable debido a que este tipo no existe"
-        elif self.startType == "NotSameLenght":
-            message = "No es posible debido a que la cantidad de valores que se esta ingresando en el metodo llamado supera o es menor al lo que se pide"
-        elif self.startType == "methodValuesNotSame":
-            message = "No es posible debido a que las variables que se estan utilizando son distintos al del metodo"
-        elif self.startType == "assignError":
-            message = "No es posible debido a que el tipo que esta utilizando no existe"
-        else:
-            message = self.startType
+                
+            # if self.startType == None:
+            #     self.startType = results[0]
+            print("self.startType: ",self.startType)
+            if self.startType == "Int":
+                pass
+            elif self.startType == "String":
+                pass
+            elif self.startType == "Bool":
+                pass
+            elif self.startType == "boolAr":
+                message.append("no se puede operar operaciones aritmetricas entre Bools\n")
+            elif self.startType == "intchar":
+                message.append("no se puede operar operaciones aritmetricas Int y String\n")
+            elif self.startType == "charAr":
+                message.append("no se puede operaciones aritmetricas entre Strings\n")
+            elif self.startType == "assignEr":
+                message.append("no se puede asignar variables ya que no es del mismo tipo\n")
+            elif self.startType == "notequal":
+                message.append("no se puede asignar variables ya que no es del mismo tipo\n")
+            elif self.startType == "noValue":
+                message.append("no se puede debido a una variable no existe o no puede ser utilizada en ese entorno\n")
+            elif self.startType == "ifError":
+                message.append("la funcion de if esta fallando\n")
+            elif self.startType == "notLessorequal":
+                message.append("No es posible, alguno de los valores al probar <= no es de tipo Int\n")
+            elif self.startType == "notLess":
+                message.append("No es posible, alguno de los valores al probar < no es de tipo Int\n")
+            elif self.startType == "methodError":
+                message.append("El metodo tiene un problema\n")
+            elif self.startType == "noMethodAssign":
+                message.append("El metodo no existe y por ello no se le puede asignar a una variable\n")
+            elif self.startType == "inheritProblem":
+                message.append("Problema con la herencia, no existe esta clase para heredar\n")
+            elif self.startType == "invertNotInt":
+                message.append("No es posible realizar la inversa ya que no es un tipo Int\n")
+            elif self.startType == "newError":
+                message.append("No es posible debido a que el type para el new no existe\n")
+            elif self.startType == "DobleMain":
+                message.append("No es posible que hayan mas de 1 Main y main\n")
+            elif self.startType == "whileError":
+                message.append("No es posible, error en el while\n")
+            elif self.startType == "recursiveInherit":
+                message.append("No es posible que la clase herede de la misma, esto causa recurrencia\n")
+            elif self.startType == "diferentRecievers":
+                message.append("No es posible sobre escribir el metodo debido a que el tipo de asignacion (reciever) no es el mismo\n")
+            elif self.startType == "diferentMethodType":
+                message.append("No es posible sobre escribir este metodo debido a que son del distintos tipos\n")
+            elif self.startType == "notContainsType":
+                message.append("No es posible debido a que no regresa el tipo que fue definido en el metodo\n")
+            elif self.startType == "TypeNotExist":
+                message.append("No es posible dar este valor al la variable debido a que este tipo no existe\n")
+            elif self.startType == "NotSameLenght":
+                message.append("No es posible debido a que la cantidad de valores que se esta ingresando en el metodo llamado supera o es menor al lo que se pide\n")
+            elif self.startType == "methodValuesNotSame":
+                message.append("No es posible debido a que las variables que se estan utilizando son distintos al del metodo\n")
+            elif self.startType == "assignError":
+                message.append("No es posible debido a que el tipo que esta utilizando no existe\n")
+            elif self.startType == "RepeatedValue":
+                message.append("No es posible ya que esta variable ya esta definida anteriormente\n")
+        
+            if MainExist == False:
+                message.append("Error No existe el Main o main")
+      
         print("self.startType to send: ",message)
         print("=============================")
         
-        if MainExist == False:
-            self.startType = "noMain"
-            return "Error No existe el Main o main"
+            
         
         return message
 
@@ -134,9 +136,13 @@ class YAPLVisit(ParseTreeVisitor):
         variables = ctx.feature()
         variable_array = []
         for variable in variables:
-            # print("variable :", variable.ID().getText())
+            print("variable :", variable.ID().getText())
             if variable.ID().getText():
+                #revisar si ya esta este valor definido
+                if variable.ID().getText() in variable_array:
+                    return "RepeatedValue"
                 variable_array.append(variable.ID().getText())
+                
         defclaseInherits = ctx.INHERITS() #revisar si existe la funcion inherits
         # print(defclaseInherits)
         if defclaseInherits:
@@ -153,7 +159,7 @@ class YAPLVisit(ParseTreeVisitor):
                 if len(variable_array) > 0: 
                     self.symbol_table.add_symbol(classtype, defclaseClass, inherits=inheritPosition, contains=variable_array, ambit="Global")
                 else:
-                    self.symbol_table.add_symbol(classtype, defclaseClass, inherits=inheritPosition)
+                    self.symbol_table.add_symbol(classtype, type=defclaseClass, inherits=inheritPosition, ambit="Global")
                 # print(inheritPosition)
                 if str(inheritPosition) == "IO":
                     pass
@@ -172,7 +178,7 @@ class YAPLVisit(ParseTreeVisitor):
                             array.extend(typeContains)
                             array.extend(typeInheritContains)
                         array = list(set(array))  
-                        self.symbol_table.add_symbol(classtype,defclaseClass,contains=array)
+                        self.symbol_table.add_symbol(classtype,type=defclaseClass,contains=array)
                         
                         
                         pass
@@ -186,14 +192,14 @@ class YAPLVisit(ParseTreeVisitor):
             if len(variable_array) > 0:
                 self.symbol_table.add_symbol(classtype, defclaseClass,contains=variable_array,ambit="Global")
             else:
-                self.symbol_table.add_symbol(classtype, defclaseClass,ambit="Global")
+                self.symbol_table.add_symbol(classtype, type=defclaseClass,ambit="Global")
         
-        defclaseType = None
         tipos = ctx.feature()
         results = []
         for tipo in tipos:
             self.actualAmbit = "Global"
             val = self.visit(tipo)
+
             if type(val) == list:
                 results.extend(val)
             else:
@@ -355,14 +361,13 @@ class YAPLVisit(ParseTreeVisitor):
         
         #asignar el width setun si tipo
         if var_type == "Int":
-            self.symbol_table.add_symbol(var_name, var_type,width=8, ambit="Local")
+            width = 8
         elif var_type == "String":
-            self.symbol_table.add_symbol(var_name, var_type,width=4, ambit="Local")
+            width = 4
         elif var_type == "String":
-            self.symbol_table.add_symbol(var_name, var_type,width=2, ambit="Local")
+            width = 4
         else:
-            self.symbol_table.add_symbol(var_name, var_type, ambit="Local")
-            
+            width = 4
         
         # revisar si es del mismo tipo la asignacion cuando se realice
         if var_assign != None:
@@ -370,6 +375,8 @@ class YAPLVisit(ParseTreeVisitor):
             if var_type not in var_expr:
                 print("assignEr")
                 return "assignEr"
+            
+        self.symbol_table.add_symbol(var_name, type=var_type, width=width, ambit="Local")    
         
         # print("symbol table: ", self.symbol_table)
         # print("++++++++++++++++++++++") 
@@ -1324,12 +1331,13 @@ class YAPLVisit(ParseTreeVisitor):
         print("id: ",id)
         print("letinType: ",letinType)
         print("=============================")
+        
         if str(letinType) == "Int":
-            self.symbol_table.add_symbol(id,letinType,width=8,ambit="Local")
+            width=8
         elif  str(letinType) == "String":
-            self.symbol_table.add_symbol(id,letinType,width=4,ambit="Local")
+            width=4
         elif str(letinType) == "Bool":
-            self.symbol_table.add_symbol(id,letinType,ambit="Local")
+            width=2
         else: 
             print("No existe este tipo por lo tanto toca buscar en la tabla")
             symbolExist = self.symbol_table.contains_symbol(letinType)
@@ -1337,11 +1345,22 @@ class YAPLVisit(ParseTreeVisitor):
                 symbolType = self.symbol_table.get_symbol_type(letinType)
                 if symbolType != False:
                     if str(symbolType) == "class":
-                        pass
+                        width=4
                 else:
                     return "assignError"
             else:
                 return "assignError"
+        #revisar si ya existe este en la clase global porque si es asi guardar el valro de la clase global para reescribir su tipo despues    
+        ClassContains = self.symbol_table.get_contains(self.actual_class)
+        idClassType = None
+        idClassWidth = None
+        idClassAmbit = None
+        if id in ClassContains:
+            idClassType = self.symbol_table.get_symbol_type(id)
+            idClassWidth = self.symbol_table.get_width(id)
+            idClassAmbit = self.symbol_table.get_ambit(id)
+        
+        self.symbol_table.add_symbol(id,type=letinType,width=width,ambit="Local")
         # print("self.actual_method: ",self.actual_method)
         #agregarlo en su contains
         
@@ -1359,6 +1378,8 @@ class YAPLVisit(ParseTreeVisitor):
         self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array)
         
         result = self.visit(ctx.expr())
+        if idClassType != None:
+            self.symbol_table.add_symbol(id,type=idClassType,width=idClassWidth,ambit=idClassAmbit)
         print("visitLetIn result: ",result)
         return result
         

@@ -27,7 +27,12 @@ class SymbolTable:
             self.recieves[name] = recieves
         # print("name: ",name)
         # print("self.recieves[name]: ",self.recieves[name])
-        
+    
+    def get_width(self,name):
+        return self.width.get(name, None)
+    
+    def get_ambit(self,name):
+        return self.ambit.get(name, None)
         
     def get_recieves(self,name):
         return self.recieves.get(name, False)
