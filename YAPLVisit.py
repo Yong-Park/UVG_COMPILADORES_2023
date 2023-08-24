@@ -217,6 +217,22 @@ class YAPLVisit(ParseTreeVisitor):
         # print("visitMethod inhertisMethodType: ",inhertisMethodType)
         
         methodExist = self.symbol_table.contains_symbol(method_name)
+
+        #revisar si el method_type existe si no es tipo Int, Char, Bool, Object, Void, SELF_TYPE
+        if method_type not in ["Int","Char","Bool","Object","Void","SELF_TYPE"]:
+            #revisar si existe
+            method_type_Exist = self.symbol_table.contains_symbol(method_type)
+            if method_type_Exist:
+                #revisar si es de tipo class
+                method_type_class = self.symbol_table.get_symbol_type(method_type)
+                if method_type_class != False:
+                    if str(method_type_class) == "class":
+                        pass
+                    else:
+                        return "assignError"
+            else:
+                return "assignError"
+
         # print("visitMethod methodExist: ",methodExist)
         if methodExist == False:
             # print("pasando por aqui")
@@ -1059,6 +1075,11 @@ class YAPLVisit(ParseTreeVisitor):
         # print("expresion later: ",expresion)
         print("left: ",left)
         print("left_type: ",left_type)
+
+        #revisar si existe la expresion
+        # print(type(expresion))
+        if str(expresion) == 'False':
+            return "assignEr"
         
         if expresionType in self.errors:
             return expresionType
@@ -1068,7 +1089,8 @@ class YAPLVisit(ParseTreeVisitor):
             array = []
             expresionContains = self.symbol_table.get_contains(expresion)
             leftContains = self.symbol_table.get_contains(left)
-
+            print("expresionContains: ",expresionContains)
+            print("leftContains: ",leftContains)
             if leftContains == None:
                 if expresionContains != None:
                     array.extend(expresionContains)
