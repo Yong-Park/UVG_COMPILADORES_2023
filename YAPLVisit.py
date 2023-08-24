@@ -52,16 +52,16 @@ class YAPLVisit(ParseTreeVisitor):
         print("self.startType: ",self.startType)
         if self.startType == "Int":
             message = self.startType
-        elif self.startType == "Char":
+        elif self.startType == "String":
             message = self.startType
         elif self.startType == "Bool":
             message = self.startType
         elif self.startType == "boolAr":
             message = "no se puede operar operaciones aritmetricas entre Bools"
         elif self.startType == "intchar":
-            message = "no se puede operar operaciones aritmetricas Int y Char"
+            message = "no se puede operar operaciones aritmetricas Int y String"
         elif self.startType == "charAr":
-            message = "no se puede operaciones aritmetricas entre chars"
+            message = "no se puede operaciones aritmetricas entre Strings"
         elif self.startType == "assignEr":
             message = "no se puede asignar variables ya que no es del mismo tipo"
         elif self.startType == "notequal":
@@ -219,7 +219,7 @@ class YAPLVisit(ParseTreeVisitor):
         methodExist = self.symbol_table.contains_symbol(method_name)
 
         #revisar si el method_type existe si no es tipo Int, Char, Bool, Object, Void, SELF_TYPE
-        if method_type not in ["Int","Char","Bool","Object","Void","SELF_TYPE"]:
+        if method_type not in ["Int","String","Bool","Object","Void","SELF_TYPE"]:
             #revisar si existe
             method_type_Exist = self.symbol_table.contains_symbol(method_type)
             if method_type_Exist:
@@ -305,13 +305,15 @@ class YAPLVisit(ParseTreeVisitor):
             if self.actual_method_type in method_expr_type:
                 return self.actual_method_type
             else:
-                # #revisar si su tipo es SELF_TYPE
-                # if self.actual_method_type == "SELF_TYPE":
-                #     # return method_expr_type
-                #     for types in voidBasicType:
-                #         if types in method_expr_type:
-                #             return types
-                return "notContainsType"
+                #revisar si el self.actual_method_type es tipo Bool o Int y si es asi revisar si en las respuestas ahi un Int O Bool
+                if str(self.actual_method_type) == "Int":
+                    if "Bool" in method_expr_type:
+                        return self.actual_method_type
+                elif str(self.actual_method_type) == "Bool":
+                    if "Int" in method_expr_type:
+                        return self.actual_method_type
+                else:
+                    return "notContainsType"
         else:
             if method_expr_type in self.errors:
                 return method_expr_type
@@ -342,18 +344,19 @@ class YAPLVisit(ParseTreeVisitor):
         if var_expr in self.errors:
             return var_expr
         #revisar que la variable si no es int, char o bool sea algo que exista en la tabla
-        if str(var_type) not in ["Int","Char","Bool","String"]:
+        if str(var_type) not in ["Int","String","Bool","Object","Void","SELF_TYPE"]:
             print("toca buscar")
             if self.symbol_table.contains_symbol(var_type):
                 print("Si existe")
                 pass
             else:
                 return "noMethodAssign"
+            
         
         #asignar el width setun si tipo
         if var_type == "Int":
             self.symbol_table.add_symbol(var_name, var_type,width=8, ambit="Local")
-        elif var_type == "Char":
+        elif var_type == "String":
             self.symbol_table.add_symbol(var_name, var_type,width=4, ambit="Local")
         elif var_type == "String":
             self.symbol_table.add_symbol(var_name, var_type,width=2, ambit="Local")
@@ -383,7 +386,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("idtext: ",idtext)
         print("tipo: ",tipo)
         self.symbol_table.add_symbol(idtext,tipo,ambit="Local")
-        if tipo not in ["Int","Char","Bool","Object"]:
+        if tipo not in ["Int","String","Bool","Object"]:
             print("buscar si el tipo existe")
             tipoExiste = self.symbol_table.contains_symbol(tipo)
             print("tipoExiste: ",tipoExiste)
@@ -510,16 +513,16 @@ class YAPLVisit(ParseTreeVisitor):
         
         if left_type == "Int" and right_type == "Int":
             return left_type
-        elif left_type == "Char" and right_type == "Char":
+        elif left_type == "String" and right_type == "String":
             return left_type
         elif left_type == "Bool" and right_type == "Int":
             return right_type
         elif left_type == "Int" and right_type == "Bool":
             return left_type
         # errors
-        elif left_type == "Int" and right_type == "Char":
+        elif left_type == "Int" and right_type == "String":
             return "intchar"
-        elif left_type == "Char" and right_type == "Int":
+        elif left_type == "String" and right_type == "Int":
             return "intchar"
         elif left_type == "Bool" and right_type == "Bool":
             return "boolAr"
@@ -562,11 +565,11 @@ class YAPLVisit(ParseTreeVisitor):
         elif left_type == "Int" and right_type == "Bool":
             return left_type
         # errors
-        elif left_type == "Char" and right_type == "Char":
+        elif left_type == "String" and right_type == "String":
             return "charAr"
-        elif left_type == "Int" and right_type == "Char":
+        elif left_type == "Int" and right_type == "String":
             return "intchar"
-        elif left_type == "Char" and right_type == "Int":
+        elif left_type == "String" and right_type == "Int":
             return "intchar"
         elif left_type == "Bool" and right_type == "Bool":
             return "boolAr"
@@ -603,7 +606,7 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#string.
     def visitString(self, ctx:YAPLParser.StringContext):
-        return "Char"
+        return "String"
 
 
     # Visit a parse tree produced by YAPLParser#mul.
@@ -642,11 +645,11 @@ class YAPLVisit(ParseTreeVisitor):
         elif left_type == "Int" and right_type == "Bool":
             return left_type
         # errors
-        elif left_type == "Char" and right_type == "Char":
+        elif left_type == "String" and right_type == "String":
             return "charAr"
-        elif left_type == "Int" and right_type == "Char":
+        elif left_type == "Int" and right_type == "String":
             return "intchar"
-        elif left_type == "Char" and right_type == "Int":
+        elif left_type == "String" and right_type == "Int":
             return "intchar"
         elif left_type == "Bool" and right_type == "Bool":
             return "boolAr"
@@ -765,11 +768,11 @@ class YAPLVisit(ParseTreeVisitor):
         elif left_type == "Int" and right_type == "Bool":
             return left_type
         # errors
-        elif left_type == "Char" and right_type == "Char":
+        elif left_type == "String" and right_type == "String":
             return "charAr"
-        elif left_type == "Int" and right_type == "Char":
+        elif left_type == "Int" and right_type == "String":
             return "intchar"
-        elif left_type == "Char" and right_type == "Int":
+        elif left_type == "String" and right_type == "Int":
             return "intchar"
         elif left_type == "Bool" and right_type == "Bool":
             return "boolAr"
@@ -797,7 +800,7 @@ class YAPLVisit(ParseTreeVisitor):
         right = self.visit(ctx.expr(1))
         right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.get_symbol_type(right) else right
         # print("right equal", right)
-        if right_type in ["Int","Char","Bool"]:
+        if right_type in ["Int","String","Bool"]:
             if left_type == right_type:
                 return "Bool"
             else:
@@ -981,7 +984,7 @@ class YAPLVisit(ParseTreeVisitor):
             if id == "out_string":
                 first = expresions.pop(0)
                 firstType = self.visit(first)
-                if firstType == "Char":
+                if firstType == "String":
                     message = "SELF_TYPE"
                 
             elif id == "out_int":
@@ -1003,7 +1006,7 @@ class YAPLVisit(ParseTreeVisitor):
         if id == "abort":
             message = "Object"
         elif id == "type_name":
-            message = "Char"
+            message = "String"
         elif id == "copy":
             message = "SELF_TYPE"
         elif id == "length":
@@ -1011,8 +1014,8 @@ class YAPLVisit(ParseTreeVisitor):
         elif id == "concat":
             second = expresions.pop(0)
             secondType = self.visit(second)
-            if secondType == "Char":
-                message = "Char"
+            if secondType == "String":
+                message = "String"
         elif id == "substr":
             second = expresions.pop(0)
             secondType = self.visit(second)
@@ -1020,7 +1023,7 @@ class YAPLVisit(ParseTreeVisitor):
             thirdType = self.visit(third)
             
             if secondType == "Int" and thirdType == "Int":
-                message = "Char"
+                message = "String"
                 
         #el id es un metodo que se esta volviendo a llamar?
         actualClassContains = self.symbol_table.get_contains(self.actual_class)
@@ -1084,7 +1087,7 @@ class YAPLVisit(ParseTreeVisitor):
         if expresionType in self.errors:
             return expresionType
         
-        if expresionType not in ["Int","Char","Bool","Void","Object"]:
+        if expresionType not in ["Int","String","Bool","Void","Object"]:
             #obtener los contains
             array = []
             expresionContains = self.symbol_table.get_contains(expresion)
@@ -1182,7 +1185,7 @@ class YAPLVisit(ParseTreeVisitor):
         if id == "abort":
             message = "Object"
         elif id == "type_name":
-            message = "Char"
+            message = "String"
         elif id == "copy":
             message = "SELF_TYPE"
         elif id == "length":
@@ -1190,8 +1193,8 @@ class YAPLVisit(ParseTreeVisitor):
         elif id == "concat":
             second = expresions.pop(0)
             secondType = self.visit(second)
-            if secondType == "Char":
-                message = "Char"
+            if secondType == "String":
+                message = "String"
         elif id == "substr":
             second = expresions.pop(0)
             secondType = self.visit(second)
@@ -1200,7 +1203,7 @@ class YAPLVisit(ParseTreeVisitor):
             # print("substr secondType: ",secondType)
             # print("substr thirdType: ",thirdType)
             if secondType == "Int" and thirdType == "Int":
-                message = "Char"
+                message = "String"
         elif id == "isNil":
             message = "Bool"
         
@@ -1209,7 +1212,7 @@ class YAPLVisit(ParseTreeVisitor):
                 first = expresions.pop(0)
                 firstType = self.visit(first)
                 
-                if firstType == "Char":
+                if firstType == "String":
                     message = "SELF_TYPE"
             elif id == "out_int":
                 first = expresions.pop(0)
@@ -1218,7 +1221,7 @@ class YAPLVisit(ParseTreeVisitor):
                 if firstType == "Int":
                     message = "SELF_TYPE"
             elif id == "in_string":
-                message = "Char"
+                message = "String"
             elif id == "in_int":
                 message = "Int"
              
@@ -1323,7 +1326,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("=============================")
         if str(letinType) == "Int":
             self.symbol_table.add_symbol(id,letinType,width=8,ambit="Local")
-        elif  str(letinType) == "Char":
+        elif  str(letinType) == "String":
             self.symbol_table.add_symbol(id,letinType,width=4,ambit="Local")
         elif str(letinType) == "Bool":
             self.symbol_table.add_symbol(id,letinType,ambit="Local")
