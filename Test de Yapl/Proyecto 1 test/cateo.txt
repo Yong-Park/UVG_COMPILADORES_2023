@@ -1,0 +1,13 @@
+class Main inherits IO {
+    boolValue : Bool;
+    intValue : Int;
+    result : Int;
+    main() : Object {
+    {
+        
+        result <- (intValue + boolValue); 
+        self;
+    }
+    };
+};
+
