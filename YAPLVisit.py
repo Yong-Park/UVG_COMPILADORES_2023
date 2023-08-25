@@ -1966,7 +1966,7 @@ class YAPLVisit(ParseTreeVisitor):
                         inhe = self.symbol_table.get_inherits(firstType)
                         # print("inhe: ",inhe)
                         # print("type(inhe): ",type(str(inhe)))
-                        while str(inhe) != False:
+                        while str(inhe) != str(False):
                             print("inhe: ",inhe)
                             if str(inhe) in idRecievesClasses:
                                 indexClasses = idRecievesClasses.index(str(inhe))
@@ -1981,6 +1981,9 @@ class YAPLVisit(ParseTreeVisitor):
                     print("visitMethodCall modified nextArray: ",nextArray)
                     
                     if len(nextArray) == 1:
+                        if len(nextArray) != len(idRecieves[0]):
+                            return "NotSameLenght"
+                        
                         if nextArray in idRecieves:
                             index = idRecieves.index(nextArray)
                         elif nextArray == ["Bool"] and ["Int"] in idRecieves:
