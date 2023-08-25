@@ -373,21 +373,27 @@ class YAPLVisit(ParseTreeVisitor):
         method_expr_type = self.visit(ctx.expr())
         # method_expr_type = self.symbol_table.get_symbol_type(method_expr_type) if self.symbol_table.get_symbol_type(method_expr_type) else method_expr_type
         print("method expr type: ", method_expr_type)
+        print("self.actual_method_type: ",self.actual_method_type)
         print("=============================")
         # voidBasicType = ["Void","Int","Char","Bool"]
         #revisar si tiene un valor igual al tipo del metodo 
         if type(method_expr_type) == list:
-            
-            if self.actual_method_type in method_expr_type:
+            print("es un tipo de lista")
+            if str(self.actual_method_type) in method_expr_type:
                 return self.actual_method_type
             else:
+                print("no fue igual")
                 #revisar si el self.actual_method_type es tipo Bool o Int y si es asi revisar si en las respuestas ahi un Int O Bool
                 if str(self.actual_method_type) == "Int":
                     if "Bool" in method_expr_type:
                         return self.actual_method_type
+                    else:
+                        return "notContainsType"
                 elif str(self.actual_method_type) == "Bool":
                     if "Int" in method_expr_type:
                         return self.actual_method_type
+                    else:
+                        return "notContainsType"
                 else:
                     return "notContainsType"
         else:

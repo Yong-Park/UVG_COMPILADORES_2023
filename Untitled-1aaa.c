@@ -71,11 +71,10 @@ class A {
 class B inherits A {  -- B is a number squared
 
    method5(num : Int) : A { -- square
-      (let x : Bool in
+      (let x : Int in
 	 {
             x <- num * num;
 	    (new A).set_var(x);
-            self;
 	 }
       )
    };
@@ -121,11 +120,11 @@ class D inherits B {
 
 class E {
 
-   method6(num : String) : String {  -- division
+   method6(num : String) : Int {  -- division
       (let x : String in
          {
-            x <- num + "8";
-	    
+            x <- num + "gg";
+            (new D).value();
          }
       )
    };
@@ -138,7 +137,7 @@ class Main inherits IO {
    char : String;
    avar : A; 
    a_var : A;
-   a_int : String;
+   a_test : Int;
    flag : Bool <- true;
 
 
@@ -155,7 +154,7 @@ class Main inherits IO {
 
    main() : SELF_TYPE {
       {
-         a_int <- (new E).method6("66");
+         a_test <- (new E).method6("66");
          avar <- (new A);
          avar.set_var(2);
          out_int(avar.value());
@@ -177,7 +176,7 @@ class Main inherits IO {
          out_string("\n");
         
          a_var <- (new A).set_var(5);
-         avar <- (new D).method4(true, a_var.value());
+         avar <- (new D).method4(avar.value(), a_var.value());
          out_int(avar.value());
          out_string("\n");
         
@@ -195,16 +194,6 @@ class Main inherits IO {
    };
 
 };
-
-
-
-
-
-
-
-
-
-
 
 
 
