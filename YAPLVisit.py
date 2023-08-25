@@ -19,7 +19,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.actual_method_type = None
         self.startType = None
         self.actualAmbit = "Global"
-        self.errors = ["RepeatedValue","assignError","methodValuesNotSame","NotSameLenght","TypeNotExist","notContainsType","diferentMethodType","diferentRecievers","recursiveInherit","whileError","DobleMain","newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
+        self.errors = ["ArithError","BothNotBool","RepeatedValue","assignError","methodValuesNotSame","NotSameLenght","TypeNotExist","notContainsType","diferentMethodType","diferentRecievers","recursiveInherit","whileError","DobleMain","newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
 
     # Visit a parse tree produced by YAPLParser#start.
     def visitStart(self, ctx:YAPLParser.StartContext):
@@ -40,12 +40,15 @@ class YAPLVisit(ParseTreeVisitor):
         print(self.symbol_table)
         #realizar ultima revision si existe una clase Main y un metodo main en la clase Main
         MainExist = self.symbol_table.contains_mains()
+        
         # print("MainExist: ",MainExist)
         print("=============================")
         print("visitStart results: ",results)
         for result in results:
             if result in self.errors:
                 self.startType = result
+            else:
+                self.startType = "Int"
                 
             # if self.startType == None:
             #     self.startType = results[0]
@@ -75,7 +78,7 @@ class YAPLVisit(ParseTreeVisitor):
             elif self.startType == "notLess":
                 message.append("No es posible, alguno de los valores al probar < no es de tipo Int\n")
             elif self.startType == "methodError":
-                message.append("El metodo tiene un problema\n")
+                message.append("El metodo no esta creado o no existe en este ambiente que esta\n")
             elif self.startType == "noMethodAssign":
                 message.append("El metodo no existe y por ello no se le puede asignar a una variable\n")
             elif self.startType == "inheritProblem":
@@ -106,15 +109,15 @@ class YAPLVisit(ParseTreeVisitor):
                 message.append("No es posible debido a que el tipo que esta utilizando no existe\n")
             elif self.startType == "RepeatedValue":
                 message.append("No es posible ya que esta variable ya esta definida anteriormente\n")
-        
-            if MainExist == False:
-                message.append("Error No existe el Main o main")
-      
+            elif self.startType == "BothNotBool":
+                message.append("Ambos deben de ser de tipo bool")
+            elif self.startType == "ArithError":
+                message.append("No es posible realizar esta operacion aritmetica")
+        if MainExist == False:
+            message.append("Error No existe el Main o main\n")
         print("self.startType to send: ",message)
         print("=============================")
-        
-            
-        
+
         return message
 
 
@@ -122,7 +125,7 @@ class YAPLVisit(ParseTreeVisitor):
     def visitDefClase(self, ctx:YAPLParser.DefClaseContext):
         print("\nDefClase visitado")
         defclaseClass = ctx.CLASS()
-        # print(defclaseClass)
+        print("defclaseClass: ",defclaseClass)
         
         #definir la clase actual en la que esta
         
@@ -135,14 +138,19 @@ class YAPLVisit(ParseTreeVisitor):
         #agregar todos las variables
         variables = ctx.feature()
         variable_array = []
+        checkVariable = []
         for variable in variables:
             print("variable :", variable.ID().getText())
             if variable.ID().getText():
                 #revisar si ya esta este valor definido
-                if variable.ID().getText() in variable_array:
+                if variable.ID().getText() in checkVariable:
                     return "RepeatedValue"
-                variable_array.append(variable.ID().getText())
-                
+                variable_array.append([variable.ID().getText(),variable.TYPE().getText()])
+                checkVariable.append(variable.ID().getText())
+        print("checkVariable: ",checkVariable)
+        print("variable_array: ",variable_array)   
+        # print("tail" in variable_array) 
+        
         defclaseInherits = ctx.INHERITS() #revisar si existe la funcion inherits
         # print(defclaseInherits)
         if defclaseInherits:
@@ -175,10 +183,43 @@ class YAPLVisit(ParseTreeVisitor):
                         if typeContains == None:
                             array.extend(typeInheritContains)
                         else:
+                            #revisar si cuando se esta sobreescribiendo el metodo si sigan siendo del mismo tipo
+                            newtypeContains = [] 
+                            for tc in typeContains:
+                                newtypeContains.append(tc[0])
+                            newtypeInheritContains = []
+                            for tic in typeInheritContains:
+                                newtypeInheritContains.append(tic[0])
+                            print("newtypeContains: ",newtypeContains)
+                            print("newtypeInheritContains: ",newtypeInheritContains)
+                            
+                            # for ntc in newtypeContains:
+                            #     if ntc in newtypeInheritContains:
+                            #         ntcIndex = newtypeContains.index(ntc)
+                            #         nticIndex = newtypeInheritContains.index(ntc)
+                            #         first = typeContains[ntcIndex]
+                            #         second = typeInheritContains[nticIndex]
+                                    
+                            #         if first != second:
+                            #             print("Son distintos")
+                            #             return "diferentMethodType"
+                            
                             array.extend(typeContains)
-                            array.extend(typeInheritContains)
-                        array = list(set(array))  
-                        self.symbol_table.add_symbol(classtype,type=defclaseClass,contains=array)
+
+                            for ntic in newtypeInheritContains:
+                                if ntic not in newtypeContains:
+                                    index = newtypeInheritContains.index(ntic)
+                                    array.append(typeInheritContains[index])
+                            
+                        result = []
+                        seen = set()
+
+                        for sublist in array:
+                            if tuple(sublist) not in seen:
+                                result.append(sublist)
+                                seen.add(tuple(sublist))
+                        print("result: ",result)
+                        self.symbol_table.add_symbol(classtype,type=defclaseClass,contains=result)
                         
                         
                         pass
@@ -228,9 +269,10 @@ class YAPLVisit(ParseTreeVisitor):
         if method_type not in ["Int","String","Bool","Object","Void","SELF_TYPE"]:
             #revisar si existe
             method_type_Exist = self.symbol_table.contains_symbol(method_type)
+            print("method_type_Exist: ",method_type_Exist)
             if method_type_Exist:
-                #revisar si es de tipo class
                 method_type_class = self.symbol_table.get_symbol_type(method_type)
+                print("method_type_class: ",method_type_class)
                 if method_type_class != False:
                     if str(method_type_class) == "class":
                         pass
@@ -241,8 +283,9 @@ class YAPLVisit(ParseTreeVisitor):
 
         # print("visitMethod methodExist: ",methodExist)
         if methodExist == False:
-            # print("pasando por aqui")
+            # print("asignando un nuevo metodo ya que no existe")
             self.symbol_table.add_symbol(method_name, method_type,ambit="Local")
+        
         formlExist = ctx.formal()
         # print("method_name type: ", type(method_name))
         # print("method_type type: ", type(method_type))
@@ -260,29 +303,56 @@ class YAPLVisit(ParseTreeVisitor):
             if res in self.errors:
                 print("visitMethod found error: ",res)
                 return res
-            
+        print("self.methodRecieves: ",self.methodRecieves)
         if len(self.methodRecieves) > 0:
             #revisar si el metodo existe pero tiene que el recieves es falso o none
+            methodRecieving = self.symbol_table.get_recieves(method_name)
+            addRecieves = []
+            if methodRecieving == False:
+                addRecieves.append([self.actual_class,self.methodRecieves])
+            else:
+                addRecieves.extend(methodRecieving)
+                if self.methodRecieves not in addRecieves:
+                    addRecieves.append([self.actual_class,self.methodRecieves])
+            print("addRecieves: ",addRecieves)
+            self.symbol_table.add_symbol(method_name,method_type,recieves=addRecieves)
             methodHasRecieve = self.symbol_table.get_recieves(method_name)
             print("visitMethod methodHasRecieve: ",methodHasRecieve)
-            if methodHasRecieve == False:
-                self.symbol_table.add_symbol(method_name,method_type,recieves=self.methodRecieves)
+            # if methodHasRecieve == False:
+            
             #revisar si el class es un inhertis
             classIsInhertis = self.symbol_table.get_inherits(self.actual_class)
             print("visitMethod classIsInhertis: ",classIsInhertis)
             if classIsInhertis: 
                 classInheritContains = self.symbol_table.get_contains(classIsInhertis)
                 print("visitMethod classInheritContains: ",classInheritContains)
+                newclassInheritContains = []
+                if classInheritContains != None:
+                    for cic in classInheritContains:
+                        newclassInheritContains.append(cic[0])
+                print("newclassInheritContains: ",newclassInheritContains)
                 if classInheritContains:
-                    if method_name in classInheritContains:
+                    if method_name in newclassInheritContains:
                         #revisar que el forml sea del mismo tipo que el que tiene adentro y el tipo de valor de regreso
                         classInhertisMethodRecieves = self.symbol_table.get_recieves(method_name)
                         print("visitMethod classInhertisMethodRecieves: ",classInhertisMethodRecieves)
+                        ClassclassInhertisMethodRecieves = []
+                        for cimr in classInhertisMethodRecieves:
+                            ClassclassInhertisMethodRecieves.append(cimr[0])
+                        
+                        indexClass = ClassclassInhertisMethodRecieves.index(str(classIsInhertis))
+                        classInhertisMethodRecieves = [classInhertisMethodRecieves[indexClass][1]]
+                        print("newest classInhertisMethodRecieves: ",classInhertisMethodRecieves)
                         print("visitMethod self.methodRecieves: ",self.methodRecieves)
-                        if classInhertisMethodRecieves != self.methodRecieves:
+                        
+                        if self.methodRecieves not in classInhertisMethodRecieves:
                             return "diferentRecievers"
                         #revisar si regresan el mismo tipo de valor
-                        inhertisMethodType = self.symbol_table.get_symbol_type(method_name)
+                        
+                        indexClass = newclassInheritContains.index(method_name)
+                        inhertisMethodType = classInheritContains[indexClass][1]
+                        
+                        # inhertisMethodType = self.symbol_table.get_symbol_type(method_name)
                         print("visitMethod inhertisMethodType: ",inhertisMethodType)
                         if inhertisMethodType != method_type:
                             return "diferentMethodType"
@@ -327,7 +397,33 @@ class YAPLVisit(ParseTreeVisitor):
             if self.actual_method_type == method_expr_type:
                 return self.actual_method_type
             else:
-                method_expr_type = self.symbol_table.get_symbol_type(method_expr_type) if self.symbol_table.get_symbol_type(method_expr_type) else method_expr_type
+                methodContians = self.symbol_table.get_contains(self.actual_method)
+                # print("methodContians: ",methodContians)
+                classContains = self.symbol_table.get_contains(self.actual_class)
+                # print("classContains: ",classContains)
+
+                newClasscontains = []
+                newMethodContains = []
+                
+                if classContains != None:
+                    for cc in classContains:
+                        newClasscontains.append(cc[0])
+                if methodContians != None:
+                    for mc in methodContians:
+                        newMethodContains.append(mc[0])
+                        
+                if method_expr_type in newMethodContains:
+                    methodIndex = newMethodContains.index(method_expr_type)
+                    method_expr_type = methodContians[methodIndex][1]
+                else:
+                    if method_expr_type in newClasscontains:
+                        methodIndex = newClasscontains.index(method_expr_type)
+                        method_expr_type = classContains[methodIndex][1]
+                    else:
+                        method_expr_type = method_expr_type
+                print("self.actual_method_type: ",self.actual_method_type)
+                print("method_expr_type: ",method_expr_type)
+                # method_expr_type = self.symbol_table.get_symbol_type(method_expr_type) if self.symbol_table.get_symbol_type(method_expr_type) else method_expr_type
                 if self.actual_method_type == method_expr_type:
                     return self.actual_method_type
                 else:
@@ -352,10 +448,11 @@ class YAPLVisit(ParseTreeVisitor):
         #revisar que la variable si no es int, char o bool sea algo que exista en la tabla
         if str(var_type) not in ["Int","String","Bool","Object","Void","SELF_TYPE"]:
             print("toca buscar")
-            if self.symbol_table.contains_symbol(var_type):
+            if self.symbol_table.contains_symbol(var_type) and str(self.symbol_table.get_symbol_type(var_type)) == "class":
                 print("Si existe")
                 pass
             else:
+                print("no existe")
                 return "noMethodAssign"
             
         
@@ -405,9 +502,27 @@ class YAPLVisit(ParseTreeVisitor):
                     formArray.extend(classContains)
                 else:
                     formArray.extend(formContains)
-                    formArray.extend(classContains)
-                formArray = list(set(formArray))
-                self.symbol_table.add_symbol(idtext,tipo,contains=formArray)
+                    
+                    newformContains = []
+                    for fc in formContains:
+                        newformContains.append(fc[0])
+                    newclassContains = []
+                    for cc in classContains:
+                        newclassContains.append(cc[0])
+                        
+                    for ncc in newclassContains:
+                        if ncc not in newformContains:
+                            index = newclassContains.index(ncc)
+                            formArray.append(classContains[index])
+                result = []
+                seen = set()
+
+                for sublist in formArray:
+                    if tuple(sublist) not in seen:
+                        result.append(sublist)
+                        seen.add(tuple(sublist))
+                
+                self.symbol_table.add_symbol(idtext,tipo,contains=result)
             else:
                 print("visitForml found: TypeNotExist")
                 return "TypeNotExist"
@@ -420,39 +535,73 @@ class YAPLVisit(ParseTreeVisitor):
         contains = self.symbol_table.get_contains(self.actual_method)
         array = []
         if contains == None:
-            array.append(idtext)
+            array.append([idtext,tipo])
         else:
-            for ele in contains:
-                array.append(str(ele))
-            array.append(idtext)
+            array.append([idtext,tipo])
+            array.extend(contains)
             
-        
         self.methodRecieves.append(tipo)
-        array = list(set(array))
-        print("visitForml array: ",array)
+        
+        result = []
+        seen = set()
+        for sublist in array:
+            if tuple(sublist) not in seen:
+                result.append(sublist)
+                seen.add(tuple(sublist))
+        
+        print("visitForml array: ",result)
         print("visitForml self.methodRecieves: ",self.methodRecieves)
-        self.symbol_table.add_symbol(self.actual_method,contains=array)
+        self.symbol_table.add_symbol(self.actual_method,contains=result)
         print("=============================")
         
         
     
     # Visit a parse tree produced by YAPLParser#or.
     def visitOr(self, ctx:YAPLParser.OrContext):
+        methodContians = self.symbol_table.get_contains(self.actual_method)
+        # print("methodContians: ",methodContians)
+        classContains = self.symbol_table.get_contains(self.actual_class)
+        # print("classContains: ",classContains)
+
+        newClasscontains = []
+        newMethodContains = []
+        
+        if classContains != None:
+            for cc in classContains:
+                newClasscontains.append(cc[0])
+        if methodContians != None:
+            for mc in methodContians:
+                newMethodContains.append(mc[0])
+        
         left = self.visit(ctx.expr(0))
-        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        if left in newMethodContains:
+            methodIndex = newMethodContains.index(left)
+            left_type = methodContians[methodIndex][1]
+        else:
+            if left in newClasscontains:
+                methodIndex = newClasscontains.index(left)
+                left_type = classContains[methodIndex][1]
+            else:
+                left_type = left
+        
         if left_type == "noValue":
             return left_type
         
-        if type(left_type) == list:
-            left_type = left_type[0]
-        
         right = self.visit(ctx.expr(1))
-        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        if right in newMethodContains:
+            methodIndex = newMethodContains.index(right)
+            right_type = methodContians[methodIndex][1]
+        else:
+            if right in newClasscontains:
+                methodIndex = newClasscontains.index(right)
+                right_type = classContains[methodIndex][1]
+            else:
+                right_type = right
+            
         if right_type == "noValue":
             return right_type
-        
-        if type(right_type) == list:
-            right_type = right_type[0]
         
         #revisar que no sean parte del algun del los errors
         if left_type in self.errors:
@@ -463,17 +612,54 @@ class YAPLVisit(ParseTreeVisitor):
         if left_type == "Bool" and right_type == "Bool":
             return left_type
         else:
-            return None
+            return "BothNotBool"
     
     # Visit a parse tree produced by YAPLParser#and.
     def visitAnd(self, ctx:YAPLParser.AndContext):
+        methodContians = self.symbol_table.get_contains(self.actual_method)
+        # print("methodContians: ",methodContians)
+        classContains = self.symbol_table.get_contains(self.actual_class)
+        # print("classContains: ",classContains)
+
+        newClasscontains = []
+        newMethodContains = []
+        
+        if classContains != None:
+            for cc in classContains:
+                newClasscontains.append(cc[0])
+        if methodContians != None:
+            for mc in methodContians:
+                newMethodContains.append(mc[0])
         left = self.visit(ctx.expr(0))
-        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        if left in newMethodContains:
+            methodIndex = newMethodContains.index(left)
+            left_type = methodContians[methodIndex][1]
+        else:
+            if left in newClasscontains:
+                methodIndex = newClasscontains.index(left)
+                left_type = classContains[methodIndex][1]
+            else:
+                left_type = left
+        
+        if left_type == "noValue":
+            return left_type
+        
         if left_type == "noValue":
             return left_type
         
         right = self.visit(ctx.expr(1))
-        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        if right in newMethodContains:
+            methodIndex = newMethodContains.index(right)
+            right_type = methodContians[methodIndex][1]
+        else:
+            if right in newClasscontains:
+                methodIndex = newClasscontains.index(right)
+                right_type = classContains[methodIndex][1]
+            else:
+                right_type = right
+        
         if right_type == "noValue":
             return right_type
         
@@ -486,31 +672,62 @@ class YAPLVisit(ParseTreeVisitor):
         if left_type == "Bool" and right_type == "Bool":
             return left_type
         else:
-            return None
+            return "BothNotBool"
 
     # Visit a parse tree produced by YAPLParser#add.
     def visitAdd(self, ctx:YAPLParser.AddContext):
-        # print("Visiting Add node")
+        print("Visiting Add node")
+        
+        methodContians = self.symbol_table.get_contains(self.actual_method)
+        # print("methodContians: ",methodContians)
+        classContains = self.symbol_table.get_contains(self.actual_class)
+        # print("classContains: ",classContains)
+        newClasscontains = []
+        newMethodContains = []
+        
+        if classContains != None:
+            for cc in classContains:
+                newClasscontains.append(cc[0])
+        if methodContians != None:
+            for mc in methodContians:
+                newMethodContains.append(mc[0])
+        
         # print('add')
         left = self.visit(ctx.expr(0))
-        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
-        # print('left add: ',left)
-        # print('left add type: ',left_type)
+        # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        
+        if left in newMethodContains:
+            methodIndex = newMethodContains.index(left)
+            left_type = methodContians[methodIndex][1]
+        else:
+            if left in newClasscontains:
+                methodIndex = newClasscontains.index(left)
+                left_type = classContains[methodIndex][1]
+            else:
+                left_type = left
+
+        print('left add: ',left)
+        print('left add type: ',left_type)
         if left_type == "noValue":
             return left_type
         
-        if type(left_type) == list:
-            left_type = left_type[0]
-        
         right = self.visit(ctx.expr(1))
-        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
-        # print('right add:', right)
-        # print('right add type:', right_type)
+        # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        
+        if right in newMethodContains:
+            methodIndex = newMethodContains.index(right)
+            right_type = methodContians[methodIndex][1]
+        else:
+            if right in newClasscontains:
+                methodIndex = newClasscontains.index(right)
+                right_type = classContains[methodIndex][1]
+            else:
+                right_type = right
+        
+        print('right add:', right)
+        print('right add type:', right_type)
         if right_type == "noValue":
             return right_type
-        
-        if type(right_type) == list:
-            right_type = right_type[0]
         
         #revisar que no sean parte del algun del los errors
         if left_type in self.errors:
@@ -534,27 +751,59 @@ class YAPLVisit(ParseTreeVisitor):
         elif left_type == "Bool" and right_type == "Bool":
             return "boolAr"
         else:
-            return None
+            return "ArithError"
 
 
     # Visit a parse tree produced by YAPLParser#sub.
     def visitSub(self, ctx:YAPLParser.SubContext):
         
+        methodContians = self.symbol_table.get_contains(self.actual_method)
+        # print("methodContians: ",methodContians)
+        classContains = self.symbol_table.get_contains(self.actual_class)
+        # print("classContains: ",classContains)
+        newClasscontains = []
+        newMethodContains = []
+        
+        if classContains != None:
+            for cc in classContains:
+                newClasscontains.append(cc[0])
+        if methodContians != None:
+            for mc in methodContians:
+                newMethodContains.append(mc[0])
+        
         left = self.visit(ctx.expr(0))
-        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        
+        if left in newMethodContains:
+            methodIndex = newMethodContains.index(left)
+            left_type = methodContians[methodIndex][1]
+        else:
+            if left in newClasscontains:
+                methodIndex = newClasscontains.index(left)
+                left_type = classContains[methodIndex][1]
+            else:
+                left_type = left
+                
         if left_type == "noValue":
             return left_type
         
-        if type(left_type) == list:
-            left_type = left_type[0]
-        
         right = self.visit(ctx.expr(1))
-        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        
+        if right in newMethodContains:
+            methodIndex = newMethodContains.index(right)
+            right_type = methodContians[methodIndex][1]
+        else:
+            if right in newClasscontains:
+                methodIndex = newClasscontains.index(right)
+                right_type = classContains[methodIndex][1]
+            else:
+                right_type = right
+        
+        # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
         if right_type == "noValue":
             return right_type
         
-        if type(right_type) == list:
-            right_type = right_type[0]
+
         print("\nvisitSub")
         print("left_type: ",left_type)
         print("right_type: ",right_type )
@@ -581,7 +830,7 @@ class YAPLVisit(ParseTreeVisitor):
         elif left_type == "Bool" and right_type == "Bool":
             return "boolAr"
         else:
-            return None
+            return "ArithError"
 
 
     # Visit a parse tree produced by YAPLParser#void.
@@ -600,17 +849,40 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#invert.
     def visitInvert(self, ctx:YAPLParser.InvertContext):
         print("\nvisitInvert")
+        methodContians = self.symbol_table.get_contains(self.actual_method)
+        # print("methodContians: ",methodContians)
+        classContains = self.symbol_table.get_contains(self.actual_class)
+        # print("classContains: ",classContains)
+
+        newClasscontains = []
+        newMethodContains = []
+        
+        if classContains != None:
+            for cc in classContains:
+                newClasscontains.append(cc[0])
+        if methodContians != None:
+            for mc in methodContians:
+                newMethodContains.append(mc[0])
+        
         value = self.visit(ctx.expr())
-        value = self.symbol_table.get_symbol_type(value) if self.symbol_table.get_symbol_type(value) else value
+        
+        if value in newMethodContains:
+            methodIndex = newMethodContains.index(value)
+            value = methodContians[methodIndex][1]
+        else:
+            if value in newClasscontains:
+                methodIndex = newClasscontains.index(value)
+                value = classContains[methodIndex][1]
+            else:
+                value = value
+        # value = self.symbol_table.get_symbol_type(value) if self.symbol_table.get_symbol_type(value) else value
         print("visitInvert value: ",value)
-        if value == "Int":
+        if str(value) == "Int":
             return "Int"
         else:
             return "invertNotInt"
         
         
-
-
     # Visit a parse tree produced by YAPLParser#string.
     def visitString(self, ctx:YAPLParser.StringContext):
         return "String"
@@ -619,25 +891,56 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#mul.
     def visitMul(self, ctx:YAPLParser.MulContext):
         print("\nVisiting Mul node")
+        methodContians = self.symbol_table.get_contains(self.actual_method)
+        # print("methodContians: ",methodContians)
+        classContains = self.symbol_table.get_contains(self.actual_class)
+        # print("classContains: ",classContains)
+
+        newClasscontains = []
+        newMethodContains = []
+        
+        if classContains != None:
+            for cc in classContains:
+                newClasscontains.append(cc[0])
+        if methodContians != None:
+            for mc in methodContians:
+                newMethodContains.append(mc[0])
+        
         # print('mul')
         left = self.visit(ctx.expr(0)) 
-        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        if left in newMethodContains:
+            methodIndex = newMethodContains.index(left)
+            left_type = methodContians[methodIndex][1]
+        else:
+            if left in newClasscontains:
+                methodIndex = newClasscontains.index(left)
+                left_type = classContains[methodIndex][1]
+            else:
+                left_type = left
+        
         if left_type == "noValue":
             return left_type
         
         print("left mul", left)
         print('left mul type: ',left_type)
-        if type(left_type) == list:
-            left_type = left_type[0]
-        
+
         right = self.visit(ctx.expr(1))
-        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        if right in newMethodContains:
+            methodIndex = newMethodContains.index(right)
+            right_type = methodContians[methodIndex][1]
+        else:
+            if right in newClasscontains:
+                methodIndex = newClasscontains.index(right)
+                right_type = classContains[methodIndex][1]
+            else:
+                right_type = right
+        
         if right_type == "noValue":
             return right_type
         print("right mul: ",right)
         print('right mul type:', right_type)
-        if type(right_type) == list:
-            right_type = right_type[0]
         
         #revisar que no sean parte del algun del los errors
         if left_type in self.errors:
@@ -661,7 +964,7 @@ class YAPLVisit(ParseTreeVisitor):
         elif left_type == "Bool" and right_type == "Bool":
             return "boolAr"
         else:
-            return None
+            return "ArithError"
 
 
 
@@ -675,13 +978,52 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#lteq.
     def visitLteq(self, ctx:YAPLParser.LteqContext):
+        methodContians = self.symbol_table.get_contains(self.actual_method)
+        # print("methodContians: ",methodContians)
+        classContains = self.symbol_table.get_contains(self.actual_class)
+        # print("classContains: ",classContains)
+
+        newClasscontains = []
+        newMethodContains = []
+        
+        if classContains != None:
+            for cc in classContains:
+                newClasscontains.append(cc[0])
+        if methodContians != None:
+            for mc in methodContians:
+                newMethodContains.append(mc[0])
+                
         left = self.visit(ctx.expr(0))
-        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        
+        if left in newMethodContains:
+            methodIndex = newMethodContains.index(left)
+            left_type = methodContians[methodIndex][1]
+        else:
+            if left in newClasscontains:
+                methodIndex = newClasscontains.index(left)
+                left_type = classContains[methodIndex][1]
+            else:
+                left_type = left
+        # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
         
         right = self.visit(ctx.expr(1))
-        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        if right in newMethodContains:
+            methodIndex = newMethodContains.index(right)
+            right_type = methodContians[methodIndex][1]
+        else:
+            if right in newClasscontains:
+                methodIndex = newClasscontains.index(right)
+                right_type = classContains[methodIndex][1]
+            else:
+                right_type = right
+        
         
         if left_type == "Int" and right_type == "Int":
+            return "Bool"
+        if left_type == "Int" and right_type == "Bool":
+            return "Bool"
+        if left_type == "Bool" and right_type == "Int":
             return "Bool"
         else:
             return "notLessorequal"
@@ -694,13 +1036,50 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#lt.
     def visitLt(self, ctx:YAPLParser.LtContext):
+        methodContians = self.symbol_table.get_contains(self.actual_method)
+        # print("methodContians: ",methodContians)
+        classContains = self.symbol_table.get_contains(self.actual_class)
+        # print("classContains: ",classContains)
+
+        newClasscontains = []
+        newMethodContains = []
+        
+        if classContains != None:
+            for cc in classContains:
+                newClasscontains.append(cc[0])
+        if methodContians != None:
+            for mc in methodContians:
+                newMethodContains.append(mc[0])
+                
         left = self.visit(ctx.expr(0))
-        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        if left in newMethodContains:
+            methodIndex = newMethodContains.index(left)
+            left_type = methodContians[methodIndex][1]
+        else:
+            if left in newClasscontains:
+                methodIndex = newClasscontains.index(left)
+                left_type = classContains[methodIndex][1]
+            else:
+                left_type = left
         
         right = self.visit(ctx.expr(1))
-        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        if right in newMethodContains:
+            methodIndex = newMethodContains.index(right)
+            right_type = methodContians[methodIndex][1]
+        else:
+            if right in newClasscontains:
+                methodIndex = newClasscontains.index(right)
+                right_type = classContains[methodIndex][1]
+            else:
+                right_type = right
         
         if left_type == "Int" and right_type == "Int":
+            return "Bool"
+        if left_type == "Int" and right_type == "Bool":
+            return "Bool"
+        if left_type == "Bool" and right_type == "Int":
             return "Bool"
         else:
             return "notLess"
@@ -737,6 +1116,13 @@ class YAPLVisit(ParseTreeVisitor):
         
         print("visitWhile results (loop): ",loopResult)
         print("=============================")
+        if type(loopResult) == list:
+            for x in loopResult:
+                if x in self.errors:
+                    return x
+        else:
+            if loopResult in self.errors:
+                return loopResult
         
         if whileIsBool:
             return "Object"
@@ -746,21 +1132,54 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#div.
     def visitDiv(self, ctx:YAPLParser.DivContext):
+        print("visitDiv")
+        methodContians = self.symbol_table.get_contains(self.actual_method)
+        # print("methodContians: ",methodContians)
+        classContains = self.symbol_table.get_contains(self.actual_class)
+        # print("classContains: ",classContains)
+
+        newClasscontains = []
+        newMethodContains = []
+        
+        if classContains != None:
+            for cc in classContains:
+                newClasscontains.append(cc[0])
+        if methodContians != None:
+            for mc in methodContians:
+                newMethodContains.append(mc[0])
+        
         left = self.visit(ctx.expr(0)) 
-        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        if left in newMethodContains:
+            methodIndex = newMethodContains.index(left)
+            left_type = methodContians[methodIndex][1]
+        else:
+            if left in newClasscontains:
+                methodIndex = newClasscontains.index(left)
+                left_type = classContains[methodIndex][1]
+            else:
+                left_type = left
+            
         if left_type == "noValue":
             return left_type
         
-        if type(left_type) == list:
-            left_type = left_type[0]
+        print("left_type: ",left_type )
         
         right = self.visit(ctx.expr(1))
-        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        if right in newMethodContains:
+            methodIndex = newMethodContains.index(right)
+            right_type = methodContians[methodIndex][1]
+        else:
+            if right in newClasscontains:
+                methodIndex = newClasscontains.index(right)
+                right_type = classContains[methodIndex][1]
+            else:
+                right_type = right
+        
         if right_type == "noValue":
             return right_type
-        
-        if type(right_type) == list:
-            right_type = right_type[0]
+        print("right_type: ",right_type )
         
         #revisar que no sean parte del algun del los errors
         if left_type in self.errors:
@@ -784,17 +1203,39 @@ class YAPLVisit(ParseTreeVisitor):
         elif left_type == "Bool" and right_type == "Bool":
             return "boolAr"
         else:
-            return None
+            return "ArithError"
 
 
     # Visit a parse tree produced by YAPLParser#equal.
     def visitEqual(self, ctx:YAPLParser.EqualContext):
         print("\nvisitando equal")
+        
+        methodContians = self.symbol_table.get_contains(self.actual_method)
+        # print("methodContians: ",methodContians)
+        classContains = self.symbol_table.get_contains(self.actual_class)
+        # print("classContains: ",classContains)
+
+        newClasscontains = []
+        newMethodContains = []
+        
+        if classContains != None:
+            for cc in classContains:
+                newClasscontains.append(cc[0])
+        if methodContians != None:
+            for mc in methodContians:
+                newMethodContains.append(mc[0])
+                
         left = self.visit(ctx.expr(0)) 
-        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
-       
-        if type(left_type) == list:
-            left_type = left_type[0]
+        # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        if left in newMethodContains:
+            methodIndex = newMethodContains.index(left)
+            left_type = methodContians[methodIndex][1]
+        else:
+            if left in newClasscontains:
+                methodIndex = newClasscontains.index(left)
+                left_type = classContains[methodIndex][1]
+            else:
+                left_type = left 
             
         print("left equal", left)
         print('left equal type: ',left_type)
@@ -805,7 +1246,16 @@ class YAPLVisit(ParseTreeVisitor):
         
         
         right = self.visit(ctx.expr(1))
-        right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.get_symbol_type(right) else right
+        # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.get_symbol_type(right) else right
+        if right in newMethodContains:
+            methodIndex = newMethodContains.index(right)
+            right_type = methodContians[methodIndex][1]
+        else:
+            if right in newClasscontains:
+                methodIndex = newClasscontains.index(right)
+                right_type = classContains[methodIndex][1]
+            else:
+                right_type = right 
         # print("right equal", right)
         if right_type in ["Int","String","Bool"]:
             if left_type == right_type:
@@ -813,7 +1263,12 @@ class YAPLVisit(ParseTreeVisitor):
             else:
                 return "notequal"
         else:
-            return "Bool"
+            if left_type == "Int" and right_type == "Bool":
+                return "Bool"
+            elif left_type == "Bool" and right_type == "Int":
+                return "Bool"
+            else:
+                return "notequal"
 
 
     # Visit a parse tree produced by YAPLParser#not.
@@ -838,6 +1293,12 @@ class YAPLVisit(ParseTreeVisitor):
         #revisar que si existe en new type
         if value not in ["Object"]:
             existNew = self.symbol_table.contains_symbol(value)
+            if existNew:
+                newType = self.symbol_table.get_symbol_type(value)
+                if str(newType) == "class":
+                    existNew = True
+                else:
+                    existNew = False
             print("existNew: ",existNew)
         else:
             existNew = True
@@ -897,9 +1358,9 @@ class YAPLVisit(ParseTreeVisitor):
             contains = self.symbol_table.get_contains(self.actual_method)
             contain = []
             if contains == None:
-                contain = [value]
+                contain = [value,self.actual_method_type]
             else:
-                contain.append(value)
+                contain.append([value,self.actual_method_type])
             self.symbol_table.add_symbol(self.actual_method,tipo,contains=contain)
       
             return str(self.actual_method_type)
@@ -976,6 +1437,21 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#ownMethodCall.
     def visitOwnMethodCall(self, ctx:YAPLParser.OwnMethodCallContext):
         print("\nvisitOwnMethodCall")
+        methodContians = self.symbol_table.get_contains(self.actual_method)
+        # print("methodContians: ",methodContians)
+        classContains = self.symbol_table.get_contains(self.actual_class)
+        # print("classContains: ",classContains)
+
+        newClasscontains = []
+        newMethodContains = []
+        
+        if classContains != None:
+            for cc in classContains:
+                newClasscontains.append(cc[0])
+        if methodContians != None:
+            for mc in methodContians:
+                newMethodContains.append(mc[0])
+        
         message = "methodError"
         expresions = ctx.expr()
         
@@ -993,6 +1469,18 @@ class YAPLVisit(ParseTreeVisitor):
                 firstType = self.visit(first)
                 if firstType == "String":
                     message = "SELF_TYPE"
+                else:
+                    if firstType in newMethodContains:
+                        methodIndex = newMethodContains.index(firstType)
+                        firstType = methodContians[methodIndex][1]
+                    else:
+                        if firstType in newClasscontains:
+                            methodIndex = newClasscontains.index(firstType)
+                            firstType = classContains[methodIndex][1]
+                        else:
+                            firstType = firstType
+                    if firstType == "String":
+                        message = "SELF_TYPE"
                 
             elif id == "out_int":
                 first = expresions.pop(0)
@@ -1000,7 +1488,16 @@ class YAPLVisit(ParseTreeVisitor):
                 if firstType == "Int":
                     message = "SELF_TYPE"
                 else:
-                    firstType = self.symbol_table.get_symbol_type(firstType) if self.symbol_table.get_symbol_type(firstType) else firstType
+                    # firstType = self.symbol_table.get_symbol_type(firstType) if self.symbol_table.get_symbol_type(firstType) else firstType
+                    if firstType in newMethodContains:
+                        methodIndex = newMethodContains.index(firstType)
+                        firstType = methodContians[methodIndex][1]
+                    else:
+                        if firstType in newClasscontains:
+                            methodIndex = newClasscontains.index(firstType)
+                            firstType = classContains[methodIndex][1]
+                        else:
+                            firstType = firstType
                     if firstType == "Int":
                         message = "SELF_TYPE"
                     
@@ -1023,36 +1520,133 @@ class YAPLVisit(ParseTreeVisitor):
             secondType = self.visit(second)
             if secondType == "String":
                 message = "String"
+            else:
+                if secondType in newMethodContains:
+                    methodIndex = newMethodContains.index(secondType)
+                    secondType = methodContians[methodIndex][1]
+                else:
+                    if secondType in newClasscontains:
+                        methodIndex = newClasscontains.index(secondType)
+                        secondType = classContains[methodIndex][1]
+                    else:
+                        secondType = secondType
+                if secondType == "String":
+                    message = "String"
         elif id == "substr":
             second = expresions.pop(0)
             secondType = self.visit(second)
+            if secondType in newMethodContains:
+                methodIndex = newMethodContains.index(secondType)
+                secondType = methodContians[methodIndex][1]
+            else:
+                if secondType in newClasscontains:
+                    methodIndex = newClasscontains.index(secondType)
+                    secondType = classContains[methodIndex][1]
+                else:
+                    secondType = secondType
+            
             third = expresions.pop(0)
             thirdType = self.visit(third)
+            if thirdType in newMethodContains:
+                methodIndex = newMethodContains.index(thirdType)
+                thirdType = methodContians[methodIndex][1]
+            else:
+                if thirdType in newClasscontains:
+                    methodIndex = newClasscontains.index(thirdType)
+                    thirdType = classContains[methodIndex][1]
+                else:
+                    thirdType = thirdType
             
             if secondType == "Int" and thirdType == "Int":
                 message = "String"
                 
         #el id es un metodo que se esta volviendo a llamar?
         actualClassContains = self.symbol_table.get_contains(self.actual_class)
+        newactualClassContains = []
+        for acc in actualClassContains:
+            newactualClassContains.append(acc[0])
         if actualClassContains != None:
-            if id in actualClassContains:
+            if id in newactualClassContains:
                 first = expresions.pop(0) if len(expresions) > 0 else False
                 if first != False:
                     firstType = self.visit(first)
                     print("visitOwnMethodCall firstType: ",firstType)
+                    methodContians = self.symbol_table.get_contains(self.actual_method)
+                    # print("methodContians: ",methodContians)
+                    classContains = self.symbol_table.get_contains(self.actual_class)
+                    # print("classContains: ",classContains)
+
+                    newClasscontains = []
+                    newMethodContains = []
+                    
+                    if classContains != None:
+                        for cc in classContains:
+                            newClasscontains.append(cc[0])
+                    if methodContians != None:
+                        for mc in methodContians:
+                            newMethodContains.append(mc[0])
+                    
+                    if firstType in newMethodContains:
+                        methodIndex = newMethodContains.index(firstType)
+                        firstType = methodContians[methodIndex][1]
+                    else:
+                        if firstType in newClasscontains:
+                            methodIndex = newClasscontains.index(firstType)
+                            firstType = classContains[methodIndex][1]
+                        else:
+                            firstType = firstType
+                    print("visitOwnMethodCall after firstType: ",firstType)
                     print("visitOwnMethodCall id: ",id , " :", type(id))
                     recieveMethod = self.symbol_table.get_recieves(id)
                     print("visitOwnMethodCall recieveMethod: ",recieveMethod)
-
+                    ClassesrecieveMethod = []
+                    for rm in recieveMethod:
+                        ClassesrecieveMethod.append(rm[0])
+                    
+                    print("self.actual_class: ",self.actual_class)
+                    print("ClassesrecieveMethod: ",ClassesrecieveMethod)
+                    indexClass = ClassesrecieveMethod.index(str(self.actual_class))
+                    recieveMethod = [recieveMethod[indexClass][1]]
+                    print("indexClass: ",indexClass)
+                    print("recieveMethod: ",recieveMethod)
                     if type(firstType) != list:
                         firstType = [firstType]
+                        
+                    if firstType in recieveMethod:
+                        index = recieveMethod.index(firstType)
+                        recieveMethod = recieveMethod[index]
                     
                     if len(firstType) == len(recieveMethod):
                         for ft in firstType:
                             if ft in recieveMethod:
                                 message = str(self.symbol_table.get_symbol_type(id))
                             else:
-                                ft = self.symbol_table.get_symbol_type(ft) if self.symbol_table.get_symbol_type(ft) else ft
+                                methodContians = self.symbol_table.get_contains(self.actual_method)
+                                # print("methodContians: ",methodContians)
+                                classContains = self.symbol_table.get_contains(self.actual_class)
+                                # print("classContains: ",classContains)
+
+                                newClasscontains = []
+                                newMethodContains = []
+                                
+                                if classContains != None:
+                                    for cc in classContains:
+                                        newClasscontains.append(cc[0])
+                                if methodContians != None:
+                                    for mc in methodContians:
+                                        newMethodContains.append(mc[0])
+                                    
+                                if ft in newMethodContains:
+                                    methodIndex = newMethodContains.index(ft)
+                                    ft = methodContians[methodIndex][1]
+                                else:
+                                    if ft in newClasscontains:
+                                        methodIndex = newClasscontains.index(ft)
+                                        ft = classContains[methodIndex][1]
+                                    else:
+                                        ft = ft
+                                   
+                                # ft = self.symbol_table.get_symbol_type(ft) if self.symbol_table.get_symbol_type(ft) else ft
                                 if ft in recieveMethod:
                                     message = str(self.symbol_table.get_symbol_type(id))
                                 else:
@@ -1060,6 +1654,8 @@ class YAPLVisit(ParseTreeVisitor):
                                     break
                     else:
                         message = "NotSameLenght"
+        if str(message) == "SELF_TYPE":
+            message = self.actual_method_type
                 
         print("visitOwnMethodCall message: ",message)
         
@@ -1076,15 +1672,54 @@ class YAPLVisit(ParseTreeVisitor):
     def visitAssign(self, ctx:YAPLParser.AssignContext):
         print("\nassign visitado")
         expresion = self.visit(ctx.expr())
-        expresionType = self.symbol_table.get_symbol_type(expresion) if self.symbol_table.get_symbol_type(expresion) else expresion
+        # expresionType = self.symbol_table.get_symbol_type(expresion) if self.symbol_table.get_symbol_type(expresion) else expresion
         left = ctx.ID().getText()
-        left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.get_symbol_type(left) else "noValue"
+        # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.get_symbol_type(left) else "noValue"
         print("expresion: ",expresion)
-        print("expresionType: ",expresionType)
+        
         # expresion = self.symbol_table.get_symbol_type(expresion) if self.symbol_table.get_symbol_type(expresion) else expresion
         # print("expresion later: ",expresion)
         print("left: ",left)
-        print("left_type: ",left_type)
+        # print("left_type: ",left_type)
+        
+        #revisar que el left exista en contains del metodo o incluso de la misma clase
+        methodContians = self.symbol_table.get_contains(self.actual_method)
+        # print("methodContians: ",methodContians)
+        classContains = self.symbol_table.get_contains(self.actual_class)
+        # print("classContains: ",classContains)
+
+        newClasscontains = []
+        newMethodContains = []
+        
+        if classContains != None:
+            for cc in classContains:
+                newClasscontains.append(cc[0])
+        if methodContians != None:
+            for mc in methodContians:
+                newMethodContains.append(mc[0])
+            
+        if left in newMethodContains:
+            methodIndex = newMethodContains.index(left)
+            left_type = methodContians[methodIndex][1]
+        else:
+            if left in newClasscontains:
+                methodIndex = newClasscontains.index(left)
+                left_type = classContains[methodIndex][1]
+            else:
+                return "assignError"
+                    
+        if expresion in newMethodContains:
+            methodIndex = newMethodContains.index(expresion)
+            expresionType = methodContians[methodIndex][1]
+        else:
+            if expresion in newClasscontains:
+                methodIndex = newClasscontains.index(expresion)
+                expresionType = classContains[methodIndex][1]
+            else:
+                expresionType = expresion
+        
+        print("expresionType: ",expresionType if expresionType else "Vacio")
+        print("left_type: ",left_type if left_type else "Vacio")
 
         #revisar si existe la expresion
         # print(type(expresion))
@@ -1106,13 +1741,31 @@ class YAPLVisit(ParseTreeVisitor):
                     array.extend(expresionContains)
             else:
                 array.extend(leftContains)
-                array.extend(expresionContains)
-            array = list(set(array))  
-            self.symbol_table.add_symbol(left,left_type,contains=array)
+                
+                newleftContains = []
+                for lc in leftContains:
+                    newleftContains.append(lc[0])
+                newexpresionContains = []
+                for ec in expresionContains:
+                    newexpresionContains.append(ec[0])
+                for nec in newexpresionContains:
+                    if nec not in newleftContains:
+                        index = newexpresionContains.index(nec)
+                        array.append(expresionContains[index])
+                
+            result = []
+            seen = set()
+            print("array: ",array)
+            for sublist in array:
+                if tuple(sublist) not in seen:
+                    result.append(sublist)
+                    seen.add(tuple(sublist))
+            print("result: ",result)
+            self.symbol_table.add_symbol(left,contains=result)
             
         #revisar si expresion inhertis de algun otro y si es asi convertirlo en lista lo de expresion
         exprInhertis = self.symbol_table.get_inherits(expresion)
-        print("expresion type: ",type(expresion))
+        # print("expresion type: ",type(expresion))
         if exprInhertis !=False:
             print("exprInhertis: ",exprInhertis)
             expresion = [expresion]
@@ -1157,7 +1810,8 @@ class YAPLVisit(ParseTreeVisitor):
             elif str(left_type) == "Int" and str(expresion) == "Bool":
                 return left_type
             else:
-                expresion = self.symbol_table.get_symbol_type(expresion) if self.symbol_table.get_symbol_type(expresion) else expresion
+                expresion = expresionType
+                print("new expresion: ",expresion)
                 if left_type == expresion:
                     return left_type
                 elif str(left_type) == "Bool" and str(expresion) == "Int":
@@ -1234,27 +1888,123 @@ class YAPLVisit(ParseTreeVisitor):
              
         #revisar si el id es un metodo llamda utuilziando la primera expresion   
         firstContains = self.symbol_table.get_contains(firstType)
-        print("visitMethodCall firstContains: ", firstContains)
+        print("visitMethodCall firstContains: ",firstContains)
+        newfirstContains = []
         if firstContains != None:
-            if id in firstContains:
+            for fc in firstContains:
+                newfirstContains.append(fc[0])
+
+        print("visitMethodCall newfirstContains: ", newfirstContains)
+        if firstContains != None:
+            if id in newfirstContains:
                 nextArray = []
                 while(len(expresions) > 0):
                     next = expresions.pop(0) if len(expresions) > 0 else False
                     if next != False:
                         nextType = self.visit(next)
                         print("visitMethodCall nextType: ",nextType)
-                        nextType = self.symbol_table.get_symbol_type(nextType) if self.symbol_table.get_symbol_type(nextType) and str(self.symbol_table.get_symbol_type(nextType))!="class" else nextType
+                        methodContians = self.symbol_table.get_contains(self.actual_method)
+                        print("methodContians: ",methodContians)
+                        classContains = self.symbol_table.get_contains(self.actual_class)
+                        print("classContains: ",classContains)
+
+                        newClasscontains = []
+                        newMethodContains = []
+                        
+                        if classContains != None:
+                            for cc in classContains:
+                                newClasscontains.append(cc[0])
+                        if methodContians != None:
+                            for mc in methodContians:
+                                newMethodContains.append(mc[0])
+                            
+                        if nextType in newMethodContains:
+                            methodIndex = newMethodContains.index(nextType)
+                            nextType = methodContians[methodIndex][1] if methodContians[methodIndex][1] != "class" else nextType
+                        else:
+                            if nextType in newClasscontains:
+                                methodIndex = newClasscontains.index(nextType)
+                                nextType = classContains[methodIndex][1] if classContains[methodIndex][1] != "class" else nextType
+                            else:
+                                nextType = nextType
+
+                        # nextType = self.symbol_table.get_symbol_type(nextType) if self.symbol_table.get_symbol_type(nextType) and str(self.symbol_table.get_symbol_type(nextType))!="class" else nextType
                         print("visitMethodCall nextType after: ",nextType)
                         
                         if type(nextType) != list:
                             nextArray.append(nextType)
                         else:
                             nextArray.extend(nextType)
-                            
+                print("id: ",id)
+                
+                nextArray = [firstType,nextArray]
                 idRecieves = self.symbol_table.get_recieves(id)
                 print("visitMethodCall idRecieves: ",idRecieves)
+                print("visitMethodCall nextArray before: ",nextArray)
+                
                 if idRecieves != False:
-                    print("visitMethodCall nextArray: ",nextArray)
+                    idRecievesClasses = []
+                    for ir in idRecieves:
+                        idRecievesClasses.append(ir[0])
+                    print("idRecievesClasses: ",idRecievesClasses)
+                    print("newclassContains: ",newClasscontains)
+                    
+                    if nextArray[0] in idRecievesClasses:
+                        indexClasses = idRecievesClasses.index(nextArray[0])
+                    elif nextArray[0] in newClasscontains:
+                        ind = newClasscontains.index(nextArray[0])
+                        val = classContains[ind][1]
+                        indexClasses = idRecievesClasses.index(val)
+                    #es tipo inhertis el valor
+                    else:
+                        inhe = self.symbol_table.get_inherits(firstType)
+                        # print("inhe: ",inhe)
+                        # print("type(inhe): ",type(str(inhe)))
+                        while str(inhe) != False:
+                            print("inhe: ",inhe)
+                            if str(inhe) in idRecievesClasses:
+                                indexClasses = idRecievesClasses.index(str(inhe))
+                                break
+                            else:
+                                inhe = str(self.symbol_table.get_inherits(str(inhe)))
+                    # print("inherits: ",self.symbol_table.get_inherits(firstType))
+                        
+                    idRecieves = [idRecieves[indexClasses][1]]
+                    nextArray = nextArray[1]
+                    print("visitMethodCall modified idRecieves: ",idRecieves)
+                    print("visitMethodCall modified nextArray: ",nextArray)
+                    
+                    if len(nextArray) == 1:
+                        if nextArray in idRecieves:
+                            index = idRecieves.index(nextArray)
+                        elif nextArray == ["Bool"] and ["Int"] in idRecieves:
+                            index = idRecieves.index(["Int"])
+                        elif nextArray == ["Int"] and ["Bool"] in idRecieves:
+                            index = idRecieves.index(["Bool"])
+                        else:
+                            return "methodValuesNotSame"
+                    else:
+                        temporalIdRecieves = idRecieves[0]
+                        if len(temporalIdRecieves) == len(nextArray):
+                            for tir in range(len(temporalIdRecieves)):
+                                if temporalIdRecieves[tir] == nextArray[tir]:
+                                    pass
+                                elif temporalIdRecieves[tir] == "Bool" and nextArray[tir] == "Int":
+                                    pass
+                                elif temporalIdRecieves[tir] == "Int" and nextArray[tir] == "Bool":
+                                    pass
+                                else:
+                                    return "methodValuesNotSame"
+                            index = idRecieves.index(temporalIdRecieves)
+                        else:
+                            return "NotSameLenght"
+                            
+                    idRecieves = idRecieves[index]
+              
+                print("visitMethodCall new idRecieves: ",idRecieves)
+                
+                if idRecieves != False:
+                    print("visitMethodCall new nextArray: ",nextArray)
                     nextArray_copy = nextArray[:]  
                     newidRecieves = idRecieves[:]
                     if len(nextArray) == len(idRecieves):
@@ -1274,9 +2024,12 @@ class YAPLVisit(ParseTreeVisitor):
                                 message = "methodValuesNotSame"
                             
                         if len(nextArray) == 0:
-                            message = str(self.symbol_table.get_symbol_type(id))
+                            print("visitMethodCall firstContains: ",firstContains)
+                            print("visitMethodCall newfirstContains: ", newfirstContains)
+                            Index = newfirstContains.index(id)
+                            message = firstContains[Index][1]
                         else:
-                            message = "NotSameLenght"
+                            message = "methodValuesNotSame"
 
                         # for nt in nextArray:
                         #     if nt in idRecieves:
@@ -1287,7 +2040,12 @@ class YAPLVisit(ParseTreeVisitor):
                     else:
                         message = "NotSameLenght"
                 else:
-                    message = str(self.symbol_table.get_symbol_type(id))
+                    index = newfirstContains.index(id)
+                    message = firstContains[index][1]
+                    # message = str(self.symbol_table.get_symbol_type(id))
+                    
+                    
+                    
         print("visitMethodCall message original: ",message)
         if message == "SELF_TYPE":
             message = firstType
@@ -1350,17 +2108,9 @@ class YAPLVisit(ParseTreeVisitor):
                     return "assignError"
             else:
                 return "assignError"
-        #revisar si ya existe este en la clase global porque si es asi guardar el valro de la clase global para reescribir su tipo despues    
-        ClassContains = self.symbol_table.get_contains(self.actual_class)
-        idClassType = None
-        idClassWidth = None
-        idClassAmbit = None
-        if id in ClassContains:
-            idClassType = self.symbol_table.get_symbol_type(id)
-            idClassWidth = self.symbol_table.get_width(id)
-            idClassAmbit = self.symbol_table.get_ambit(id)
         
-        self.symbol_table.add_symbol(id,type=letinType,width=width,ambit="Local")
+        # self.symbol_table.add_symbol(id,type=letinType,width=width,ambit="Local")
+        
         # print("self.actual_method: ",self.actual_method)
         #agregarlo en su contains
         
@@ -1369,17 +2119,28 @@ class YAPLVisit(ParseTreeVisitor):
         # print("visitLetIn recieves: ",recieve)
         array = []
         if contains == None:
-            array.append(id)
+            array.append([id,letinType])
         else:
+            array.append([id,letinType])
             array.extend(contains)
-            array.append(id)
-        array = list(set(array))  
+        print("array: ",array)
+        # result = []
+        # seen = set()
+
+        # for sublist in array:
+        #     if tuple(sublist) not in seen:
+        #         result.append(sublist)
+        #         seen.add(tuple(sublist))    
+        # array = result
         
         self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array)
         
         result = self.visit(ctx.expr())
-        if idClassType != None:
-            self.symbol_table.add_symbol(id,type=idClassType,width=idClassWidth,ambit=idClassAmbit)
+        
+        # array.pop(0)
+        # self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array)
+        # if idClassType != None:
+        # self.symbol_table.add_symbol(id,type=idClassType,width=idClassWidth,ambit=idClassAmbit)
         print("visitLetIn result: ",result)
         return result
         
@@ -1398,7 +2159,6 @@ class YAPLVisit(ParseTreeVisitor):
         typevisit = ctx.TYPE().getText()
         print("visitLetAssignIn typevisit: ",typevisit)
         
-        resutls = []
         
         self.symbol_table.add_symbol(id,typevisit,ambit="Local")
         
@@ -1409,11 +2169,20 @@ class YAPLVisit(ParseTreeVisitor):
         print("contains: ",contains)
         array = []
         if contains == None:
-            array.append(id)
+            array.append([id,typevisit])
         else:
-            array.append(id)
-            for contain in contains:
-                array.append(str(contain))
+            array.extend(contains)
+            array.append([id,typevisit])
+        
+        print("array: ",array)
+        result = []
+        seen = set()
+
+        for sublist in array:
+            if tuple(sublist) not in seen:
+                result.append(sublist)
+                seen.add(tuple(sublist))    
+        array = result
         
         self.symbol_table.add_symbol(self.actual_method, self.actual_method_type, contains=array)
         
@@ -1423,7 +2192,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         assignValue = self.visit(assignExpresion)
         print("visitLetAssignIn assignValue: ",assignValue)
-        
+        resutls = []
         if type(assignValue) ==  list:
             if typevisit in assignValue:
                 resutls.extend(assignValue)
@@ -1431,7 +2200,32 @@ class YAPLVisit(ParseTreeVisitor):
             else:
                 resutls.append("assignEr")
         else:
-            assignValue = self.symbol_table.get_symbol_type(assignValue) if self.symbol_table.get_symbol_type(assignValue) else assignValue
+            methodContians = self.symbol_table.get_contains(self.actual_method)
+            # print("methodContians: ",methodContians)
+            classContains = self.symbol_table.get_contains(self.actual_class)
+            # print("classContains: ",classContains)
+
+            newClasscontains = []
+            newMethodContains = []
+            
+            if classContains != None:
+                for cc in classContains:
+                    newClasscontains.append(cc[0])
+            if methodContians != None:
+                for mc in methodContians:
+                    newMethodContains.append(mc[0])
+                    
+            if assignValue in newMethodContains:
+                methodIndex = newMethodContains.index(assignValue)
+                assignValue = methodContians[methodIndex][1]
+            else:
+                if assignValue in newClasscontains:
+                    methodIndex = newClasscontains.index(assignValue)
+                    assignValue = classContains[methodIndex][1]
+                else:
+                    assignValue = assignValue
+            
+            # assignValue = self.symbol_table.get_symbol_type(assignValue) if self.symbol_table.get_symbol_type(assignValue) else assignValue
         
             if assignValue == typevisit:
                 resutls.append(typevisit)
@@ -1447,6 +2241,9 @@ class YAPLVisit(ParseTreeVisitor):
         else:
             exprValue = self.symbol_table.get_symbol_type(exprValue) if self.symbol_table.get_symbol_type(exprValue) else exprValue
             resutls.append(exprValue)
+            
+        # if idClassType != None:
+        #     self.symbol_table.add_symbol(id,type=idClassType,width=idClassWidth,ambit=idClassAmbit)
         
         print("visitLetAssignIn results: ",resutls)
         return resutls

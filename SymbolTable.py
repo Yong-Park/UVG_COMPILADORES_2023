@@ -56,8 +56,17 @@ class SymbolTable:
         # return self.symbols.get(name)
     
     def variable_class(self,classname, name):
-        if classname in self.contains and name in self.contains[classname]:
-            return True 
+        # print("self.contains", self.contains[classname])
+        
+        if classname in self.contains:
+            containsValues = []
+            for sc in self.contains[classname]:
+                containsValues.append(sc[0])
+            # print("containsValues: ",containsValues)
+            if name in containsValues:
+                return True 
+            else:
+                return False
         else:
             return False  
     
@@ -88,8 +97,8 @@ class SymbolTable:
         if MainExist:
             for name, _ in self.symbols.items():
                 if str(name) == "Main":
-                    for values in self.contains.get(name):
-                        if str(values) == "main":
+                    for values in self.contains[name]:
+                        if str(values[0]) == "main":
                             mainExist = True
         else:
             return False
