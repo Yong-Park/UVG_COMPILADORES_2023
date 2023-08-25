@@ -120,10 +120,10 @@ class D inherits B {
 
 class E {
 
-   method6(num : String) : Int {  -- division
+   method6(num : String, num2: String) : Int {  -- division
       (let x : String in
          {
-            x <- num + "gg";
+            x <- num + num2;
             (new D).value();
          }
       )
@@ -194,6 +194,7 @@ class Main inherits IO {
    };
 
 };
+
 
 
 
