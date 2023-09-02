@@ -492,6 +492,26 @@ class YAPLVisit(ParseTreeVisitor):
             if var_type not in var_expr:
                 print("assignEr")
                 return "assignEr"
+        continsOfClass = self.symbol_table.get_contains(self.actual_class)
+        newcontinsOfClass = []
+        for x in continsOfClass:
+            newcontinsOfClass.append(x[0])
+        
+        if var_name in newcontinsOfClass:
+            index = newcontinsOfClass.index(var_name)
+        
+        if var_type == "Int":
+            width = 4
+        elif var_type == "String":
+            width = 2
+        elif var_type == "Bool":
+            width = 2
+        else:
+            width = 2
+            
+        continsOfClass[index].append(width)
+        
+        self.symbol_table.add_symbol(self.actual_class,contains=continsOfClass)   
             
         self.symbol_table.add_symbol(var_name, type=var_type, width=width, ambit="Local")    
         
