@@ -154,7 +154,7 @@ class Main inherits IO {
 
    main() : SELF_TYPE {
       {
-         a_test <- (new E).method6("66");
+         a_test <- (new E).method6("66","h");
          avar <- (new A);
          avar.set_var(2);
          out_int(avar.value());
@@ -194,6 +194,7 @@ class Main inherits IO {
    };
 
 };
+
 
 
 

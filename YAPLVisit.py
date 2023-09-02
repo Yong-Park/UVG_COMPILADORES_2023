@@ -145,7 +145,7 @@ class YAPLVisit(ParseTreeVisitor):
                 #revisar si ya esta este valor definido
                 if variable.ID().getText() in checkVariable:
                     return "RepeatedValue"
-                variable_array.append([variable.ID().getText(),variable.TYPE().getText()])
+                variable_array.append([variable.ID().getText(),variable.TYPE().getText(),classtype])
                 checkVariable.append(variable.ID().getText())
         print("checkVariable: ",checkVariable)
         print("variable_array: ",variable_array)   
@@ -213,7 +213,7 @@ class YAPLVisit(ParseTreeVisitor):
                             
                         result = []
                         seen = set()
-
+                        print("visitDefClase array: ",array)
                         for sublist in array:
                             if tuple(sublist) not in seen:
                                 result.append(sublist)
@@ -528,6 +528,7 @@ class YAPLVisit(ParseTreeVisitor):
                         result.append(sublist)
                         seen.add(tuple(sublist))
                 
+                print("visitForml result: ",result)
                 self.symbol_table.add_symbol(idtext,tipo,contains=result)
             else:
                 print("visitForml found: TypeNotExist")
@@ -541,12 +542,13 @@ class YAPLVisit(ParseTreeVisitor):
         contains = self.symbol_table.get_contains(self.actual_method)
         array = []
         if contains == None:
-            array.append([idtext,tipo])
+            array.append([idtext,tipo,self.actual_class])
         else:
-            array.append([idtext,tipo])
+            if [idtext,tipo,self.actual_class] not in array:
+                array.append([idtext,tipo,self.actual_class])
             array.extend(contains)
             
-        self.methodRecieves.append(tipo)
+        self.methodRecieves.append([idtext,tipo])
         
         result = []
         seen = set()
@@ -749,13 +751,13 @@ class YAPLVisit(ParseTreeVisitor):
             return right_type
         elif left_type == "Int" and right_type == "Bool":
             return left_type
+        elif left_type == "Bool" and right_type == "Bool":
+            return left_type
         # errors
         elif left_type == "Int" and right_type == "String":
             return "intchar"
         elif left_type == "String" and right_type == "Int":
             return "intchar"
-        elif left_type == "Bool" and right_type == "Bool":
-            return "boolAr"
         else:
             return "ArithError"
 
@@ -826,6 +828,8 @@ class YAPLVisit(ParseTreeVisitor):
             return right_type
         elif left_type == "Int" and right_type == "Bool":
             return left_type
+        elif left_type == "Bool" and right_type == "Bool":
+            return left_type
         # errors
         elif left_type == "String" and right_type == "String":
             return "charAr"
@@ -833,8 +837,6 @@ class YAPLVisit(ParseTreeVisitor):
             return "intchar"
         elif left_type == "String" and right_type == "Int":
             return "intchar"
-        elif left_type == "Bool" and right_type == "Bool":
-            return "boolAr"
         else:
             return "ArithError"
 
@@ -960,6 +962,8 @@ class YAPLVisit(ParseTreeVisitor):
             return right_type
         elif left_type == "Int" and right_type == "Bool":
             return left_type
+        elif left_type == "Bool" and right_type == "Bool":
+            return left_type
         # errors
         elif left_type == "String" and right_type == "String":
             return "charAr"
@@ -967,8 +971,6 @@ class YAPLVisit(ParseTreeVisitor):
             return "intchar"
         elif left_type == "String" and right_type == "Int":
             return "intchar"
-        elif left_type == "Bool" and right_type == "Bool":
-            return "boolAr"
         else:
             return "ArithError"
 
@@ -1199,6 +1201,8 @@ class YAPLVisit(ParseTreeVisitor):
             return right_type
         elif left_type == "Int" and right_type == "Bool":
             return left_type
+        elif left_type == "Bool" and right_type == "Bool":
+            return left_type
         # errors
         elif left_type == "String" and right_type == "String":
             return "charAr"
@@ -1206,8 +1210,6 @@ class YAPLVisit(ParseTreeVisitor):
             return "intchar"
         elif left_type == "String" and right_type == "Int":
             return "intchar"
-        elif left_type == "Bool" and right_type == "Bool":
-            return "boolAr"
         else:
             return "ArithError"
 
@@ -1364,9 +1366,11 @@ class YAPLVisit(ParseTreeVisitor):
             contains = self.symbol_table.get_contains(self.actual_method)
             contain = []
             if contains == None:
-                contain = [value,self.actual_method_type]
+                contain = [value,self.actual_method_type,self.actual_class]
             else:
-                contain.append([value,self.actual_method_type])
+                contain.extend(contains)
+                contain.append([value,self.actual_method_type,self.actual_class])
+                
             self.symbol_table.add_symbol(self.actual_method,tipo,contains=contain)
       
             return str(self.actual_method_type)
@@ -1615,6 +1619,14 @@ class YAPLVisit(ParseTreeVisitor):
                     recieveMethod = [recieveMethod[indexClass][1]]
                     print("indexClass: ",indexClass)
                     print("recieveMethod: ",recieveMethod)
+                    
+                    print("visitOwnMethodCall recieveMethod array")
+                    newrecieveMethod = []
+                    for x in recieveMethod:
+                        for y in x:
+                            newrecieveMethod.append(y[1])
+                    print("visitOwnMethodCall newrecieveMethod: ",newrecieveMethod)
+                    recieveMethod = newrecieveMethod
                     if type(firstType) != list:
                         firstType = [firstType]
                         
@@ -1761,7 +1773,7 @@ class YAPLVisit(ParseTreeVisitor):
                 
             result = []
             seen = set()
-            print("array: ",array)
+            print("assign visitado array: ",array)
             for sublist in array:
                 if tuple(sublist) not in seen:
                     result.append(sublist)
@@ -1976,10 +1988,18 @@ class YAPLVisit(ParseTreeVisitor):
                     # print("inherits: ",self.symbol_table.get_inherits(firstType))
                         
                     idRecieves = [idRecieves[indexClasses][1]]
+                    idRecievesValues = []
+                    tempidRecieves = []
+                    for x in idRecieves:
+                        for y in x:
+                            tempidRecieves.append(y[1])
+                    idRecievesValues.append(tempidRecieves)
+                    
                     nextArray = nextArray[1]
                     print("visitMethodCall modified idRecieves: ",idRecieves)
+                    print("visitMethodCall idRecievesValues: ",idRecievesValues)
                     print("visitMethodCall modified nextArray: ",nextArray)
-                    
+                    idRecieves = idRecievesValues
                     if len(nextArray) == 1:
                         if len(nextArray) != len(idRecieves[0]):
                             return "NotSameLenght"
@@ -2128,19 +2148,20 @@ class YAPLVisit(ParseTreeVisitor):
         # print("visitLetIn recieves: ",recieve)
         array = []
         if contains == None:
-            array.append([id,letinType])
+            array.append([id,letinType,self.actual_class])
         else:
-            array.append([id,letinType])
+            array.append([id,letinType,self.actual_class])
             array.extend(contains)
         print("array: ",array)
-        # result = []
-        # seen = set()
+        
+        result = []
+        seen = set()
 
-        # for sublist in array:
-        #     if tuple(sublist) not in seen:
-        #         result.append(sublist)
-        #         seen.add(tuple(sublist))    
-        # array = result
+        for sublist in array:
+            if tuple(sublist) not in seen:
+                result.append(sublist)
+                seen.add(tuple(sublist))    
+        array = result
         
         self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array)
         
@@ -2178,10 +2199,11 @@ class YAPLVisit(ParseTreeVisitor):
         print("contains: ",contains)
         array = []
         if contains == None:
-            array.append([id,typevisit])
+            array.append([id,typevisit,self.actual_class])
         else:
+            array.append([id,typevisit,self.actual_class])
             array.extend(contains)
-            array.append([id,typevisit])
+            
         
         print("array: ",array)
         result = []
