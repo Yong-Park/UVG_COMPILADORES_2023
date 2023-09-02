@@ -14,6 +14,7 @@ class YAPLVisit(ParseTreeVisitor):
 
     def __init__(self):
         self.symbol_table = SymbolTable()
+        self.bytesSize = 0
         self.actual_class = None
         self.actual_method = None
         self.actual_method_type = None
@@ -256,6 +257,9 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#method.
     def visitMethod(self, ctx:YAPLParser.MethodContext):
         print("\nvisitMethod")
+        
+        size_method = 0
+        
         self.actualAmbit = "Local"
         self.forml_type = False
         method_name = ctx.ID().getText()
@@ -280,6 +284,10 @@ class YAPLVisit(ParseTreeVisitor):
                         return "assignError"
             else:
                 return "assignError"
+        else:
+            if method_type == "Int":
+                size_method += 4
+
 
         # print("visitMethod methodExist: ",methodExist)
         if methodExist == False:
@@ -404,9 +412,9 @@ class YAPLVisit(ParseTreeVisitor):
                 return self.actual_method_type
             else:
                 methodContians = self.symbol_table.get_contains(self.actual_method)
-                # print("methodContians: ",methodContians)
+                print("methodContians: ",methodContians)
                 classContains = self.symbol_table.get_contains(self.actual_class)
-                # print("classContains: ",classContains)
+                print("classContains: ",classContains)
 
                 newClasscontains = []
                 newMethodContains = []
@@ -417,7 +425,9 @@ class YAPLVisit(ParseTreeVisitor):
                 if methodContians != None:
                     for mc in methodContians:
                         newMethodContains.append(mc[0])
-                        
+                print("visitMethod newMethodContains: ",newMethodContains)
+                print("visitMethod newClasscontains: ",newClasscontains)
+                print("visitMethod method_expr_type: ",method_expr_type)
                 if method_expr_type in newMethodContains:
                     methodIndex = newMethodContains.index(method_expr_type)
                     method_expr_type = methodContians[methodIndex][1]
@@ -425,10 +435,14 @@ class YAPLVisit(ParseTreeVisitor):
                     if method_expr_type in newClasscontains:
                         methodIndex = newClasscontains.index(method_expr_type)
                         method_expr_type = classContains[methodIndex][1]
+                        if method_expr_type == "Int":
+                            size_method += 4
                     else:
                         method_expr_type = method_expr_type
                 print("self.actual_method_type: ",self.actual_method_type)
                 print("method_expr_type: ",method_expr_type)
+                
+                self.symbol_table.add_symbol(self.actual_method,width=size_method)
                 # method_expr_type = self.symbol_table.get_symbol_type(method_expr_type) if self.symbol_table.get_symbol_type(method_expr_type) else method_expr_type
                 if self.actual_method_type == method_expr_type:
                     return self.actual_method_type
@@ -464,13 +478,13 @@ class YAPLVisit(ParseTreeVisitor):
         
         #asignar el width setun si tipo
         if var_type == "Int":
-            width = 8
-        elif var_type == "String":
             width = 4
         elif var_type == "String":
-            width = 4
+            width = 2
+        elif var_type == "Bool":
+            width = 2
         else:
-            width = 4
+            width = 2
         
         # revisar si es del mismo tipo la asignacion cuando se realice
         if var_assign != None:
@@ -893,6 +907,12 @@ class YAPLVisit(ParseTreeVisitor):
         
     # Visit a parse tree produced by YAPLParser#string.
     def visitString(self, ctx:YAPLParser.StringContext):
+        print("visitString")
+        text = ctx.STRING().getText()
+        text = text[1:-1]
+        lenText = len(text)
+        print("visitString text: ",text)
+        self.bytesSize = lenText * 2
         return "String"
 
 
@@ -1822,6 +1842,7 @@ class YAPLVisit(ParseTreeVisitor):
             print("expresion: ",expresion)
             if str(left_type) == str(expresion):
                 print("Se esta regresando este: ",left_type)
+                self.symbol_table.add_symbol(left,width=self.bytesSize)
                 return left_type
             elif str(left_type) == "Bool" and str(expresion) == "Int":
                 return left_type
