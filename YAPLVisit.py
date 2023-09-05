@@ -1,5 +1,6 @@
 # Generated from YAPL.g4 by ANTLR 4.13.0
 from antlr4 import *
+import itertools
 if "." in __name__:
     from build.YAPLParser import YAPLParser
 else:
@@ -552,8 +553,30 @@ class YAPLVisit(ParseTreeVisitor):
                     return self.actual_method_type
                 else:
                     return "notContainsType"
-        
-       
+    
+    def calculate_displacement(self, continsOfClass, width):
+        """Calculates the displacement of the variable `var_name`.
+
+        Args:
+            continsOfClass: A list of variables that are in the same scope as `var_name`.
+            width: A dictionary that maps variable names to their widths.
+
+        Returns:
+            The displacement of `var_name`.
+        """
+        displacement = 0
+        for var_name in continsOfClass:
+            print("Este es el varname: ", var_name[1])
+            if var_name[1] == "Int":
+                displacement += 4
+            elif var_name[1] == "String":
+                displacement += 2
+            elif var_name[1] == "Bool":
+                displacement += 2
+            else:
+                displacement += 2
+        return displacement
+    
     # Visit a parse tree produced by YAPLParser#property.
     def visitProperty(self, ctx:YAPLParser.PropertyContext):
         print("\nvisitProperty")
@@ -615,6 +638,9 @@ class YAPLVisit(ParseTreeVisitor):
         print("VISITPROPERTY containsWidth: ", containsWidth)
         newcontainsWidth = []
         
+        #Se calcula el desplazamiento 
+        displacement_ = self.calculate_displacement(continsOfClass, width)
+        
         if containsWidth != None: 
             for nwc in containsWidth:
                 newcontainsWidth.append(nwc[0])
@@ -636,7 +662,7 @@ class YAPLVisit(ParseTreeVisitor):
         #         #print("I[0]: ", i[0])
         self.property_total_size = newWidth
         print("visitProperty Total Size: ", self.property_total_size)
-        self.symbol_table.add_symbol(var_name, type=var_type, width=widthToAdd, ambit="Local")    
+        self.symbol_table.add_symbol(var_name, type=var_type, width=widthToAdd, displacement= displacement_, ambit="Local")    
         
         # print("symbol table: ", self.symbol_table)
         # print("++++++++++++++++++++++") 
