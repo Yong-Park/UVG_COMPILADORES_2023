@@ -27,21 +27,13 @@ class SymbolTable:
             for symbol in symbols:
                 if symbol['ambit'] == ambit:
                     return symbol[element] 
-        return False
+                
                 
     def contains_symbol(self,name,ambit):
         symbols = self.symbols.get(name)
         if symbols:
             for symbol in symbols:
                 if symbol['ambit'] == ambit:
-                    return True
-        return False
-    
-    def contains_class(self,name):
-        symbols = self.symbols.get(name)
-        if symbols:
-            for symbol in symbols:
-                if symbol["type"] == "class":
                     return True
         return False
                     
@@ -56,29 +48,18 @@ class SymbolTable:
                 table_str = table_str.rstrip(', ')  # Remove trailing comma and space
                 table_str += "\n"
         return table_str
-    
-    def contains_mains(self):
-        # MainExist = False
-        # mainExist = False
-        # for name, _ in self.symbols.items():
-        #     if str(name) == "Main":
-        #         MainExist = True
-        
-        # if MainExist:
-        #     for name, _ in self.symbols.items():
-        #         if str(name) == "Main":
-        #             for values in self.contains[name]:
-        #                 if str(values[0]) == "main":
-        #                     mainExist = True
-        # else:
-        #     return False
-        
-        # if mainExist:
-        #     return True
-        # else:
-        #     return False
-        return True
 
-    
-    
+tabla = SymbolTable()
 
+tabla.add_symbol('n', type="int", width=4, ambit='A')
+tabla.add_symbol('n', type="str", width=8, ambit='B', inherits = "IO")
+tabla.add_symbol('a', type="bool", width=2, ambit='B.method5')
+
+print(tabla)
+print(tabla.get_symbol_value("a","B.method5","width"))
+
+tabla.change_symbol_value('a', 'B.method5', "width",8)
+print(tabla)
+print(tabla.get_symbol_value("a","B.method5","width"))
+print(tabla.contains_symbol("a","B.method5"))
+print(tabla.contains_symbol("a","B"))

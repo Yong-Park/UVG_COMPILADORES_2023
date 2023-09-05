@@ -69,25 +69,24 @@ class IDE(tk.Tk):
 
         # Crear un Treeview (Tabla)
         tabla = ttk.Treeview(ventana)
-        tabla["columns"] = ("Tipo", "Inherits", "Width", "Displacement", "Contains", "Ambit")
+        tabla["columns"] = ("Tipo", "Inherits", "Width", "Displacement", "Ambit", "Recieves")
         tabla.heading("#0", text="Variable")
         tabla.heading("Tipo", text="Tipo")
         tabla.heading("Inherits", text="Inherits")
         tabla.heading("Width", text="Width")
         tabla.heading("Displacement", text="Displacement")
-        tabla.heading("Contains", text="Contains")
         tabla.heading("Ambit", text="Ambit")
+        tabla.heading("Recieves", text="Recieves")
+        
 
         # Agregar datos al Treeview
-        for clave, valor in visitor.symbol_table.symbols.items():
-            tipo = valor
-            inherits = visitor.symbol_table.inherits.get(clave, "None")
-            width = str(visitor.symbol_table.width.get(clave, "None"))
-            displacement = str(visitor.symbol_table.displacement.get(clave, "None"))
-            contains = str(visitor.symbol_table.contains.get(clave, "None"))
-            ambit = visitor.symbol_table.ambit.get(clave, "None")
-            
-            tabla.insert("", "end", text=clave, values=(tipo, inherits, width, displacement, contains, ambit))
+        for name, symbols in visitor.symbol_table.symbols.items():
+            for symbol in symbols:
+                clave = name
+                elementos = []
+                for attr, value in symbol.items():
+                    elementos.append(value)
+            tabla.insert("", "end", text=clave, values=(elementos[0], elementos[1], elementos[2], elementos[3], elementos[4], elementos[5]))
 
         # Ajustar el ancho de las columnas para que se vean correctamente los datos
         tabla.column("#0" )
@@ -95,11 +94,11 @@ class IDE(tk.Tk):
         tabla.column("Inherits")
         tabla.column("Width")
         tabla.column("Displacement")
-        tabla.column("Contains")
         tabla.column("Ambit")
+        tabla.column("Recieves")
 
         # Empaquetar el Treeview
-        tabla.pack()
+        tabla.pack(fill="both", expand=True)
 
         # Ejecutar la ventana
         ventana.mainloop()
