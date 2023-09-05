@@ -17,6 +17,9 @@ class YAPLVisit(ParseTreeVisitor):
         self.bytesSize = 0
         self.actual_class = None
         self.actual_method = None
+        self.total_size_method = []
+        self.total_size_letin =[] 
+        self.property_total_size = []
         self.actual_method_type = None
         self.startType = None
         self.actualAmbit = "Global"
@@ -238,14 +241,60 @@ class YAPLVisit(ParseTreeVisitor):
         
         tipos = ctx.feature()
         results = []
+        byteSizeClass = 0
+        
+        
         for tipo in tipos:
             self.actualAmbit = "Global"
             val = self.visit(tipo)
-
+            #Obtengo el peso del método
+            #print("visitDefClase self.total_size_property: ", self.property_total_size)
+            #print("visitDefClase self.total_size_method: ", self.total_size_method)
+            #print("visitDefClase self.total_size_letin: ", self.total_size_letin)
+            #Leemos todas las listas que se obtienen
+            if self.total_size_method != []:
+                for tsm in range(len(self.total_size_method)):
+                    #Print para ver el resultado
+                    #print("visitDefClase self.total_size_method[tsm]: ", self.total_size_method[tsm])
+                    #Ahora se obtiene la última posición
+                    lastPosition = self.total_size_method[3]
+                    #Imprimimos la última posición
+                    #print("visitDefClase lastPosition: ", lastPosition)
+                    #summamos el resultado a la variable del peso de la clase
+                    byteSizeClass += lastPosition
+            elif self.property_total_size != []:
+                for tsp in range(len(self.property_total_size)):
+                    #Print para ver el resultado
+                    #print("visitDefClase self.total_size_property[tsp]: ", self.property_total_size[tsp])
+                    #Ahora se obtiene la última posición
+                    lastPosition = self.property_total_size[3]
+                    #Imprimimos la última posición
+                    #print("visitDefClase lastPosition: ", lastPosition)
+                    #summamos el resultado a la variable del peso de la clase
+                    byteSizeClass += lastPosition
+            elif self.total_size_letin != []:
+                for tsl in range(len(self.total_size_letin)):
+                    #Print para ver el resultado
+                    #print("visitDefClase self.total_size_letin[tsl]: ", self.total_size_letin[tsl])
+                    #Ahora se obtiene la última posición
+                    lastPosition = self.total_size_letin[3]
+                    #Imprimimos la última posición
+                    #print("visitDefClase lastPosition: ", lastPosition)
+                    #summamos el resultado a la variable del peso de la clase
+                    byteSizeClass += lastPosition
+                #print("visitDefClase val: ", val)
+            #print("DefClase val: ", val)
             if type(val) == list:
                 results.extend(val)
             else:
                 results.append(val)
+        
+        print("Defclass name: ", defclaseClass)
+        print("Valor de byteSizeClass después dell cálculo: ", byteSizeClass)
+        
+        #Acá agrego todo a la symbol table
+        self.symbol_table.add_symbol(classtype, width=byteSizeClass)
+        
         
         print("DefClase results: ", results)
         
@@ -257,9 +306,7 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#method.
     def visitMethod(self, ctx:YAPLParser.MethodContext):
         print("\nvisitMethod")
-        
         size_method = 0
-        
         self.actualAmbit = "Local"
         self.forml_type = False
         method_name = ctx.ID().getText()
@@ -287,9 +334,23 @@ class YAPLVisit(ParseTreeVisitor):
         else:
             if method_type == "Int":
                 size_method += 4
-
-
-        # print("visitMethod methodExist: ",methodExist)
+            elif method_type == "String":
+                print("SI DETECTÉ EL MÉTODO DE TIPO STRING")
+                size_method += 2
+            elif method_type == "Bool": 
+                size_method += 2
+            elif method_type == "Object":
+                size_method += 1
+            elif method_type == "Void":
+                size_method += 1
+            elif method_type == "SELF_TYPE":
+                size_method += 1
+            else:
+                size_method += 1
+        #print("Size Method: ", size_method)
+        print("visitMethod methodExist: ",methodExist)
+        #print("Self.bytesSize: ", self.bytesSize)
+        #print("Self.bytesSize: ", self.bytesSize)
         if methodExist == False:
             # print("asignando un nuevo metodo ya que no existe")
             self.symbol_table.add_symbol(method_name, method_type,ambit="Local")
@@ -379,7 +440,34 @@ class YAPLVisit(ParseTreeVisitor):
         # print("++++++++++++++++++++++") 
         # Continuar con el recorrido del árbol sintáctico
         method_expr_type = self.visit(ctx.expr())
+        self.bytesSize += size_method
+        
+        
+        newWidth = [self.actual_class, method_name, method_type, self.bytesSize]
+        print("VISITMETHOD NEWWIDth: ", newWidth)
+        containsWidth = self.symbol_table.get_width(self.actual_method)
+        print("VISITMETHOD containsWidth: ", containsWidth)
+        newcontainsWidth = []
+        
+        if containsWidth != None: 
+            for nwc in containsWidth:
+                newcontainsWidth.append(nwc[0])
+        print("VISITMETHOD newcontainsWidth: ", newcontainsWidth)
+        widthToAdd=[]
+        
+        if containsWidth == None: 
+            widthToAdd.append(newWidth)
+        else:
+            if self.actual_class not in newcontainsWidth:
+                widthToAdd.extend(containsWidth)
+                widthToAdd.append(newWidth)
+        print("VISITMETHOD widthToAdd: ", widthToAdd)
+        self.total_size_method = newWidth
+        self.symbol_table.add_symbol(method_name, width=widthToAdd)
+
+        
         # method_expr_type = self.symbol_table.get_symbol_type(method_expr_type) if self.symbol_table.get_symbol_type(method_expr_type) else method_expr_type
+        print("Method self.bytesSize: ", self.bytesSize)
         print("method expr type: ", method_expr_type)
         print("self.actual_method_type: ",self.actual_method_type)
         print("=============================")
@@ -388,6 +476,7 @@ class YAPLVisit(ParseTreeVisitor):
         if type(method_expr_type) == list:
             print("es un tipo de lista")
             if str(self.actual_method_type) in method_expr_type:
+                self.symbol_table.add_symbol(self.actual_method,width=widthToAdd)
                 return self.actual_method_type
             else:
                 print("no fue igual")
@@ -431,23 +520,39 @@ class YAPLVisit(ParseTreeVisitor):
                 if method_expr_type in newMethodContains:
                     methodIndex = newMethodContains.index(method_expr_type)
                     method_expr_type = methodContians[methodIndex][1]
+                    print("method_expr_type in newMethodContains: ", method_expr_type)
                 else:
                     if method_expr_type in newClasscontains:
                         methodIndex = newClasscontains.index(method_expr_type)
                         method_expr_type = classContains[methodIndex][1]
                         if method_expr_type == "Int":
                             size_method += 4
+                        elif method_expr_type == "String":
+                            self.bytesSize += 2
+                            print("Size en este momento: ", self.bytesSize)
+                            size_method += 2
+                        elif method_expr_type == "Bool":
+                            size_method += 2
+                        elif method_expr_type == "Object":
+                            size_method += 1
+                        elif method_expr_type == "Void":
+                            size_method += 1
+                        elif method_expr_type == "SELF_TYPE":
+                            size_method += 1
+                        else: 
+                            size_method += 1
                     else:
                         method_expr_type = method_expr_type
                 print("self.actual_method_type: ",self.actual_method_type)
                 print("method_expr_type: ",method_expr_type)
-                
-                self.symbol_table.add_symbol(self.actual_method,width=size_method)
+                print("Soy el bytesSize cuando inicia el visitMethod: ", self.bytesSize)
+                #self.symbol_table.add_symbol(self.actual_method,width=self.bytesSize)
                 # method_expr_type = self.symbol_table.get_symbol_type(method_expr_type) if self.symbol_table.get_symbol_type(method_expr_type) else method_expr_type
                 if self.actual_method_type == method_expr_type:
                     return self.actual_method_type
                 else:
                     return "notContainsType"
+        
        
     # Visit a parse tree produced by YAPLParser#property.
     def visitProperty(self, ctx:YAPLParser.PropertyContext):
@@ -476,16 +581,6 @@ class YAPLVisit(ParseTreeVisitor):
                 return "noMethodAssign"
             
         
-        #asignar el width setun si tipo
-        if var_type == "Int":
-            width = 4
-        elif var_type == "String":
-            width = 2
-        elif var_type == "Bool":
-            width = 2
-        else:
-            width = 2
-        
         # revisar si es del mismo tipo la asignacion cuando se realice
         if var_assign != None:
             var_expr = self.symbol_table.get_symbol_type(var_expr) if self.symbol_table.get_symbol_type(var_expr) else var_expr
@@ -496,24 +591,52 @@ class YAPLVisit(ParseTreeVisitor):
         newcontinsOfClass = []
         for x in continsOfClass:
             newcontinsOfClass.append(x[0])
+        print("CLASE ACTUAL: ", self.actual_class)
+        print("NEWCONTINSOFCLASS: ", newcontinsOfClass)
+        print("continsOfClass: ", continsOfClass)
         
         if var_name in newcontinsOfClass:
-            index = newcontinsOfClass.index(var_name)
+            """print("Si existe EL VARNAME")
+            index = newcontinsOfClass.index(var_name)"""
+            """print("SE VERIFICO Y EL INDEX ES: ",index)"""
+
+            if var_type == "Int":
+                width = 4
+            elif var_type == "String":
+                width = 2
+            elif var_type == "Bool":
+                width = 2
+            else:
+                width = 2
+            
+            newWidth = [self.actual_class, var_name, var_type, width]
+        print("VISITPROPERTY NEWWIDth: ", newWidth)
+        containsWidth = self.symbol_table.get_width(var_name)
+        print("VISITPROPERTY containsWidth: ", containsWidth)
+        newcontainsWidth = []
         
-        if var_type == "Int":
-            width = 4
-        elif var_type == "String":
-            width = 2
-        elif var_type == "Bool":
-            width = 2
+        if containsWidth != None: 
+            for nwc in containsWidth:
+                newcontainsWidth.append(nwc[0])
+        print("VISITPROPERTY newcontainsWidth: ", newcontainsWidth)
+        widthToAdd=[]
+        
+        if containsWidth == None: 
+            widthToAdd.append(newWidth)
         else:
-            width = 2
-            
-        continsOfClass[index].append(width)
+            if self.actual_class not in newcontainsWidth:
+                widthToAdd.extend(containsWidth)
+                widthToAdd.append(newWidth)
+        print("VISITPROPERTY widthToAdd: ", widthToAdd)
+        #continsOfClass[index].append(width)
         
-        self.symbol_table.add_symbol(self.actual_class,contains=continsOfClass)   
-            
-        self.symbol_table.add_symbol(var_name, type=var_type, width=width, ambit="Local")    
+        #self.symbol_table.add_symbol(self.actual_class,contains=continsOfClass)   
+        # for i in continsOfClass:
+        #     if i[0] == var_name:
+        #         #print("I[0]: ", i[0])
+        self.property_total_size = newWidth
+        print("visitProperty Total Size: ", self.property_total_size)
+        self.symbol_table.add_symbol(var_name, type=var_type, width=widthToAdd, ambit="Local")    
         
         # print("symbol table: ", self.symbol_table)
         # print("++++++++++++++++++++++") 
@@ -594,6 +717,42 @@ class YAPLVisit(ParseTreeVisitor):
         print("visitForml array: ",result)
         print("visitForml self.methodRecieves: ",self.methodRecieves)
         self.symbol_table.add_symbol(self.actual_method,contains=result)
+        calculate_size = 0 
+        
+        if tipo == "String":
+            calculate_size += 2
+        elif tipo == "Int":
+            calculate_size += 4
+        elif tipo == "Bool":
+            calculate_size += 2
+        else:
+            calculate_size += 2
+            
+        newWidth = [self.actual_class, self.actual_method, calculate_size]
+        print("VISITFORMAL NEWWIDth: ", newWidth)
+        containsWidth = self.symbol_table.get_width(idtext)
+        print("VISITFORMAL containsWidth: ", containsWidth)
+        newcontainsWidth = []
+        
+        if containsWidth != None: 
+            for nwc in containsWidth:
+                newcontainsWidth.append(nwc[0])
+        print("VISITFORMAL newcontainsWidth: ", newcontainsWidth)
+        widthToAdd=[]
+        
+        if containsWidth == None: 
+            widthToAdd.append(newWidth)
+        else:
+            if self.actual_method not in newcontainsWidth or self.actual_class not in newcontainsWidth:
+                widthToAdd.extend(containsWidth)
+                widthToAdd.append(newWidth)
+            else:
+                widthToAdd.extend(containsWidth)
+                #widthToAdd.append(newWidth)
+        print("VISITFORMAL widthToAdd: ", widthToAdd)
+        
+        self.symbol_table.add_symbol(idtext, width=widthToAdd)
+
         print("=============================")
         
         
@@ -932,7 +1091,7 @@ class YAPLVisit(ParseTreeVisitor):
         text = text[1:-1]
         lenText = len(text)
         print("visitString text: ",text)
-        self.bytesSize = lenText * 2
+        self.bytesSize += lenText * 2
         return "String"
 
 
@@ -1365,6 +1524,7 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#block.
     def visitBlock(self, ctx:YAPLParser.BlockContext):
         expresions = ctx.expr()
+        print("BytesSize desde el visitBlock: ", self.bytesSize)
         results = []
         for expresion in expresions:
             val = self.visit(expresion)
@@ -1395,6 +1555,7 @@ class YAPLVisit(ParseTreeVisitor):
         # print("id visitado")
         value = ctx.ID().getText()
         print("\nid value: ", value)
+        size_self = 0
         #revisar si es de tipo self
         if str(value) == "self":
             print("self.actual_method: ",self.actual_method)
@@ -1403,6 +1564,58 @@ class YAPLVisit(ParseTreeVisitor):
             # print("self.actual_method: ",self.actual_method)
             tipo = self.symbol_table.get_symbol_type(self.actual_method)
             # print("tipo: ",tipo)
+            
+            
+            
+            
+            
+            if tipo == "Int":
+                size_self += 4
+            elif tipo == "String":
+                size_self += 2
+            elif tipo == "Bool":
+                size_self += 2
+            elif tipo == "Object":
+                size_self += 1
+            elif tipo == "Void":
+                size_self += 1
+            elif tipo == "SELF_TYPE":
+                size_self += 1
+            else: 
+                size_self += 1
+            print("Después de verificar el tipo: ", size_self)
+            
+
+            
+            
+            newWidth = [self.actual_class, self.actual_method, size_self]
+            print("VISITPROPERTY NEWWIDth: ", newWidth)
+            containsWidth = self.symbol_table.get_width(value)
+            print("VISITPROPERTY containsWidth: ", containsWidth)
+            newcontainsWidth = []
+            
+            if containsWidth != None: 
+                for nwc in containsWidth:
+                    newcontainsWidth.append(nwc[0])
+            print("VISITPROPERTY newcontainsWidth: ", newcontainsWidth)
+            widthToAdd=[]
+            
+            if containsWidth == None: 
+                widthToAdd.append(newWidth)
+            else:
+                if self.actual_class not in newcontainsWidth or self.actual_method not in newcontainsWidth:
+                    widthToAdd.extend(containsWidth)
+                    widthToAdd.append(newWidth)
+            print("VISITPROPERTY widthToAdd: ", widthToAdd)
+            #continsOfClass[index].append(width)
+            
+            #self.symbol_table.add_symbol(self.actual_class,contains=continsOfClass)   
+            # for i in continsOfClass:
+            #     if i[0] == var_name:
+            #         #print("I[0]: ", i[0])
+            self.symbol_table.add_symbol(value, type=tipo, width=widthToAdd, ambit="Local")
+            
+            print("visitID self.bytesSize: ", self.bytesSize)
             contains = self.symbol_table.get_contains(self.actual_method)
             contain = []
             if contains == None:
@@ -1862,7 +2075,7 @@ class YAPLVisit(ParseTreeVisitor):
             print("expresion: ",expresion)
             if str(left_type) == str(expresion):
                 print("Se esta regresando este: ",left_type)
-                self.symbol_table.add_symbol(left,width=self.bytesSize)
+                #self.symbol_table.add_symbol(left,width=self.bytesSize)
                 return left_type
             elif str(left_type) == "Bool" and str(expresion) == "Int":
                 return left_type
@@ -2154,6 +2367,7 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#letIn.
     def visitLetIn(self, ctx:YAPLParser.LetInContext):
         print("\nvisitLetIn")
+        size_LetIn = 0
         id = ctx.ID().getText()
         letinType = ctx.TYPE().getText()
         print("id: ",id)
@@ -2161,11 +2375,11 @@ class YAPLVisit(ParseTreeVisitor):
         print("=============================")
         
         if str(letinType) == "Int":
-            width=8
+            size_LetIn += 4
         elif  str(letinType) == "String":
-            width=4
+            size_LetIn += 2
         elif str(letinType) == "Bool":
-            width=2
+            size_LetIn += 2
         else: 
             print("No existe este tipo por lo tanto toca buscar en la tabla")
             symbolExist = self.symbol_table.contains_symbol(letinType)
@@ -2206,8 +2420,40 @@ class YAPLVisit(ParseTreeVisitor):
         
         self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array)
         
+        
+        print("Valor de self.bytesSize en letin: ", self.bytesSize)
         result = self.visit(ctx.expr())
         
+        
+        
+        newWidth = [self.actual_method, id, letinType, self.bytesSize]
+        
+        containsWidth = self.symbol_table.get_width(id)
+        
+        newcontainsWidth = []
+        print("VisitLetIn ContainsWidth: ", containsWidth)
+        if containsWidth != None: 
+            for nwc in containsWidth:
+                newcontainsWidth.append(nwc[0])
+        
+        widthToAdd=[]
+        print ("letin containsWidth: ", containsWidth)
+        if containsWidth == None: 
+            widthToAdd.append(newWidth)
+        else:
+            if self.actual_method not in newcontainsWidth:
+                widthToAdd.extend(containsWidth)
+                widthToAdd.append(newWidth)
+        
+            
+        self.symbol_table.add_symbol(id, type=letinType, width=widthToAdd)   
+        
+        
+        
+        self.bytesSize += size_LetIn
+        #self.symbol_table.add_symbol(self.actual_method, width = self.bytesSize)
+        print("VALOR DE SELF.BYTESSIZE MODIFICADO: ", self.bytesSize)
+        self.total_size_letin = newWidth
         # array.pop(0)
         # self.symbol_table.add_symbol(self.actual_method,self.actual_method_type,contains=array)
         # if idClassType != None:
@@ -2313,6 +2559,48 @@ class YAPLVisit(ParseTreeVisitor):
         else:
             exprValue = self.symbol_table.get_symbol_type(exprValue) if self.symbol_table.get_symbol_type(exprValue) else exprValue
             resutls.append(exprValue)
+            
+            
+        
+        if typevisit == "Int":
+            width = 4
+        elif typevisit == "String":
+            width = 2
+        elif typevisit == "Bool":
+            width = 2
+        else:
+            width = 2
+            
+        newWidth = [self.actual_class, self.actual_method, width]
+        print("VISITPROPERTY NEWWIDth: ", newWidth)
+        containsWidth = self.symbol_table.get_width(id)
+        print("VISITPROPERTY containsWidth: ", containsWidth)
+        newcontainsWidth = []
+        
+        if containsWidth != None: 
+            for nwc in containsWidth:
+                newcontainsWidth.append(nwc[0])
+        print("VISITPROPERTY newcontainsWidth: ", newcontainsWidth)
+        widthToAdd=[]
+        
+        if containsWidth == None: 
+            widthToAdd.append(newWidth)
+        else:
+            if self.actual_class not in newcontainsWidth:
+                widthToAdd.extend(containsWidth)
+                widthToAdd.append(newWidth)
+        print("VISITPROPERTY widthToAdd: ", widthToAdd)
+        #continsOfClass[index].append(width)
+        
+        #self.symbol_table.add_symbol(self.actual_class,contains=continsOfClass)   
+        # for i in continsOfClass:
+        #     if i[0] == var_name:
+        #         #print("I[0]: ", i[0])
+        self.symbol_table.add_symbol(id, type=typevisit, width=widthToAdd, ambit="Local")
+        
+        
+            
+        
             
         # if idClassType != None:
         #     self.symbol_table.add_symbol(id,type=idClassType,width=idClassWidth,ambit=idClassAmbit)
