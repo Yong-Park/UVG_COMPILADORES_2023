@@ -51,8 +51,8 @@ class SymbolTable:
 
 tabla = SymbolTable()
 
-tabla.add_symbol('n', type="int", width=4, ambit='A')
-tabla.add_symbol('n', type="str", width=8, ambit='B', inherits = "IO")
+tabla.add_symbol('n', type="int", ambit='A')
+tabla.add_symbol('n', type="int", ambit='B')
 tabla.add_symbol('a', type="bool", width=2, ambit='B.method5')
 
 print(tabla)

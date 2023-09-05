@@ -86,7 +86,7 @@ class IDE(tk.Tk):
                 elementos = []
                 for attr, value in symbol.items():
                     elementos.append(value)
-            tabla.insert("", "end", text=clave, values=(elementos[0], elementos[1], elementos[2], elementos[3], elementos[4], elementos[5]))
+                tabla.insert("", "end", text=clave, values=(elementos[0], elementos[1], elementos[2], elementos[3], elementos[4], elementos[5]))
 
         # Ajustar el ancho de las columnas para que se vean correctamente los datos
         tabla.column("#0" )

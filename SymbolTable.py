@@ -31,9 +31,11 @@ class SymbolTable:
                 
     def contains_symbol(self,name,ambit):
         symbols = self.symbols.get(name)
+        # print("symbols: ",symbols)
         if symbols:
             for symbol in symbols:
-                if symbol['ambit'] == ambit:
+                # print("symbol['ambit']: ",symbol['ambit'])
+                if str(symbol['ambit']) == ambit:
                     return True
         return False
     
@@ -41,7 +43,8 @@ class SymbolTable:
         symbols = self.symbols.get(name)
         if symbols:
             for symbol in symbols:
-                if symbol["type"] == "class":
+                # print("symbol: ",symbol)
+                if str(symbol["type"]) == "class":
                     return True
         return False
                     

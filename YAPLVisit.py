@@ -41,7 +41,7 @@ class YAPLVisit(ParseTreeVisitor):
         # print(self.symbol_table)
         #realizar ultima revision si existe una clase Main y un metodo main en la clase Main
         MainExist = self.symbol_table.contains_mains()
-        
+
         # print("MainExist: ",MainExist)
         print("=============================")
         print("visitStart results: ",results)
@@ -151,7 +151,6 @@ class YAPLVisit(ParseTreeVisitor):
             existMain = self.symbol_table.contains_symbol("Main","Main")
             existmain = self.symbol_table.contains_symbol("main","Main")
             
-            
             # aqui se revisa si no existe ya definido el Main y su main de ello porque si existe significa que anteriormente ya se definio y por ello se esta repetiendo Mains
             if not existMain and not existmain: 
                 #agregarlo en la tabla la clase que tiene una heredacion
@@ -162,8 +161,9 @@ class YAPLVisit(ParseTreeVisitor):
                     #se revisa en este caso que si no es IO sea una clase que existe en la tabla de simbolos y que el classtype no sea Main ya que main solo puede heredar de IO
                     if self.symbol_table.contains_class(str(inheritPosition)) and str(classtype) != "Main":
                         print("inheritPosition si existe")
+                        self.symbol_table.add_symbol(classtype, type=defclaseClass, inherits=inheritPosition, ambit=self.actualAmbit)
                         #añadir el valor de inherti position a su respectiva clase
-                        self.symbol_table.change_symbol_value(classtype,self.actualAmbit,"inherits",inheritPosition)
+                        # self.symbol_table.change_symbol_value(classtype,self.actual_class,"inherits",inheritPosition)
 
                     else:
                         print("inheritPosition No existe")
@@ -172,7 +172,7 @@ class YAPLVisit(ParseTreeVisitor):
                 return "DobleMain"
                 
         else:
-            self.symbol_table.add_symbol(classtype, type=defclaseClass,ambit=self.actualAmbit)
+            self.symbol_table.add_symbol(classtype, type=defclaseClass,ambit=self.actual_class)
         
         tipos = ctx.feature()
         results = []
@@ -219,10 +219,10 @@ class YAPLVisit(ParseTreeVisitor):
                 size_method += 4
 
         #agregar el metodo
-        self.symbol_table.add_symbol(method_name, method_type,ambit=self.actualAmbit)
+        self.symbol_table.add_symbol(method_name, method_type,ambit=self.actual_class)
         
         #actualizar el ambito que seria la clase mas el nombre del metodo
-        self.actualAmbit = self.actualAmbit + "." + method_name
+        self.actualAmbit = self.actual_class + "." + method_name
         
         #revisar si el metodo recibe parametros
         formlExist = ctx.formal()
@@ -239,8 +239,9 @@ class YAPLVisit(ParseTreeVisitor):
                 return res
         print("visitMethod self.methodRecieves: ",self.methodRecieves)
         if len(self.methodRecieves) > 0:
+            print("el len de self.methodrecieves si es mas de 1")
             #agregar el recieves los parametros que tendria ese metodo
-            self.symbol_table.change_symbol_value(method_name,self.actualAmbit,"recieves",self.methodRecieves)
+            self.symbol_table.change_symbol_value(method_name,self.actual_class,"recieves",self.methodRecieves)
             
         # visitar el expr de la funcion
         method_expr_type = self.visit(ctx.expr())
@@ -299,9 +300,9 @@ class YAPLVisit(ParseTreeVisitor):
         self.actual_method = var_name
         self.actual_method_type = var_type
         
-        self.symbol_table.add_symbol(var_name, type=var_type, ambit=self.actualAmbit)
+        self.symbol_table.add_symbol(var_name, type=var_type, ambit=self.actual_class)
         #cambiar el tipo de ambiente para que ya sea del clase mas metodo
-        self.actualAmbit = self.actualAmbit + "." + var_name
+        self.actualAmbit = self.actual_class + "." + var_name
         
         var_expr = self.visit(ctx.expr()) if ctx.expr() != None else []
         var_assign = ctx.ASSIGN()
@@ -310,9 +311,18 @@ class YAPLVisit(ParseTreeVisitor):
         print('var_type: ', var_type)
         print('var_assign: ', var_assign, '\n')
         
-        #revisar que el var_expr no sea un tipo de error
-        if var_expr in self.errors:
-            return var_expr
+        
+        #revisar si el var_expr es un tipo de lista
+        if type(var_expr) == list:
+            #revisar que el var_expr no este en errores
+            for ve in var_expr:
+                if ve in self.errors:
+                    return ve
+
+        else:
+            #revisar que el var_expr no sea un tipo de error
+            if var_expr in self.errors:
+                return var_expr
         #revisar que la variable si no es int, char o bool sea algo que exista en la tabla
         if str(var_type) not in ["Int","String","Bool","Object","Void","SELF_TYPE"]:
             print("toca buscar")
@@ -335,11 +345,17 @@ class YAPLVisit(ParseTreeVisitor):
         
         # revisar si es del mismo tipo la asignacion cuando se realice
         if var_assign != None:
-            #si var_expr no es un tipo de int o algo asi revisa para conseguirlo de lo contrario permanece
-            var_expr = self.symbol_table.get_symbol_value(var_expr,self.actualAmbit,"type") if self.symbol_table.get_symbol_value(var_expr,self.actualAmbit,"type")  else var_expr
-            if var_type != var_expr:
-                print("assignEr")
-                return "assignEr"
+            #revisar si var_expr es un tipo de lista
+            if type(var_expr) == list:
+                if var_type not in var_expr:
+                    print("visitProperty assignEr")
+                    return "assignEr"
+            else:            
+                #si var_expr no es un tipo de int o algo asi revisa para conseguirlo de lo contrario permanece
+                var_expr = self.symbol_table.get_symbol_value(var_expr,self.actual_class,"type") if self.symbol_table.get_symbol_value(var_expr,self.actual_class,"type")  else var_expr
+                if var_type != var_expr:
+                    print("visitProperty assignEr")
+                    return "assignEr"
 
         print("visitProperty var_type: ",var_type)
         print("=============================")
@@ -712,14 +728,14 @@ class YAPLVisit(ParseTreeVisitor):
             
         print("left equal", left)
         
-        if left not in self.errors:
+        if left in self.errors:
             return  left
         
         right = self.visit(ctx.expr(1))
         # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.get_symbol_type(right) else right
         print("right equal", right)
         
-        if right not in self.errors:
+        if right in self.errors:
             return  right
         
         print("=============================")
@@ -804,8 +820,8 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#id.
     def visitId(self, ctx:YAPLParser.IdContext):
-        print("\nid value: ", value)
         value = ctx.ID().getText()
+        print("\nid value: ", value)
         #revisar si es de tipo self
         if str(value) == "self":
             print("self.actual_method: ",self.actual_method)
@@ -902,8 +918,7 @@ class YAPLVisit(ParseTreeVisitor):
                 firstType = self.visit(first)
     
                 if firstType == "String":
-                    self.symbol_table.add_symbol(id,type="SELF_TYPE",recieves=firstType,ambit=self.actualAmbit)
-                    
+                    # self.symbol_table.add_symbol(id,type="SELF_TYPE",recieves=firstType,ambit=self.actualAmbit)
                     message = "SELF_TYPE"
                 
             elif id == "out_int":
@@ -948,22 +963,30 @@ class YAPLVisit(ParseTreeVisitor):
                 
         #revisar si el id es un metodo que se esta llamando que es del mismo metodo
         if self.symbol_table.contains_symbol(id,self.actual_class):
+            print("visitOwnMethodCall si es un metodo de la misma clase")
             #revisar si este recibe parametros
             params = self.symbol_table.get_symbol_value(id,self.actual_class,"recieves")
             if params != None:
+                newparams = []
+                for p in params:
+                    newparams.append(p[1])
+                
                 recievedParams = []
                 for exp in expresions:
                     val = self.visit(exp)
                     recievedParams.append(val)
                 #revisar ahora los parametros si son del mismo largo 
-                if len(params) == len(recievedParams):
-                    for i in range(len(params)):
-                        if params[i] == recievedParams[i]:
-                            message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
-                        elif params[i] == "Bool" and recievedParams[i] == "Int":
-                            message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
-                        elif params[i] == "Int" and recievedParams[i] == "Bool":
-                            message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
+                print("visitOwnMethodCall params: ",params)
+                print("visitOwnMethodCall newparams: ",newparams)
+                print("visitOwnMethodCall recievedParams: ",recievedParams)
+                if len(newparams) == len(recievedParams):
+                    for i in range(len(newparams)):
+                        if newparams[i] == recievedParams[i]:
+                            message = self.symbol_table.get_symbol_value(id,self.actual_class,"type")
+                        elif newparams[i] == "Bool" and recievedParams[i] == "Int":
+                            message = self.symbol_table.get_symbol_value(id,self.actual_class,"type")
+                        elif newparams[i] == "Int" and recievedParams[i] == "Bool":
+                            message = self.symbol_table.get_symbol_value(id,self.actual_class,"type")
                         else:
                             message = "methodValuesNotSame"
                             break
@@ -980,20 +1003,25 @@ class YAPLVisit(ParseTreeVisitor):
                     #revisar si recibe parametros este
                     params = self.symbol_table.get_symbol_value(id,inhertisExist,"recieves")
                     if params != None:
+                        newparams = []
+                        for p in params:
+                            newparams.append(p[1])
                         #revisar ahora los parametros si son del mismo largo 
                         recievedParams = []
                         for exp in expresions:
                             val = self.visit(exp)
                             recievedParams.append(val)
-                            
+                        print("visitOwnMethodCall params: ",params)
+                        print("visitOwnMethodCall newparams: ",newparams)
+                        print("visitOwnMethodCall recievedParams: ",recievedParams)
                         #comparar ahora los parametros que tengan el mismo largo y si sean del mismo tipo
-                        if len(params) == len(recievedParams):
-                            for i in range(len(params)):
-                                if params[i] == recievedParams[i]:
+                        if len(newparams) == len(recievedParams):
+                            for i in range(len(newparams)):
+                                if newparams[i] == recievedParams[i]:
                                     message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
-                                elif params[i] == "Bool" and recievedParams[i] == "Int":
+                                elif newparams[i] == "Bool" and recievedParams[i] == "Int":
                                     message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
-                                elif params[i] == "Int" and recievedParams[i] == "Bool":
+                                elif newparams[i] == "Int" and recievedParams[i] == "Bool":
                                     message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
                                 else:
                                     message = "methodValuesNotSame"
@@ -1032,6 +1060,8 @@ class YAPLVisit(ParseTreeVisitor):
         # expresion = self.symbol_table.get_symbol_type(expresion) if self.symbol_table.get_symbol_type(expresion) else expresion
         # print("expresion later: ",expresion)
         print("left: ",left)
+        left = self.symbol_table.get_symbol_value(left,self.actualAmbit,"type") if self.symbol_table.get_symbol_value(left,self.actualAmbit,"type") else left
+        print("left after search: ",left)
         
         if expresion in self.errors:
             return expresion
@@ -1040,7 +1070,10 @@ class YAPLVisit(ParseTreeVisitor):
 
         #si no esta significa que es una clase
         if expresion not in ["Int","String","Bool","Void","Object"]:
-            self.symbol_table.change_symbol_value(left,self.actualAmbit,"inherits",expresion)
+            #primero buscar si es una clase que si existe en la tabla
+            if self.symbol_table.contains_class(expresion):
+                pass
+                # self.symbol_table.change_symbol_value(left,self.actualAmbit,"inherits",expresion)
         
         print("=============================")
         print("left: ",left)
@@ -1054,6 +1087,16 @@ class YAPLVisit(ParseTreeVisitor):
         elif str(left) == "Int" and str(expresion) == "Bool":
             return left
         else:
+            #revisar si es una variable que se definio afuera del metodo que esta
+            left = self.symbol_table.get_symbol_value(left,self.actual_class,"type") if self.symbol_table.get_symbol_value(left,self.actual_class,"type") else left
+            print("left after search of newest: ",left)
+            if str(left) == str(expresion):
+                print("Se esta regresando este: ",left)
+                return left
+            elif str(left) == "Bool" and str(expresion) == "Int":
+                return left
+            elif str(left) == "Int" and str(expresion) == "Bool":
+                return left
             return "assignEr"
 
 
@@ -1121,22 +1164,29 @@ class YAPLVisit(ParseTreeVisitor):
     
         #revisar si el id es un metodo que se esta llamando que es del mismo metodo
         if self.symbol_table.contains_symbol(id,firstType):
+            print("visitmethodcall este metodo existe")
             #revisar si este recibe parametros
             params = self.symbol_table.get_symbol_value(id,firstType,"recieves")
+            newparams = []
             if params != None:
+                for p in params:
+                    newparams.append(p[1])
                 recievedParams = []
                 for exp in expresions:
                     val = self.visit(exp)
                     recievedParams.append(val)
+                print("visitmethodcall params: ",params)
+                print("visitmethodcall newparams: ",newparams)
+                print("visitmethodcall recievedParams: ",recievedParams)   
                 #revisar ahora los parametros si son del mismo largo 
-                if len(params) == len(recievedParams):
-                    for i in range(len(params)):
-                        if params[i] == recievedParams[i]:
-                            message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
-                        elif params[i] == "Bool" and recievedParams[i] == "Int":
-                            message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
-                        elif params[i] == "Int" and recievedParams[i] == "Bool":
-                            message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
+                if len(newparams) == len(recievedParams):
+                    for i in range(len(newparams)):
+                        if newparams[i] == recievedParams[i]:
+                            message = self.symbol_table.get_symbol_value(id,firstType,"type")
+                        elif newparams[i] == "Bool" and recievedParams[i] == "Int":
+                            message = self.symbol_table.get_symbol_value(id,firstType,"type")
+                        elif newparams[i] == "Int" and recievedParams[i] == "Bool":
+                            message = self.symbol_table.get_symbol_value(id,firstType,"type")
                         else:
                             message = "methodValuesNotSame"
                             break
@@ -1145,28 +1195,38 @@ class YAPLVisit(ParseTreeVisitor):
             else:
                 message = self.symbol_table.get_symbol_value(id,firstType,"type")
         else:
+            print("no es de la clase revisar si hereda y si es asi encontrar si es una de las funciones por la cual se hereda")
             #revisar si es de un inhertis desde el cual se esta llamando
             #primero obtener si existe un inhertis de la clase
             inhertisExist = self.symbol_table.get_symbol_value(firstType,firstType,"inherits")
+            print("visitmethodcall inhertisExist: ",inhertisExist)
+            print("========================")
             while inhertisExist:
+                print("visitmethodcall id: ",id)
+                print("visitmethodcall inhertisExist: ",inhertisExist)
                 if self.symbol_table.contains_symbol(id, inhertisExist):
                     #revisar si recibe parametros este
                     params = self.symbol_table.get_symbol_value(id,inhertisExist,"recieves")
+                    newparams = []
                     if params != None:
                         #revisar ahora los parametros si son del mismo largo 
+                        for p in params:
+                            newparams.append(p[1])
                         recievedParams = []
                         for exp in expresions:
                             val = self.visit(exp)
                             recievedParams.append(val)
-                            
+                        print("visitmethodcall params: ",params)
+                        print("visitmethodcall newparams: ",newparams)
+                        print("visitmethodcall recievedParams: ",recievedParams)  
                         #comparar ahora los parametros que tengan el mismo largo y si sean del mismo tipo
-                        if len(params) == len(recievedParams):
-                            for i in range(len(params)):
-                                if params[i] == recievedParams[i]:
+                        if len(newparams) == len(recievedParams):
+                            for i in range(len(newparams)):
+                                if newparams[i] == recievedParams[i]:
                                     message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
-                                elif params[i] == "Bool" and recievedParams[i] == "Int":
+                                elif newparams[i] == "Bool" and recievedParams[i] == "Int":
                                     message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
-                                elif params[i] == "Int" and recievedParams[i] == "Bool":
+                                elif newparams[i] == "Int" and recievedParams[i] == "Bool":
                                     message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
                                 else:
                                     message = "methodValuesNotSame"
@@ -1179,6 +1239,7 @@ class YAPLVisit(ParseTreeVisitor):
                     inhertisExist = False
                 else:
                     inhertisExist = self.symbol_table.get_symbol_value(inhertisExist,inhertisExist,"inherits")
+                    print("visitmethodcall new inhertisExist: ",inhertisExist)
              
                     
         print("visitMethodCall message original: ",message)
