@@ -1205,6 +1205,7 @@ class YAPLVisit(ParseTreeVisitor):
                 print("visitmethodcall id: ",id)
                 print("visitmethodcall inhertisExist: ",inhertisExist)
                 if self.symbol_table.contains_symbol(id, inhertisExist):
+                    print("visitmethodcall si existe aqui")
                     #revisar si recibe parametros este
                     params = self.symbol_table.get_symbol_value(id,inhertisExist,"recieves")
                     newparams = []

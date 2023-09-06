@@ -4,14 +4,14 @@ class SymbolTable:
 
     def add_symbol(self, name, type=None, inherits=None, width=None, displacement=None, ambit=None, recieves=None):
         symbol = {
-            'type': type,
-            'inherits': inherits,
-            'width': width,
-            'displacement': displacement,
-            'ambit': ambit,
-            'recieves': recieves
+            'type': str(type) if type!= None else None,
+            'inherits': str(inherits) if inherits!=None else None,
+            'width': str(width) if width!=None else None,
+            'displacement': str(displacement) if displacement!=None else None,
+            'ambit': str(ambit) if ambit!=None else None,
+            'recieves': str(recieves) if recieves!=None else None
         }
-        self.symbols.setdefault(name, []).append(symbol)
+        self.symbols.setdefault(str(name), []).append(symbol)
     
     def change_symbol_value(self, name, ambit, element ,value):
         symbols = self.symbols.get(name)
@@ -22,9 +22,12 @@ class SymbolTable:
                     break
                 
     def get_symbol_value(self,name,ambit,element):
+        # print("ambit: ",ambit)
         symbols = self.symbols.get(name)
         if symbols:
+            # print("symbols: ",symbols)
             for symbol in symbols:
+                # print("symbol['ambit']: ",symbol['ambit'])
                 if symbol['ambit'] == ambit:
                     return symbol[element] 
         return False
@@ -35,7 +38,7 @@ class SymbolTable:
         if symbols:
             for symbol in symbols:
                 # print("symbol['ambit']: ",symbol['ambit'])
-                if str(symbol['ambit']) == ambit:
+                if symbol['ambit'] == ambit:
                     return True
         return False
     
@@ -44,7 +47,7 @@ class SymbolTable:
         if symbols:
             for symbol in symbols:
                 # print("symbol: ",symbol)
-                if str(symbol["type"]) == "class":
+                if symbol["type"] == "class":
                     return True
         return False
                     
