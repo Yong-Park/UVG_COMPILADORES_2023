@@ -12,6 +12,11 @@ class SymbolTable:
             'recieves': str(recieves) if recieves!=None else None
         }
         self.symbols.setdefault(str(name), []).append(symbol)
+        
+    def get_ambit_symbols(self,ambit):
+        filtered_symbols = {k: v for k, v in self.symbols.items() if any(d['ambit'] == ambit for d in v)}
+        return filtered_symbols
+
     
     def change_symbol_value(self, name, ambit, element ,value):
         symbols = self.symbols.get(name)
@@ -64,26 +69,12 @@ class SymbolTable:
         return table_str
     
     def contains_mains(self):
-        # MainExist = False
-        # mainExist = False
-        # for name, _ in self.symbols.items():
-        #     if str(name) == "Main":
-        #         MainExist = True
-        
-        # if MainExist:
-        #     for name, _ in self.symbols.items():
-        #         if str(name) == "Main":
-        #             for values in self.contains[name]:
-        #                 if str(values[0]) == "main":
-        #                     mainExist = True
-        # else:
-        #     return False
-        
-        # if mainExist:
-        #     return True
-        # else:
-        #     return False
-        return True
+        symbols = self.symbols.get("main")
+        if symbols:
+            for symbol in symbols:
+                if symbol["ambit"] == "Main":
+                    return True
+        return False
 
     
     

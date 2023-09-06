@@ -7,6 +7,7 @@ else:
 
 from SymbolTable import SymbolTable
 from copy import *
+import re
 
 # This class defines a complete generic visitor for a parse tree produced by YAPLParser.
 
@@ -779,6 +780,28 @@ class YAPLVisit(ParseTreeVisitor):
         else:
             existNew = True
         print("=============================")
+        print("visitNewObject self.actualAmbit: ",self.actualAmbit)
+        
+        #obtener todos los que son del ambiente
+        newObjectLists = self.symbol_table.get_ambit_symbols(self.actualAmbit)
+        print("newObjectLists: ",newObjectLists)
+        #filtrarlos para que solo esten los que comienzen con t
+        newObjectLists = {k: v for k, v in newObjectLists.items() if re.match(r't\d+', k)}
+        print("newObjectLists after filtering: ",newObjectLists)
+        #guardar ya solo los nombres
+        newObjectNames = list(newObjectLists.keys())
+        print("newObjectNames: ",newObjectNames)
+        #comenzar a agregarle una temporal por cada uno
+        temporal_idx = 1
+        temporal = f"t{temporal_idx}"
+
+        while temporal in newObjectNames:
+            temporal_idx += 1
+            temporal = f"t{temporal_idx}"
+
+        self.symbol_table.add_symbol(temporal,value,ambit=self.actualAmbit)
+            
+            
         if existNew:
             return value
         else:
