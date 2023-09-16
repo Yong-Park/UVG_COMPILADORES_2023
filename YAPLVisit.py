@@ -15,8 +15,8 @@ class YAPLVisit(ParseTreeVisitor):
 
     def __init__(self):
         self.symbol_table = SymbolTable()
-        self.bytesSize = 0
         self.startType = None
+        self.bytesSize_string = 0
         self.actual_method = None
         self.actual_class = None
         self.actual_method_type = None
@@ -128,6 +128,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("\nDefClase visitado")
         defclaseClass = ctx.CLASS()
         print("defclaseClass: ",defclaseClass)
+        self.class_size = 0
         
         #definir la clase actual en la que esta
         
@@ -179,11 +180,33 @@ class YAPLVisit(ParseTreeVisitor):
         results = []
         for tipo in tipos:
             val = self.visit(tipo)
+            
+            print("visitDefClase val ver: ", val)
+            
+            #Acá detectamos los tipos de las variables que esto contiene
+            if val == "Int":
+                self.class_size += 4
+            elif val == "String":
+                print("Soy el otro valor cuando se detectan los tipos")
+                self.class_size += 2
+            elif val == "Bool":
+                self.class_size += 2
+            elif val == "Object":
+                self.class_size += 2
+            elif val == "SELF_TYPE":
+                self.class_size += 2
+            elif val == classtype: 
+                print("SOY EL CLASSTYPE EN ESTAS  INSTANCIAS: ", classtype)
+                print("TAMAÑO DE LA CLASE EN ESTOS MOMENTOS: ", self.class_size)
+                self.class_size += self.class_size
 
             if type(val) == list:
                 results.extend(val)
             else:
                 results.append(val)
+        
+        #Actualizamos el valor del peso de la clase
+        self.symbol_table.change_symbol_value(classtype,self.actual_class,"width",self.class_size)
         
         print("DefClase results: ", results)
         
@@ -196,7 +219,8 @@ class YAPLVisit(ParseTreeVisitor):
     def visitMethod(self, ctx:YAPLParser.MethodContext):
         print("\nvisitMethod")
         
-        size_method = 0
+        self.size_method = 0
+        self.method_recieves_size = 0
         self.forml_type = False
         
         method_name = ctx.ID().getText()
@@ -217,7 +241,14 @@ class YAPLVisit(ParseTreeVisitor):
                 return "assignError"
         else:
             if method_type == "Int":
-                size_method += 4
+                self.size_method += 4
+            elif method_type == "String":
+                print("Valor del ")
+                self.size_method += 2
+            elif method_type == "Bool":
+                self.size_method += 2
+            elif method_type == self.actual_class: 
+                print("visitMethod ActualClass viendo: ", self.actual_class)
 
         #agregar el metodo
         self.symbol_table.add_symbol(method_name, method_type,ambit=self.actual_class)
@@ -235,17 +266,27 @@ class YAPLVisit(ParseTreeVisitor):
         self.methodRecieves = []
         for form in formlExist:
             res= self.visit(form)
+            print("VisitMethod recieves result: ", res)
             if res in self.errors:
                 print("visitMethod found error: ",res)
                 return res
         print("visitMethod self.methodRecieves: ",self.methodRecieves)
         if len(self.methodRecieves) > 0:
             print("el len de self.methodrecieves si es mas de 1")
-            #agregar el recieves los parametros que tendria ese metodo
+            #agregar el recieves los parametros que tendria ese metodo junto con el nuevo peso calculado
             self.symbol_table.change_symbol_value(method_name,self.actual_class,"recieves",self.methodRecieves)
             
+        
+        
         # visitar el expr de la funcion
         method_expr_type = self.visit(ctx.expr())
+        
+        print("VisitMethod tamaño de cadena actual: ", self.bytesSize_string)
+        
+        self.size_method = self.bytesSize_string + 2 + self.method_recieves_size
+        
+        #Actualizamos el peso del método en la tabla
+        self.symbol_table.change_symbol_value(method_name,self.actual_class,"width",self.size_method)
         
         # method_expr_type = self.symbol_table.get_symbol_type(method_expr_type) if self.symbol_table.get_symbol_type(method_expr_type) else method_expr_type
         print("method expr type: ", method_expr_type)
@@ -297,6 +338,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("\nvisitProperty")
         var_name = ctx.ID().getText()
         var_type = ctx.TYPE().getText()
+        self.size_val = 0
         
         self.actual_method = var_name
         self.actual_method_type = var_type
@@ -336,13 +378,16 @@ class YAPLVisit(ParseTreeVisitor):
             
         #asignar el width setun si tipo
         if var_type == "Int":
-            width = 4
+            self.size_val = 4
         elif var_type == "String":
-            width = 2
+            self.size_val = self.bytesSize_string
         elif var_type == "Bool":
-            width = 2
+            self.size_val = 2
         else:
-            width = 2
+            self.size_val = 2
+            
+        #Actualizamos el peso de la tabla
+        self.symbol_table.change_symbol_value(var_name,self.actual_class,"width",self.size_val)
         
         # revisar si es del mismo tipo la asignacion cuando se realice
         if var_assign != None:
@@ -367,6 +412,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("\nvisitForml")
         idtext = ctx.ID().getText()
         tipo = ctx.TYPE().getText()
+        self.forml_size = 0
         print("idtext: ",idtext)
         print("tipo: ",tipo)
         self.symbol_table.add_symbol(idtext,tipo,ambit=self.actualAmbit)
@@ -379,9 +425,18 @@ class YAPLVisit(ParseTreeVisitor):
             else:
                 print("visitForml found: TypeNotExist")
                 return "TypeNotExist"
-        
+        else: 
+            if tipo == "Int":
+                self.forml_size += 4
+            elif tipo == "String":
+                self.forml_size += 2
+            elif tipo == "Bool":
+                self.forml_size += 2
+                
+                
         #agregarlo en el method recieves para tener un control de cuales son los parametros que este recibe
-        self.methodRecieves.append([idtext,tipo])
+        self.methodRecieves.append([idtext,tipo, self.forml_size])
+        
         
         print("visitForml self.methodRecieves: ",self.methodRecieves)
         print("=============================")
@@ -536,7 +591,8 @@ class YAPLVisit(ParseTreeVisitor):
         text = text[1:-1]
         lenText = len(text)
         print("visitString text: ",text)
-        self.bytesSize = lenText * 2
+        self.bytesSize_string = lenText * 2
+        print("VISIT STRING Peso de la cadena: ", self.bytesSize_string)
         return "String"
 
 
@@ -1284,35 +1340,37 @@ class YAPLVisit(ParseTreeVisitor):
         print("\nvisitLetIn")
         id = ctx.ID().getText()
         letinType = ctx.TYPE().getText()
-        print("id: ",id)
-        print("letinType: ",letinType)
-        print("=============================")
+        self.let_size = 0
+        print("visitLetIn valor de la cadena: ", self.bytesSize_string)
+        
+        #agregarlo a la tabla el nuevo valor del id
+        self.symbol_table.add_symbol(id,type=letinType, ambit=self.actualAmbit)
+        
+        result = self.visit(ctx.expr())
         
         #logica para agregar el peso 
         
-        # if str(letinType) == "Int":
-        #     width=4
-        # elif  str(letinType) == "String":
-        #     width=2
-        # elif str(letinType) == "Bool":
-        #     width=2
-        # else: 
-        #     print("No existe este tipo por lo tanto toca buscar en la tabla")
-        #     symbolExist = self.symbol_table.contains_symbol(letinType)
-        #     if symbolExist:
-        #         symbolType = self.symbol_table.get_symbol_type(letinType)
-        #         if symbolType != False:
-        #             if str(symbolType) == "class":
-        #                 width=4
-        #         else:
-        #             return "assignError"
-        #     else:
-        #         return "assignError"
+        if str(letinType) == "Int":
+            self.let_size=4
+        elif  str(letinType) == "String":
+            self.let_size = self.bytesSize_string
+        elif str(letinType) == "Bool":
+            self.let_size = 2
+        else: 
+            print("No existe este tipo por lo tanto toca buscar en la tabla")
+            symbolExist = self.symbol_table.contains_symbol(letinType)
+            if symbolExist:
+                symbolType = self.symbol_table.get_symbol_type(letinType)
+                if symbolType != False:
+                    if str(symbolType) == "class":
+                        width=4
+                else:
+                    return "assignError"
+            else:
+                return "assignError"
         
-        #agregarlo a la tabla el nuevo valor del id
-        self.symbol_table.add_symbol(id,type=letinType,ambit=self.actualAmbit)
-        
-        result = self.visit(ctx.expr())
+        #Actualizamos el peso en la tabla
+        self.symbol_table.change_symbol_value(id,self.actualAmbit,"width",self.let_size)
         
         print("visitLetIn result: ",result)
         return result
