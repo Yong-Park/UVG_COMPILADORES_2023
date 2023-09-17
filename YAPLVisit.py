@@ -1399,6 +1399,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("\nvisitLetAssignIn")
         id = ctx.ID().getText()
         typevisit = ctx.TYPE().getText()
+        self.let_assign_size = 0
         print("visitLetAssignIn typevisit: ",typevisit)
         
         #agregar el id de este a la tabla
@@ -1423,6 +1424,22 @@ class YAPLVisit(ParseTreeVisitor):
             else:
                 resutls.append("assignEr")
                 
+                
+        #Asignamos el peso según el tipo que se detecta
+        if typevisit == "Int": 
+            self.let_assign_size += 4
+        elif typevisit == "String":
+            self.let_assign_size += self.bytesSize_string
+        elif typevisit == "Bool":
+            self.let_assign_size += 2
+        elif typevisit == "SELF_TYPE":
+            self.let_assign_size += 2
+        else:
+            self.let_assign_size += 1
+            
+        #Actualizamos el peso en la tabla
+        self.symbol_table.change_symbol_value(id,self.actualAmbit,"width",self.let_assign_size)
+                            
         #obtener la otra expr
         exprResult = expresions[1]
         exprValue = self.visit(exprResult)
