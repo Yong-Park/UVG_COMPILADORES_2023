@@ -275,7 +275,6 @@ class YAPLVisit(ParseTreeVisitor):
             print("el len de self.methodrecieves si es mas de 1")
             #agregar el recieves los parametros que tendria ese metodo junto con el nuevo peso calculado
             self.symbol_table.change_symbol_value(method_name,self.actual_class,"recieves",self.methodRecieves)
-            
         
         
         # visitar el expr de la funcion
@@ -283,7 +282,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         print("VisitMethod tamaño de cadena actual: ", self.bytesSize_string)
         
-        self.size_method = self.bytesSize_string + 2 + self.method_recieves_size
+        self.size_method = self.bytesSize_string + 2
         
         #Actualizamos el peso del método en la tabla
         self.symbol_table.change_symbol_value(method_name,self.actual_class,"width",self.size_method)
@@ -415,7 +414,6 @@ class YAPLVisit(ParseTreeVisitor):
         self.forml_size = 0
         print("idtext: ",idtext)
         print("tipo: ",tipo)
-        self.symbol_table.add_symbol(idtext,tipo,ambit=self.actualAmbit)
         if tipo not in ["Int","String","Bool","Object"]:
             print("buscar si el tipo existe")
             tipoExiste = self.symbol_table.contains_class(tipo)
@@ -425,17 +423,24 @@ class YAPLVisit(ParseTreeVisitor):
             else:
                 print("visitForml found: TypeNotExist")
                 return "TypeNotExist"
-        else: 
-            if tipo == "Int":
-                self.forml_size += 4
-            elif tipo == "String":
-                self.forml_size += 2
-            elif tipo == "Bool":
-                self.forml_size += 2
+        
+        #asignar el width setun su tipo
+        if tipo == "Int":
+            self.forml_size = 4
+        elif tipo == "String":
+            self.forml_size = 2
+        elif tipo == "Bool":
+            self.forml_size = 2
+        else:
+            self.forml_size = 2
+        
+        #actualizar el peso de la tabla
+        self.symbol_table.add_symbol(idtext,tipo, width= self.forml_size,ambit=self.actualAmbit)
+        
                 
                 
         #agregarlo en el method recieves para tener un control de cuales son los parametros que este recibe
-        self.methodRecieves.append([idtext,tipo, self.forml_size])
+        self.methodRecieves.append([idtext,tipo])
         
         
         print("visitForml self.methodRecieves: ",self.methodRecieves)
