@@ -17,6 +17,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.symbol_table = SymbolTable()
         self.startType = None
         self.bytesSize_string = 0
+        self.temp_size_class = 0
         self.actual_method = None
         self.actual_class = None
         self.actual_method_type = None
@@ -199,7 +200,7 @@ class YAPLVisit(ParseTreeVisitor):
                 print("SOY EL CLASSTYPE EN ESTAS  INSTANCIAS: ", classtype)
                 print("TAMAÑO DE LA CLASE EN ESTOS MOMENTOS: ", self.class_size)
                 self.class_size += self.class_size
-
+            self.temp_size_class = self.class_size
             if type(val) == list:
                 results.extend(val)
             else:
@@ -860,7 +861,8 @@ class YAPLVisit(ParseTreeVisitor):
             temporal_idx += 1
             temporal = f"t{temporal_idx}"
 
-        self.symbol_table.add_symbol(temporal,value,ambit=self.actualAmbit)
+
+        self.symbol_table.add_symbol(temporal,value, width=self.temp_size_class,ambit=self.actualAmbit)
             
             
         if existNew:
