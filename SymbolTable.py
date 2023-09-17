@@ -11,17 +11,21 @@ class SymbolTable:
             'ambit': str(ambit) if ambit!=None else None,
             'recieves': str(recieves) if recieves!=None else None
         }
-        symbols = self.symbols.get(name)
-        # print("symbols: ",symbols)
+        symbols = self.symbols.get(str(name))
+        print("tablesymbol symbols: ",symbols)
+        symbolNameExist = False
         if symbols:
-            for symbol in symbols:
+            for symbolCheck in symbols:
                 # print("symbol['ambit']: ",symbol['ambit'])
-                if symbol['ambit'] == ambit and symbol['type'] == type:
-                    pass
-                else: 
-                    self.symbols.setdefault(str(name), []).append(symbol)
+                if str(symbolCheck['ambit']) == str(ambit) and str(symbolCheck['type']) == str(type):
+                    symbolNameExist = True
+            # se agregara si este es Falso ya que significa que no existe
+            if symbolNameExist == False:
+                self.symbols.setdefault(str(name), []).append(symbol)
         else:
             self.symbols.setdefault(str(name), []).append(symbol)
+        
+        
         
     def get_ambit_symbols(self,ambit):
         filtered_symbols = {k: v for k, v in self.symbols.items() if any(d['ambit'] == ambit for d in v)}

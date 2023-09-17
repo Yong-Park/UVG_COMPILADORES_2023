@@ -1367,12 +1367,13 @@ class YAPLVisit(ParseTreeVisitor):
             print("No existe este tipo por lo tanto toca buscar en la tabla")
             symbolExist = self.symbol_table.contains_symbol(letinType)
             if symbolExist:
-                symbolType = self.symbol_table.get_symbol_type(letinType)
-                if symbolType != False:
-                    if str(symbolType) == "class":
-                        pass
-                else:
-                    return "assignError"
+                # symbolType = self.symbol_table.get_symbol_type(letinType)
+                # if symbolType != False:
+                #     if str(symbolType) == "class":
+                #         pass
+                # else:
+                #     return "assignError"
+                pass
             else:
                 return "assignError"
         
