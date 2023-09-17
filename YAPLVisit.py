@@ -913,7 +913,7 @@ class YAPLVisit(ParseTreeVisitor):
             print("self.actual_method: ",self.actual_method)
             print("self.actual_method_type: ",self.actual_method_type)
             #agregar el self y asi segun lo que es en la tabla
-            self.symbol_table.add_symbol(value, type=self.actual_method_type,ambit=self.actualAmbit)
+            self.symbol_table.add_symbol(value, type=self.actual_method_type, width= self.size_method,ambit=self.actualAmbit)
             # print("self.actual_method: ",self.actual_method)
       
             return str(self.actual_method_type)
@@ -1370,12 +1370,15 @@ class YAPLVisit(ParseTreeVisitor):
                 symbolType = self.symbol_table.get_symbol_type(letinType)
                 if symbolType != False:
                     if str(symbolType) == "class":
-                        width=4
+                        pass
                 else:
                     return "assignError"
             else:
                 return "assignError"
         
+        print("visitLetIn id: ", id)
+        print("visitLetIn self.actualAmbit:  ", self.actualAmbit)
+        print("visitLetIn self.let_size ", self.let_size)
         #Actualizamos el peso en la tabla
         self.symbol_table.change_symbol_value(id,self.actualAmbit,"width",self.let_size)
         
