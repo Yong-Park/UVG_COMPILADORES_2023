@@ -9,7 +9,7 @@ class Main inherits IO {
 	 {
             c <- 8;
             d <- 2;
-            e <- (a+b*c-d);
+            e <- (a+b*c-d)/(b*c-a);
 	 }
     )
     };
