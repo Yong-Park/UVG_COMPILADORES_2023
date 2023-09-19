@@ -34,6 +34,8 @@ class YAPLVisit(ParseTreeVisitor):
         results = []
         tipos = ctx.classDefine()
         for tipo in tipos:
+            self.tac.clearClassElements()
+            self.tac.clearTemporals
             val = self.visit(tipo)
             if type(val) == list:
                 results.extend(val)
@@ -122,7 +124,10 @@ class YAPLVisit(ParseTreeVisitor):
             message.append("Error No existe el Main o main\n")
         print("self.startType to send: ",message)
         print("=============================")
-
+        print("Three Direction Code")
+        for tac in self.tac.tercetos:
+            print(str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y) + " " + str(tac.l) + " ")
+        print("=============================")
         return message
 
 
@@ -513,36 +518,71 @@ class YAPLVisit(ParseTreeVisitor):
         left, left_value = self.visit(ctx.expr(0))
         # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
         print('left add: ',left)
+        print('left_value add: ',left_value)
         
         right, right_value = self.visit(ctx.expr(1))
         # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
         print('right add:', right)
-
-
+        print('right_value add:', right_value)
         
+        #revisar si el left_value o el right_value es una temporal
+        temporalExist = False
+        if left_value.startswith("t"):
+            temporalToAdd = left_value
+            temporalExist = True
+        if right_value.startswith("t"):
+            temporalToAdd = right_value
+            temporalExist = True
+            
+        #revisar en caso que ambos lados regresen una temporal
+        if left_value.startswith("t") and right_value.startswith("t"):
+            #realiazar una comparacion para ver cual de los dos es el menor ya que ese es el que se usara para guardar o asignar el temporal
+            left_temporal = int(left_value[1:])
+            right_temporal = int(right_value[1:])
+            
+            if left_temporal < right_temporal:
+                temporalToAdd = left_value
+            else:
+                temporalToAdd = right_value
+            
+        #en caso que siga false crear una temporal para guardar la operacion en ella
+        if temporalExist == False:
+            temporals = self.tac.temporals
+            num = 0
+            while True:
+                temporalToAdd = "t" + str(num)
+                if temporalToAdd in temporals:
+                    num += 1
+                else:
+                    self.tac.temporals.append(temporalToAdd)
+                    self.tac.add("add",temporalToAdd,left_value,right_value)
+                    break 
+        else:
+            self.tac.add("add",temporalToAdd,left_value,right_value)
+
         #revisar que no sean parte del algun del los errors
         if left in self.errors:
-            return left
+            return left,None
         if right in self.errors:
-            return right
+            return right,None
         
         if left == "Int" and right == "Int":
-            return left
+            return left,temporalToAdd
         elif left == "String" and right == "String":
-            return left
+            return left,temporalToAdd
         elif left == "Bool" and right == "Int":
-            return left
+            return left,temporalToAdd
         elif left == "Int" and right == "Bool":
-            return left
+            return left,temporalToAdd
         elif left == "Bool" and right == "Bool":
-            return left
+            return left,temporalToAdd
         # errors
         elif left == "Int" and right == "String":
-            return "intchar"
+            return "intchar",None
         elif left == "String" and right == "Int":
-            return "intchar"
+            return "intchar",None
         else:
-            return "ArithError"
+            return "ArithError",None
 
 
     # Visit a parse tree produced by YAPLParser#sub.
@@ -559,29 +599,64 @@ class YAPLVisit(ParseTreeVisitor):
         print("right: ",right )
         print("right_value: ",right_value )
         
+        #revisar si el left_value o el right_value es una temporal
+        temporalExist = False
+        if left_value.startswith("t"):
+            temporalToAdd = left_value
+            temporalExist = True
+        if right_value.startswith("t"):
+            temporalToAdd = right_value
+            temporalExist = True
+            
+        #revisar en caso que ambos lados regresen una temporal
+        if left_value.startswith("t") and right_value.startswith("t"):
+            #realiazar una comparacion para ver cual de los dos es el menor ya que ese es el que se usara para guardar o asignar el temporal
+            left_temporal = int(left_value[1:])
+            right_temporal = int(right_value[1:])
+            
+            if left_temporal < right_temporal:
+                temporalToAdd = left_value
+            else:
+                temporalToAdd = right_value
+            
+        #en caso que siga false crear una temporal para guardar la operacion en ella
+        if temporalExist == False:
+            temporals = self.tac.temporals
+            num = 0
+            while True:
+                temporalToAdd = "t" + str(num)
+                if temporalToAdd in temporals:
+                    num += 1
+                else:
+                    self.tac.temporals.append(temporalToAdd)
+                    self.tac.add("sub",temporalToAdd,left_value,right_value)
+                    break 
+        else:
+            self.tac.add("sub",temporalToAdd,left_value,right_value)
+        
         #revisar que no sean parte del algun del los errors
         if left in self.errors:
-            return left
+            return left,None
         if right in self.errors:
-            return right
+            return right,None
         
         if left == "Int" and right == "Int":
-            return left
+            return left,temporalToAdd
         elif left == "Bool" and right == "Int":
-            return left
+            return left,temporalToAdd
         elif left == "Int" and right == "Bool":
-            return left
+            return left,temporalToAdd
         elif left == "Bool" and right == "Bool":
-            return left
+            return left,temporalToAdd
         # errors
         elif left == "String" and right == "String":
-            return "charAr"
+            return "charAr",None
         elif left == "Int" and right == "String":
-            return "intchar"
+            return "intchar",None
         elif left == "String" and right == "Int":
-            return "intchar"
+            return "intchar",None
         else:
-            return "ArithError"
+            return "ArithError",None
 
 
     # Visit a parse tree produced by YAPLParser#void.
@@ -637,29 +712,64 @@ class YAPLVisit(ParseTreeVisitor):
         print("right mul: ",right)
         print("right_value mul: ",right_value)
         
+        #revisar si el left_value o el right_value es una temporal
+        temporalExist = False
+        if left_value.startswith("t"):
+            temporalToAdd = left_value
+            temporalExist = True
+        if right_value.startswith("t"):
+            temporalToAdd = right_value
+            temporalExist = True
+            
+        #revisar en caso que ambos lados regresen una temporal
+        if left_value.startswith("t") and right_value.startswith("t"):
+            #realiazar una comparacion para ver cual de los dos es el menor ya que ese es el que se usara para guardar o asignar el temporal
+            left_temporal = int(left_value[1:])
+            right_temporal = int(right_value[1:])
+            
+            if left_temporal < right_temporal:
+                temporalToAdd = left_value
+            else:
+                temporalToAdd = right_value
+        
+        #en caso que siga false crear una temporal para guardar la operacion en ella
+        if temporalExist == False:
+            temporals = self.tac.temporals
+            num = 0
+            while True:
+                temporalToAdd = "t" + str(num)
+                if temporalToAdd in temporals:
+                    num += 1
+                else:
+                    self.tac.temporals.append(temporalToAdd)
+                    self.tac.add("mul",temporalToAdd,left_value,right_value)
+                    break 
+        else:
+            self.tac.add("mul",temporalToAdd,left_value,right_value)
+            
         #revisar que no sean parte del algun del los errors
         if left in self.errors:
-            return left
+            return left,None
         if right in self.errors:
-            return right
+            return right,None
         
         if left == "Int" and right == "Int":
-            return left
+            return left,temporalToAdd
         elif left == "Bool" and right == "Int":
-            return right
+            return right,temporalToAdd
         elif left == "Int" and right == "Bool":
-            return left
+            return left,temporalToAdd
         elif left == "Bool" and right == "Bool":
-            return left
+            return left,temporalToAdd
         # errors
         elif left == "String" and right == "String":
-            return "charAr"
+            return "charAr",None
         elif left == "Int" and right == "String":
-            return "intchar"
+            return "intchar",None
         elif left == "String" and right == "Int":
-            return "intchar"
+            return "intchar",None
         else:
-            return "ArithError"
+            return "ArithError",None
 
 
 
@@ -774,35 +884,72 @@ class YAPLVisit(ParseTreeVisitor):
         
         left, left_value = self.visit(ctx.expr(0)) 
         # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
-        print("left: ",left )
+        print("left div: ",left )
+        print("left_value div: ",left_value )
         
         right, right_value = self.visit(ctx.expr(1))
         # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
-        print("right: ",right )
+        print("right div: ",right )
+        print("right_value div: ",right_value )
+        
+        #revisar si el left_value o el right_value es una temporal
+        temporalExist = False
+        if left_value.startswith("t"):
+            temporalToAdd = left_value
+            temporalExist = True
+        if right_value.startswith("t"):
+            temporalToAdd = right_value
+            temporalExist = True
+            
+        #revisar en caso que ambos lados regresen una temporal
+        if left_value.startswith("t") and right_value.startswith("t"):
+            #realiazar una comparacion para ver cual de los dos es el menor ya que ese es el que se usara para guardar o asignar el temporal
+            left_temporal = int(left_value[1:])
+            right_temporal = int(right_value[1:])
+            
+            if left_temporal < right_temporal:
+                temporalToAdd = left_value
+            else:
+                temporalToAdd = right_value
+        
+        #en caso que siga false crear una temporal para guardar la operacion en ella
+        if temporalExist == False:
+            temporals = self.tac.temporals
+            num = 0
+            while True:
+                temporalToAdd = "t" + str(num)
+                if temporalToAdd in temporals:
+                    num += 1
+                else:
+                    self.tac.temporals.append(temporalToAdd)
+                    self.tac.add("div",temporalToAdd,left_value,right_value)
+                    break 
+        else:
+            self.tac.add("div",temporalToAdd,left_value,right_value)
         
         #revisar que no sean parte del algun del los errors
         if left in self.errors:
-            return right
+            return right,None
         if left in self.errors:
-            return right
+            return right,None
         
         if left == "Int" and right == "Int":
-            return left
+            return left,temporalToAdd
         elif left == "Bool" and right == "Int":
-            return left
+            return left,temporalToAdd
         elif left == "Int" and right == "Bool":
-            return left
+            return left,temporalToAdd
         elif left == "Bool" and right == "Bool":
-            return left
+            return left,temporalToAdd
         # errors
         elif left == "String" and right == "String":
-            return "charAr"
+            return "charAr",None
         elif left == "Int" and right == "String":
-            return "intchar"
+            return "intchar",None
         elif left == "String" and right == "Int":
-            return "intchar"
+            return "intchar",None
         else:
-            return "ArithError"
+            return "ArithError",None
 
 
     # Visit a parse tree produced by YAPLParser#equal.
