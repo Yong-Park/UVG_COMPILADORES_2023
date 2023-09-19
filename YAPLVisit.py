@@ -4,7 +4,7 @@ if "." in __name__:
     from build.YAPLParser import YAPLParser
 else:
     from build.YAPLParser import YAPLParser
-
+from MipsThreeCode import ThreeAddressCode
 from SymbolTable import SymbolTable
 from copy import *
 import re
@@ -22,8 +22,10 @@ class YAPLVisit(ParseTreeVisitor):
         self.actual_class = None
         self.actual_method_type = None
         self.actualAmbit = None
+        # Codigo de tres direcciones
+        self.tac = ThreeAddressCode()
         self.errors = ["ArithError","BothNotBool","RepeatedValue","assignError","methodValuesNotSame","NotSameLenght","TypeNotExist","notContainsType","diferentMethodType","diferentRecievers","recursiveInherit","whileError","DobleMain","newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
-            
+        
     # Visit a parse tree produced by YAPLParser#start.
     def visitStart(self, ctx:YAPLParser.StartContext):
         print("start visitado")
@@ -821,13 +823,13 @@ class YAPLVisit(ParseTreeVisitor):
         print("\nvisitNot")
         values = self.visit(ctx.expr())
         
-        results = []
-        if type(values) == list:
-            results.extend(values)
-        else:
-            results.append(values)
-        print("visitNot results: ",results)
-        return results
+        # results = []
+        # if type(values) == list:
+        #     results.extend(values)
+        # else:
+        #     results.append(values)
+        print("visitNot results: ",values)
+        return values
 
 
     # Visit a parse tree produced by YAPLParser#newObject.
@@ -1155,10 +1157,10 @@ class YAPLVisit(ParseTreeVisitor):
             return left
 
         #si no esta significa que es una clase
-        if expresion not in ["Int","String","Bool","Void","Object"]:
-            #primero buscar si es una clase que si existe en la tabla
-            if self.symbol_table.contains_class(expresion):
-                pass
+        # if expresion not in ["Int","String","Bool","Void","Object"]:
+        #     #primero buscar si es una clase que si existe en la tabla
+        #     if self.symbol_table.contains_class(expresion):
+        #         pass
                 # self.symbol_table.change_symbol_value(left,self.actualAmbit,"inherits",expresion)
         
         print("=============================")
