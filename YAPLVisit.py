@@ -298,7 +298,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         
         # visitar el expr de la funcion
-        method_expr_type = self.visit(ctx.expr())
+        method_expr_type, _ = self.visit(ctx.expr())
         
         print("VisitMethod tamaño de cadena actual: ", self.bytesSize_string)
         
@@ -787,10 +787,12 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#factExpr.
     def visitFactExpr(self, ctx:YAPLParser.FactExprContext):
-        expresion = self.visit(ctx.expr())
-        print("\nFactExpr: ",expresion)
+        expresion, expresion_value = self.visit(ctx.expr())
+        print("\nFactExpr expresion: ",expresion)
+        print("FactExpr expresion_value: ",expresion_value)
         print("=============================")
-        return expresion
+        return expresion, expresion_value
+
 
 
     # Visit a parse tree produced by YAPLParser#lteq.
@@ -1081,9 +1083,9 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#let.
     def visitLet(self, ctx:YAPLParser.LetContext):
         print("\nvisitLet")
-        result = self.visit(ctx.let_expr())
+        result,_ = self.visit(ctx.let_expr())
         print("visitLet result: ",result)
-        return result
+        return result,None
 
 
     # Visit a parse tree produced by YAPLParser#id.
@@ -1336,7 +1338,6 @@ class YAPLVisit(ParseTreeVisitor):
         registro = self.tac.returnSpecificRegistro(left)
         self.tac.add("<-",registro,expresion_value,l=self.tac.returnSpecificRegistro(self.actual_method))
         
-        
         left = self.symbol_table.get_symbol_value(left,self.actualAmbit,"type") if self.symbol_table.get_symbol_value(left,self.actualAmbit,"type") else left
         print("left after search: ",left)
         
@@ -1357,7 +1358,6 @@ class YAPLVisit(ParseTreeVisitor):
         print("expresion: ",expresion)
         if str(left) == str(expresion):
             print("Se esta regresando este: ",left)
-    
             return left
         elif str(left) == "Bool" and str(expresion) == "Int":
             return left
@@ -1579,7 +1579,7 @@ class YAPLVisit(ParseTreeVisitor):
                 #     return "assignError"
                 pass
             else:
-                return "assignError"
+                return "assignError",None
         
         print("visitLetIn id: ", id)
         print("visitLetIn self.actualAmbit:  ", self.actualAmbit)
@@ -1588,7 +1588,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.symbol_table.change_symbol_value(id,self.actualAmbit,"width",self.let_size)
         
         print("visitLetIn result: ",result)
-        return result
+        return result,None
         
 
     # Visit a parse tree produced by YAPLParser#letAssignLet.
@@ -1606,6 +1606,18 @@ class YAPLVisit(ParseTreeVisitor):
         self.let_assign_size = 0
         print("visitLetAssignIn typevisit: ",typevisit)
         
+        #agregar el variable con su registro perspectivo
+        registrosCreados = self.tac.returnRegistro()
+        value = 0
+        while True:
+            registro = "S" + str(value)
+            if registro in registrosCreados:
+                value += 1
+            else:
+                #agregar este elementos en elementos de la clase actual
+                self.tac.addClassElements(id, registro)
+                break
+        
         #agregar el id de este a la tabla
         self.symbol_table.add_symbol(id,type=typevisit,ambit=self.actualAmbit)
         
@@ -1613,17 +1625,23 @@ class YAPLVisit(ParseTreeVisitor):
         expresions = ctx.expr()
         assignExpresion = expresions[0]
         
-        assignValue = self.visit(assignExpresion)
+        assignType, assignValue = self.visit(assignExpresion)
         print("visitLetAssignIn assignValue: ",assignValue)
+        
+        #agregar la asigacion al self.tac.add
+        registro = self.tac.returnSpecificRegistro(id)
+        self.tac.add("<-",registro,assignValue,l=self.tac.returnSpecificRegistro(self.actual_method))
+        
+        
         resutls = []
-        if type(assignValue) ==  list:
-            if typevisit in assignValue:
-                resutls.extend(assignValue)
+        if type(assignType) ==  list:
+            if typevisit in assignType:
+                resutls.extend(assignType)
                 resutls.append(typevisit)
             else:
                 resutls.append("assignEr")
         else:
-            if assignValue == typevisit:
+            if assignType == typevisit:
                 resutls.append(typevisit)
             else:
                 resutls.append("assignEr")
@@ -1654,7 +1672,7 @@ class YAPLVisit(ParseTreeVisitor):
             resutls.append(exprValue)
         
         print("visitLetAssignIn results: ",resutls)
-        return resutls
+        return resutls,None
 
 
 
