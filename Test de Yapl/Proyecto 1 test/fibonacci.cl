@@ -17,14 +17,6 @@ class Fibonacci {
 
 };
 
-class Fibonacci2 inherits Fibonacci {
-    fibonacci(n: Int) : Int {
-        {
-            n <- 5 + 6;
-        }
-    };
-};
-
 class Main inherits IO {
     n: Int <- 5;
     s: Bool;
