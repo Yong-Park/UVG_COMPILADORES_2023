@@ -349,13 +349,25 @@ class YAPLVisit(ParseTreeVisitor):
         #cambiar el tipo de ambiente para que ya sea del clase mas metodo
         self.actualAmbit = self.actual_class + "." + var_name
         
-        var_expr = self.visit(ctx.expr()) if ctx.expr() != None else []
+        var_expr, var_expr_value = self.visit(ctx.expr()) if ctx.expr() != None else ([], None)
         var_assign = ctx.ASSIGN()
         print("var_expr: ",var_expr)
         print('var_name: ', var_name)
         print('var_type: ', var_type)
         print('var_assign: ', var_assign, '\n')
         
+        #definir que este sera un tipo S0 donde luego se revisara si este ya esta definido
+        
+        registrosCreados = self.tac.returnRegistro()
+        value = 0
+        while True:
+            registro = "S" + str(value)
+            if registro in registrosCreados:
+                value += 1
+            else:
+                #agregar este elementos en elementos de la clase actual
+                self.tac.addClassElements(var_name, registro)
+                break
         
         #revisar si el var_expr es un tipo de lista
         if type(var_expr) == list:
@@ -393,6 +405,11 @@ class YAPLVisit(ParseTreeVisitor):
         
         # revisar si es del mismo tipo la asignacion cuando se realice
         if var_assign != None:
+            #buscar el registro de la variable
+            registro = self.tac.returnSpecificRegistro(var_name)
+            #agregar la agregacion 
+            self.tac.add("<-",registro,var_expr_value)
+            
             #revisar si var_expr es un tipo de lista
             if type(var_expr) == list:
                 if var_type not in var_expr:
@@ -493,11 +510,11 @@ class YAPLVisit(ParseTreeVisitor):
     def visitAdd(self, ctx:YAPLParser.AddContext):
         print("Visiting Add node")
         
-        left = self.visit(ctx.expr(0))
+        left, left_value = self.visit(ctx.expr(0))
         # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
         print('left add: ',left)
         
-        right = self.visit(ctx.expr(1))
+        right, right_value = self.visit(ctx.expr(1))
         # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
         print('right add:', right)
 
@@ -531,14 +548,16 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#sub.
     def visitSub(self, ctx:YAPLParser.SubContext):
         
-        left = self.visit(ctx.expr(0))
+        left, left_value = self.visit(ctx.expr(0))
         # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
         
-        right = self.visit(ctx.expr(1))
+        right, right_value = self.visit(ctx.expr(1))
 
         print("\nvisitSub")
         print("left: ",left)
+        print("left_value: ",left_value)
         print("right: ",right )
+        print("right_value: ",right_value )
         
         #revisar que no sean parte del algun del los errors
         if left in self.errors:
@@ -608,13 +627,15 @@ class YAPLVisit(ParseTreeVisitor):
     def visitMul(self, ctx:YAPLParser.MulContext):
         print("\nVisiting Mul node")
     
-        left = self.visit(ctx.expr(0)) 
+        left, left_value = self.visit(ctx.expr(0)) 
         # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
-        print("left mul", left)
+        print("left mul: ", left)
+        print("left_value mul: ", left_value)
 
-        right = self.visit(ctx.expr(1))
+        right, right_value = self.visit(ctx.expr(1))
         # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
         print("right mul: ",right)
+        print("right_value mul: ",right_value)
         
         #revisar que no sean parte del algun del los errors
         if left in self.errors:
@@ -751,11 +772,11 @@ class YAPLVisit(ParseTreeVisitor):
     def visitDiv(self, ctx:YAPLParser.DivContext):
         print("visitDiv")
         
-        left = self.visit(ctx.expr(0)) 
+        left, left_value = self.visit(ctx.expr(0)) 
         # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
         print("left: ",left )
         
-        right = self.visit(ctx.expr(1))
+        right, right_value = self.visit(ctx.expr(1))
         # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
         print("right: ",right )
         
@@ -788,7 +809,7 @@ class YAPLVisit(ParseTreeVisitor):
     def visitEqual(self, ctx:YAPLParser.EqualContext):
         print("\nvisitando equal")
         
-        left = self.visit(ctx.expr(0)) 
+        left, left_value = self.visit(ctx.expr(0)) 
         # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
             
         print("left equal", left)
@@ -796,7 +817,7 @@ class YAPLVisit(ParseTreeVisitor):
         if left in self.errors:
             return  left
         
-        right = self.visit(ctx.expr(1))
+        right, right_value = self.visit(ctx.expr(1))
         # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.get_symbol_type(right) else right
         print("right equal", right)
         
@@ -926,12 +947,12 @@ class YAPLVisit(ParseTreeVisitor):
         print("=============================")
         if exist:
             if self.symbol_table.get_symbol_value(value,self.actualAmbit,"type"):
-                return self.symbol_table.get_symbol_value(value,self.actualAmbit,"type")
+                return self.symbol_table.get_symbol_value(value,self.actualAmbit,"type"), self.tac.returnSpecificRegistro(value)
             
             elif self.symbol_table.get_symbol_value(value,self.actual_class,"type"):
-                return self.symbol_table.get_symbol_value(value,self.actual_class,"type")
+                return self.symbol_table.get_symbol_value(value,self.actual_class,"type"), self.tac.returnSpecificRegistro(value)
         else:
-            return "noValue"
+            return "noValue", None
 
 
     # Visit a parse tree produced by YAPLParser#if.
@@ -1133,13 +1154,16 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#INTEGER.
     def visitINTEGER(self, ctx:YAPLParser.INTEGERContext):
-        return "Int"
+        print("visitINTEGER")
+        value = ctx.INTEGER().getText()
+        print("visitINTEGER value: ",value)
+        return "Int", value
 
 
     # Visit a parse tree produced by YAPLParser#assign.
     def visitAssign(self, ctx:YAPLParser.AssignContext):
         print("\nassign visitado")
-        expresion = self.visit(ctx.expr())
+        expresion, expresion_value = self.visit(ctx.expr())
         # expresionType = self.symbol_table.get_symbol_type(expresion) if self.symbol_table.get_symbol_type(expresion) else expresion
         left = ctx.ID().getText()
         # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.get_symbol_type(left) else "noValue"
@@ -1148,6 +1172,12 @@ class YAPLVisit(ParseTreeVisitor):
         # expresion = self.symbol_table.get_symbol_type(expresion) if self.symbol_table.get_symbol_type(expresion) else expresion
         # print("expresion later: ",expresion)
         print("left: ",left)
+        
+        #agregar la asigancion en el threecode
+        registro = self.tac.returnSpecificRegistro(left)
+        self.tac.add("<-",registro,expresion_value)
+        
+        
         left = self.symbol_table.get_symbol_value(left,self.actualAmbit,"type") if self.symbol_table.get_symbol_value(left,self.actualAmbit,"type") else left
         print("left after search: ",left)
         
@@ -1349,6 +1379,19 @@ class YAPLVisit(ParseTreeVisitor):
         print("\nvisitLetIn")
         id = ctx.ID().getText()
         letinType = ctx.TYPE().getText()
+        
+        #agregar el variable con su registro perspectivo
+        registrosCreados = self.tac.returnRegistro()
+        value = 0
+        while True:
+            registro = "S" + str(value)
+            if registro in registrosCreados:
+                value += 1
+            else:
+                #agregar este elementos en elementos de la clase actual
+                self.tac.addClassElements(id, registro)
+                break
+        
         self.let_size = 0
         print("visitLetIn valor de la cadena: ", self.bytesSize_string)
         

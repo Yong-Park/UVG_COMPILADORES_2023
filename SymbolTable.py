@@ -12,7 +12,7 @@ class SymbolTable:
             'recieves': str(recieves) if recieves!=None else None
         }
         symbols = self.symbols.get(str(name))
-        print("tablesymbol symbols: ",symbols)
+        # print("tablesymbol symbols: ",symbols)
         symbolNameExist = False
         if symbols:
             for symbolCheck in symbols:

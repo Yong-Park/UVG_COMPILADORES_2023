@@ -7,9 +7,11 @@ class Terceto():
         self.l = l
 
     def keys(self):
+        print("keys visitado")
         return ["l", "o", "x", "y"]
 
     def values(self):
+        print("values visitado")
         l = self.l if self.l != None else ""
         y = self.y if self.y != None else ""
 
@@ -18,7 +20,28 @@ class Terceto():
 
 class ThreeAddressCode():
     def __init__(self):
+        self.classElements = []
         self.tercetos = []
+        
+    def clearClassElements(self):
+        self.classElements = []
+        
+    #value es el nombre de la variable
+    #regirsto es el tipo, digamos es s0,t0,l1 y asi
+    def addClassElements(self,value,registro):
+        self.classElements.append([str(value),str(registro)])
+        
+    def returnSpecificRegistro(self,value):
+        for registro in self.classElements:
+            if registro[0] == str(value):
+                return registro[1]
+        
+    def returnRegistro(self):
+        registros = []
+        for registro in self.classElements:
+            registros.append(registro[1])
+            
+        return registros
         
     # o es el tipo de operacion
     # x ex una variable que llega a recibir
@@ -38,15 +61,7 @@ class ThreeAddressCode():
         if type(l) not in [type(None), int, str]:
             l = str(l)
 
-        if not r:
-            # Compiler Three Address Code Reference
-            r = "_r{i}".format(i=len(self.tercetos))
-
-        # if not l:
-        #     # Compiler Three Address Code Label
-        #     l = "l_{i}".format(i=len(self.tercetos))
-
         terceto = Terceto(o, x, y, l)
         self.tercetos.append(terceto)
 
-        return terceto, r
+        return terceto
