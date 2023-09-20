@@ -7,7 +7,11 @@ class Main inherits IO {
             if n = 5 then
                 t <- (n+8) / n
             else
-                t <- 5/n
+                if n = 2 then
+                    t <- 1
+                else
+                    t <- 5
+                fi
             fi
         );}
     };

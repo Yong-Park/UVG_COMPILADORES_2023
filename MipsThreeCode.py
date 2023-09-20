@@ -10,6 +10,8 @@ class Terceto():
 class ThreeAddressCode():
     def __init__(self):
         self.classElements = []
+        self.labels = []
+        self.labelsCopy = []
         self.temporals = []
         self.tercetos = []
         
@@ -19,8 +21,25 @@ class ThreeAddressCode():
     def clearTemporals(self):
         self.temporals = []
         
+    #para guardar los que sean tipo labels 
+    def addLables(self, value):
+        registros = []
+        for registross in self.labels:
+            registros.append(registross[1])
+            
+        num = 0
+        while True:
+            label = str("L") + str(num)
+            if label in registros:
+                num += 1
+            else:
+                #agregar este elementos en elementos de la clase actual
+                self.labels.append([str(value),str(label)])
+                self.labelsCopy.append([str(value),str(label)])
+                break
+        
     #value es el nombre de la variable
-    #regirsto es el tipo, digamos es s0,t0,l1 y asi
+    #regirsto es el tipo, digamos es s0,t0 y asi
     def addClassElements(self,value,registro):
         registros = []
         for registross in self.classElements:
@@ -37,11 +56,32 @@ class ThreeAddressCode():
                 break
         
         # self.classElements.append([str(value),str(registro)])
+    def deleteSpecifiLabel(self,label):
+        registrosList = []
+        for registro in self.labelsCopy:
+            registrosList.append(registro[1])
+        
+        indice = registrosList.index(str(label))
+        self.labelsCopy.pop(indice)
+        
+    def returnSpecificLabel(self,value):
+        print("value: ",value)
+        print("self.labelsCopy: ",self.labelsCopy)
+        registrosList = []
+        for registro in self.labelsCopy:
+            if registro[0] == str(value):
+                registrosList.append(registro[1])
+                
+        return registrosList[len(registrosList)-1]
+    
         
     def returnSpecificRegistro(self,value):
+        registrosList = []
         for registro in self.classElements:
             if registro[0] == str(value):
-                return registro[1]
+                registrosList.append(registro[1])
+                
+        return registrosList[len(registrosList)-1]
     
     
     def printTac(self):

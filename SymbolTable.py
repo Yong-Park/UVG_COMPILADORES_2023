@@ -28,41 +28,41 @@ class SymbolTable:
         
         
     def get_ambit_symbols(self,ambit):
-        filtered_symbols = {k: v for k, v in self.symbols.items() if any(d['ambit'] == ambit for d in v)}
+        filtered_symbols = {k: v for k, v in self.symbols.items() if any(d['ambit'] == str(ambit) for d in v)}
         return filtered_symbols
 
     
     def change_symbol_value(self, name, ambit, element ,value):
-        symbols = self.symbols.get(name)
+        symbols = self.symbols.get(str(name))
         if symbols:
             for symbol in symbols:
-                if symbol['ambit'] == ambit:
-                    symbol[element] = value
+                if symbol['ambit'] == str(ambit):
+                    symbol[str(element)] = str(value)
                     break
                 
     def get_symbol_value(self,name,ambit,element):
         # print("ambit: ",ambit)
-        symbols = self.symbols.get(name)
+        symbols = self.symbols.get(str(name))
         if symbols:
             # print("symbols: ",symbols)
             for symbol in symbols:
                 # print("symbol['ambit']: ",symbol['ambit'])
-                if symbol['ambit'] == ambit:
-                    return symbol[element] 
+                if symbol['ambit'] == str(ambit):
+                    return symbol[str(element)] 
         return False
                 
     def contains_symbol(self,name,ambit):
-        symbols = self.symbols.get(name)
+        symbols = self.symbols.get(str(name))
         # print("symbols: ",symbols)
         if symbols:
             for symbol in symbols:
                 # print("symbol['ambit']: ",symbol['ambit'])
-                if symbol['ambit'] == ambit:
+                if symbol['ambit'] == str(ambit):
                     return True
         return False
     
     def contains_class(self,name):
-        symbols = self.symbols.get(name)
+        symbols = self.symbols.get(str(name))
         if symbols:
             for symbol in symbols:
                 # print("symbol: ",symbol)
