@@ -22,9 +22,6 @@ class Main inherits IO {
     s: Bool;
     t: Bool;
     myfibonacci: Fibonacci;
-    -- x : Sally <- (new Sally).copy();
-
-    -- main() : Sally { x };
 
     main() : SELF_TYPE {
         {
