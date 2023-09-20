@@ -22,22 +22,36 @@ class ThreeAddressCode():
     #value es el nombre de la variable
     #regirsto es el tipo, digamos es s0,t0,l1 y asi
     def addClassElements(self,value,registro):
-        self.classElements.append([str(value),str(registro)])
+        registros = []
+        for registross in self.classElements:
+            registros.append(registross[1])
+            
+        num = 0
+        while True:
+            label = str(registro) + str(num)
+            if label in registros:
+                num += 1
+            else:
+                #agregar este elementos en elementos de la clase actual
+                self.classElements.append([str(value),str(label)])
+                break
+        
+        # self.classElements.append([str(value),str(registro)])
         
     def returnSpecificRegistro(self,value):
         for registro in self.classElements:
             if registro[0] == str(value):
                 return registro[1]
-        
-    def returnRegistro(self):
-        registros = []
-        for registro in self.classElements:
-            registros.append(registro[1])
-            
-        return registros
+    
+    
+    def printTac(self):
+        print("Three Direction Code")
+        for tac in self.tercetos:
+            print(str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y) + " " + str(tac.l) + " ")
+        print("=============================")
         
     # o es el tipo de operacion
-    # s es donde se guardara el valor
+    # s es donde se guardara el valor o el goto que realizara esto depende del o
     # x ex una variable que llega a recibir
     # y es una variable que llega a recibir
     # l es el label o pues nombre de un metodo o clase.

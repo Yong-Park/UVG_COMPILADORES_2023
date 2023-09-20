@@ -5,7 +5,7 @@ class Main inherits IO {
     d : Int;
 
     main() : Int {
-    (let e : Int in
+    (let e : Int <- 6 in
 	 {
             c <- 8;
             d <- 2;
