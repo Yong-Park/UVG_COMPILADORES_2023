@@ -807,7 +807,7 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#false.
     def visitFalse(self, ctx:YAPLParser.FalseContext):
-        return "Bool"
+        return "Bool", 1
 
 
     # Visit a parse tree produced by YAPLParser#lt.
@@ -1053,7 +1053,7 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#true.
     def visitTrue(self, ctx:YAPLParser.TrueContext):
-        return "Bool"
+        return "Bool", 1
 
 
     # Visit a parse tree produced by YAPLParser#block.
