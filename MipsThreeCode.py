@@ -87,7 +87,10 @@ class ThreeAddressCode():
     def printTac(self):
         print("Three Direction Code")
         for tac in self.tercetos:
-            print(str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y) + " " + str(tac.l) + " ")
+            if tac.l != None: 
+                print(str(tac.l) + ":=")
+            else:
+                print("\t" + str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y))
         print("=============================")
         
     # o es el tipo de operacion
@@ -115,4 +118,4 @@ class ThreeAddressCode():
         terceto = Terceto(o, s, x, y, l)
         self.tercetos.append(terceto)
 
-        # return terceto
+        return terceto
