@@ -38,6 +38,8 @@ class YAPLVisit(ParseTreeVisitor):
             self.tac.clearClassElements()
             self.tac.clearTemporals
             val = self.visit(tipo)
+            #delete the actual class of the copy of self.tac
+            self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel(self.actual_class))
             print("self.tac.classElements: ", self.tac.classElements)
             print("self.tac.temporals: ", self.tac.temporals)
             print("self.tac.labels: ",self.tac.labels)
@@ -151,6 +153,10 @@ class YAPLVisit(ParseTreeVisitor):
         #guardar el tipo de ambiente en el que esta
         self.actualAmbit = classtype
         
+        #agregar el label del metodo en tac
+        self.tac.addLables(classtype)
+        self.tac.add(l=self.tac.returnSpecificLabel(classtype))
+        
         defclaseInherits = ctx.INHERITS() #revisar si existe la funcion inherits
         # print(defclaseInherits)
         if defclaseInherits:
@@ -191,6 +197,10 @@ class YAPLVisit(ParseTreeVisitor):
         results = []
         for tipo in tipos:
             val = self.visit(tipo)
+            #delete the actual feature of the copy of self.tac
+            if self.tac.returnSpecificLabel(self.actualAmbit) != None:
+                print(self.actualAmbit)
+                self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel(self.actualAmbit))
             
             print("visitDefClase val ver: ", val)
             
@@ -271,14 +281,11 @@ class YAPLVisit(ParseTreeVisitor):
         formlExist = ctx.formal()
         
         #agregar el label del metodo en tac
-        self.tac.addLables(method_name)
-        self.tac.add(l=self.tac.returnSpecificLabel(method_name))
+        self.tac.addLables(self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabel(self.actualAmbit))
 
         print('method_name: ', method_name, '\n')
         print('method_type: ', method_type, '\n')
-
-        #variable global del nombre donde esta ubicado         el label
-        self.actual_label = method_name
         
         # en este se guardara los parametros que recibe el metodo
         self.methodRecieves = []
@@ -696,7 +703,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("visitString text: ",text)
         self.bytesSize_string = lenText * 2
         print("VISIT STRING Peso de la cadena: ", self.bytesSize_string)
-        return "String"
+        return "String", text
 
 
     # Visit a parse tree produced by YAPLParser#mul.
@@ -1079,7 +1086,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("=============================")
         for result in results:
             if result in self.errors:
-                return result
+                return result,None
             
         return results,None
 
@@ -1141,7 +1148,6 @@ class YAPLVisit(ParseTreeVisitor):
         ifstate = expresions[0] #if
         print("corriendo el if")
         self.actual_conditional = "if"
-        self.actual_label = "if"
         ifResult,tercetoIf = self.visit(ifstate)
         
         print("ifResult: ",ifResult)
@@ -1160,7 +1166,6 @@ class YAPLVisit(ParseTreeVisitor):
         self.tac.add(l=self.tac.returnSpecificLabel("else"))
         
         print("Corriendo el else")
-        self.actual_label = "else"
         #limpieza de los temporales
         self.tac.clearTemporals()
         elseResult,_ = self.visit(elsestate)
@@ -1174,7 +1179,6 @@ class YAPLVisit(ParseTreeVisitor):
         self.tac.addLables("then")
         self.tac.add(l=self.tac.returnSpecificLabel("then"))
         
-        self.actual_label = "then"
         #limpieza de los temporales
         self.tac.clearTemporals()
         thenResult,_ = self.visit(thenstate)

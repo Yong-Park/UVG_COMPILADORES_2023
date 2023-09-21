@@ -65,14 +65,17 @@ class ThreeAddressCode():
         self.labelsCopy.pop(indice)
         
     def returnSpecificLabel(self,value):
-        print("value: ",value)
-        print("self.labelsCopy: ",self.labelsCopy)
+        # print("value: ",value)
+        # print("self.labelsCopy: ",self.labelsCopy)
         registrosList = []
         for registro in self.labelsCopy:
             if registro[0] == str(value):
                 registrosList.append(registro[1])
                 
-        return registrosList[len(registrosList)-1]
+        if len(registrosList) > 0:
+            return registrosList[len(registrosList)-1]
+        else:
+            return None
     
         
     def returnSpecificRegistro(self,value):
@@ -80,8 +83,11 @@ class ThreeAddressCode():
         for registro in self.classElements:
             if registro[0] == str(value):
                 registrosList.append(registro[1])
-                
-        return registrosList[len(registrosList)-1]
+
+        if len(registrosList) > 0:
+            return registrosList[len(registrosList)-1]
+        else:
+            return None
     
     
     def printTac(self):
