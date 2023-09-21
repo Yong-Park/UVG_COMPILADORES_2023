@@ -787,24 +787,28 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#lteq.
     def visitLteq(self, ctx:YAPLParser.LteqContext):
         print("visitLteq")
-        left = self.visit(ctx.expr(0))
+        left,left_value = self.visit(ctx.expr(0))
         # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
         print("left: ",left)
         
-        right = self.visit(ctx.expr(1))
+        right,right_value = self.visit(ctx.expr(1))
         # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
         print("right: ",right)
         
+        #agregar la asigancion de la condicion segun el tipo del self.actual_conditional (if, while)
+        if self.actual_conditional == "if":
+            tercetoResult = self.tac.add("ble",s="then",x=left_value,y=right_value)
+        
         if left == "Int" and right == "Int":
-            return "Bool"
+            return "Bool",tercetoResult
         if left == "Int" and right == "Bool":
-            return "Bool"
+            return "Bool",tercetoResult
         if left == "Bool" and right == "Int":
-            return "Bool"
+            return "Bool",tercetoResult
         if left == "Bool" and right == "Bool":
-            return "Bool"
+            return "Bool",tercetoResult
         else:
-            return "notLessorequal"
+            return "notLessorequal",None
         
 
     # Visit a parse tree produced by YAPLParser#false.
@@ -816,24 +820,28 @@ class YAPLVisit(ParseTreeVisitor):
     def visitLt(self, ctx:YAPLParser.LtContext):
         print("visitLt")
         
-        left = self.visit(ctx.expr(0))
+        left,left_value = self.visit(ctx.expr(0))
         # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
         print("left: ",left)
         
-        right = self.visit(ctx.expr(1))
+        right,right_value = self.visit(ctx.expr(1))
         # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
         print("right: ",right)
         
+        #agregar la asigancion de la condicion segun el tipo del self.actual_conditional (if, while)
+        if self.actual_conditional == "if":
+            tercetoResult = self.tac.add("blt",s="then",x=left_value,y=right_value)
+        
         if left == "Int" and right == "Int":
-            return "Bool"
+            return "Bool",tercetoResult
         if left == "Int" and right == "Bool":
-            return "Bool"
+            return "Bool",tercetoResult
         if left == "Bool" and right == "Int":
-            return "Bool"
+            return "Bool",tercetoResult
         if left == "Bool" and right == "Bool":
-            return "Bool"
+            return "Bool",tercetoResult
         else:
-            return "notLess"
+            return "notLess",None
 
     # Visit a parse tree produced by YAPLParser#while.
     def visitWhile(self, ctx:YAPLParser.WhileContext):
@@ -978,8 +986,6 @@ class YAPLVisit(ParseTreeVisitor):
         
         #agregar la asigancion de la condicion segun el tipo del self.actual_conditional (if, while)
         if self.actual_conditional == "if":
-            # iflabel = self.tac.returnSpecificLabel("if")
-            # thenlabel = self.tac.returnSpecificLabel("then")
             tercetoResult = self.tac.add("beq",s="then",x=left_value,y=right_value)
             
         
