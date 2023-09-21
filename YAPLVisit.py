@@ -421,6 +421,7 @@ class YAPLVisit(ParseTreeVisitor):
             #buscar el registro de la variable
             registro = self.tac.returnSpecificRegistro(var_name)
             #agregar la agregacion 
+            # self.tac.add("declare",registro,var_name)
             self.tac.add("<-",registro,var_expr_value)
             
             #revisar si var_expr es un tipo de lista
@@ -434,6 +435,9 @@ class YAPLVisit(ParseTreeVisitor):
                 if var_type != var_expr:
                     print("visitProperty assignEr")
                     return "assignEr"
+        # else:
+        #     registro = self.tac.returnSpecificRegistro(var_name)
+            # self.tac.add("declare",registro,var_name)
 
         print("visitProperty var_type: ",var_type)
         print("=============================")
