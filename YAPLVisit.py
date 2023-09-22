@@ -1307,17 +1307,23 @@ class YAPLVisit(ParseTreeVisitor):
             
             if params != None:
                 newparams = []
+                newparamsValue = []
                 for p in params:
                     newparams.append(p[1])
+                    newparamsValue.append(p[0])
                 
                 recievedParams = []
+                recievedParamsValues = []
                 for exp in expresions:
                     val,val_value = self.visit(exp)
                     recievedParams.append(val)
+                    recievedParamsValues.append(val_value)
                 #revisar ahora los parametros si son del mismo largo 
                 print("visitOwnMethodCall params: ",params)
                 print("visitOwnMethodCall newparams: ",newparams)
+                print("visitOwnMethodCall newparamsValue: ",newparamsValue)
                 print("visitOwnMethodCall recievedParams: ",recievedParams)
+                print("visitOwnMethodCall recievedParamsValues: ",recievedParamsValues)
                 if len(newparams) == len(recievedParams):
                     for i in range(len(newparams)):
                         if newparams[i] == recievedParams[i]:
@@ -1331,8 +1337,17 @@ class YAPLVisit(ParseTreeVisitor):
                             break
                 else:
                     message = "NotSameLenght"
+                #si todo esta bien realizar la asignacion del valor de recievedParamsValues al newparamsValue
+                for index in range(len(newparamsValue)):
+                    location = self.tac.returnSpecificRegistro(newparamsValue[index])
+                    self.tac.add("<-",location,recievedParamsValues[index])
+                
             else:
                 message = self.symbol_table.get_symbol_value(id,self.actual_class,"type")
+                
+            #agregar al self.tac para que realice un goto al mismo metodo
+            self.tac.add("j",self.tac.returnSpecificLabel(id,self.actual_class))
+            
         else:
             #revisar si es de un inhertis desde el cual se esta llamando
             #primero obtener si existe un inhertis de la clase
@@ -1348,11 +1363,12 @@ class YAPLVisit(ParseTreeVisitor):
                         #revisar ahora los parametros si son del mismo largo 
                         recievedParams = []
                         for exp in expresions:
-                            val = self.visit(exp)
+                            val, val_value = self.visit(exp)
                             recievedParams.append(val)
                         print("visitOwnMethodCall params: ",params)
                         print("visitOwnMethodCall newparams: ",newparams)
                         print("visitOwnMethodCall recievedParams: ",recievedParams)
+                        print("visitOwnMethodCall val_value: ",val_value)
                         #comparar ahora los parametros que tengan el mismo largo y si sean del mismo tipo
                         if len(newparams) == len(recievedParams):
                             for i in range(len(newparams)):
@@ -1379,7 +1395,7 @@ class YAPLVisit(ParseTreeVisitor):
                 
         print("visitOwnMethodCall message: ",message)
         
-        return message,None
+        return message,val_value
 
 
     # Visit a parse tree produced by YAPLParser#INTEGER.
@@ -1618,7 +1634,7 @@ class YAPLVisit(ParseTreeVisitor):
         #agregarlo a la tabla el nuevo valor del id
         self.symbol_table.add_symbol(id,type=letinType, ambit=self.actualAmbit)
         
-        result = self.visit(ctx.expr())
+        result,_ = self.visit(ctx.expr())
         
         #logica para agregar el peso 
         
