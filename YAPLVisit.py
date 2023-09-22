@@ -1032,7 +1032,8 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#not.
     def visitNot(self, ctx:YAPLParser.NotContext):
         print("\nvisitNot")
-        values = self.visit(ctx.expr())
+        values,valuesFeature = self.visit(ctx.expr())
+        self.tac.add("not",valuesFeature,valuesFeature)
         
         # results = []
         # if type(values) == list:
@@ -1040,7 +1041,7 @@ class YAPLVisit(ParseTreeVisitor):
         # else:
         #     results.append(values)
         print("visitNot results: ",values)
-        return values
+        return values,valuesFeature
 
 
     # Visit a parse tree produced by YAPLParser#newObject.

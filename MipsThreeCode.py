@@ -98,6 +98,26 @@ class ThreeAddressCode():
         for tac in self.tercetos:
             if tac.l != None: 
                 print(str(tac.l) + ":=")
+            elif tac.o == "<-":
+                print("\t" + str(tac.s) + " " + str(tac.o) + " " + str(tac.x))
+            elif tac.o == "add":
+                print("\t" + str(tac.s) + " <- " + str(tac.x) + " + " + str(tac.y))
+            elif tac.o == "sub":
+                print("\t" + str(tac.s) + " <- " + str(tac.x) + " - " + str(tac.y))
+            elif tac.o == "div":
+                print("\t" + str(tac.s) + " <- " + str(tac.x) + " / " + str(tac.y))
+            elif tac.o == "mul":
+                print("\t" + str(tac.s) + " <- " + str(tac.x) + " * " + str(tac.y))
+            elif tac.o == "beq":
+                print("\t" + str(tac.x) + " == " + str(tac.y) + " GOTO " + str(tac.s))
+            elif tac.o == "ble":
+                print("\t" + str(tac.x) + " <= " + str(tac.y) + " GOTO " + str(tac.s))
+            elif tac.o == "blt":
+                print("\t" + str(tac.x) + " < " + str(tac.y) + " GOTO " + str(tac.s))
+            elif tac.o == "j":
+                print("\t" + "GOTO " + str(tac.s))
+            elif tac.o == "not":
+                print("\t" + str(tac.s) + " <- " + " not " + str(tac.x))
             else:
                 print("\t" + str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y))
         print("=============================")
