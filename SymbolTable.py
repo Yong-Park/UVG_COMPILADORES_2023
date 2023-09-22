@@ -9,7 +9,7 @@ class SymbolTable:
             'width': str(width) if width!=None else None,
             'displacement': str(displacement) if displacement!=None else None,
             'ambit': str(ambit) if ambit!=None else None,
-            'recieves': str(recieves) if recieves!=None else None
+            'recieves': recieves if recieves!=None else None
         }
         symbols = self.symbols.get(str(name))
         # print("tablesymbol symbols: ",symbols)
@@ -37,7 +37,7 @@ class SymbolTable:
         if symbols:
             for symbol in symbols:
                 if symbol['ambit'] == str(ambit):
-                    symbol[str(element)] = str(value)
+                    symbol[str(element)] = value
                     break
                 
     def get_symbol_value(self,name,ambit,element):

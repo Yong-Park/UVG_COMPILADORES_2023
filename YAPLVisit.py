@@ -485,21 +485,20 @@ class YAPLVisit(ParseTreeVisitor):
             self.forml_size = 2
         else:
             self.forml_size = 2
+            
+        #add the value of receving parameter in the self.tac
+        self.tac.addClassElements(idtext,"a")
         
         #actualizar el peso de la tabla
         self.symbol_table.add_symbol(idtext,tipo, width= self.forml_size,ambit=self.actualAmbit)
-        
-                
-                
+                      
         #agregarlo en el method recieves para tener un control de cuales son los parametros que este recibe
         self.methodRecieves.append([idtext,tipo])
-        
         
         print("visitForml self.methodRecieves: ",self.methodRecieves)
         print("=============================")
         
         
-    
     # Visit a parse tree produced by YAPLParser#or.
     def visitOr(self, ctx:YAPLParser.OrContext):
         left = self.visit(ctx.expr(0))
@@ -1305,6 +1304,7 @@ class YAPLVisit(ParseTreeVisitor):
             print("visitOwnMethodCall si es un metodo de la misma clase")
             #revisar si este recibe parametros
             params = self.symbol_table.get_symbol_value(id,self.actual_class,"recieves")
+            
             if params != None:
                 newparams = []
                 for p in params:
@@ -1312,7 +1312,7 @@ class YAPLVisit(ParseTreeVisitor):
                 
                 recievedParams = []
                 for exp in expresions:
-                    val = self.visit(exp)
+                    val,val_value = self.visit(exp)
                     recievedParams.append(val)
                 #revisar ahora los parametros si son del mismo largo 
                 print("visitOwnMethodCall params: ",params)
@@ -1379,7 +1379,7 @@ class YAPLVisit(ParseTreeVisitor):
                 
         print("visitOwnMethodCall message: ",message)
         
-        return message
+        return message,None
 
 
     # Visit a parse tree produced by YAPLParser#INTEGER.
