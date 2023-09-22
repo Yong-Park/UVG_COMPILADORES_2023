@@ -38,8 +38,13 @@ class YAPLVisit(ParseTreeVisitor):
             self.tac.clearClassElements()
             self.tac.clearTemporals
             val = self.visit(tipo)
+            #add the label of end of the label
+            self.tac.add(l=str(self.tac.returnSpecificLabel(self.actual_class,self.actual_class)) +"_EndTask")
             #delete the actual class of the copy of self.tac
-            self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel(self.actual_class))
+            self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel(self.actual_class,self.actual_class))
+            #clear all the labelscopy 
+            self.tac.clearLabels()
+            
             print("self.tac.classElements: ", self.tac.classElements)
             print("self.tac.temporals: ", self.tac.temporals)
             print("self.tac.labels: ",self.tac.labels)
@@ -154,8 +159,8 @@ class YAPLVisit(ParseTreeVisitor):
         self.actualAmbit = classtype
         
         #agregar el label del metodo en tac
-        self.tac.addLables(classtype)
-        self.tac.add(l=self.tac.returnSpecificLabel(classtype))
+        self.tac.addLables(classtype,self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabel(classtype,self.actualAmbit))
         
         defclaseInherits = ctx.INHERITS() #revisar si existe la funcion inherits
         # print(defclaseInherits)
@@ -198,9 +203,9 @@ class YAPLVisit(ParseTreeVisitor):
         for tipo in tipos:
             val = self.visit(tipo)
             #delete the actual feature of the copy of self.tac
-            if self.tac.returnSpecificLabel(self.actualAmbit) != None:
+            if self.tac.returnSpecificLabel(self.actual_method,self.actualAmbit) != None:
                 print(self.actualAmbit)
-                self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel(self.actualAmbit))
+                self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel(self.actual_method,self.actualAmbit))
             
             print("visitDefClase val ver: ", val)
             
@@ -281,8 +286,8 @@ class YAPLVisit(ParseTreeVisitor):
         formlExist = ctx.formal()
         
         #agregar el label del metodo en tac
-        self.tac.addLables(self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabel(self.actualAmbit))
+        self.tac.addLables(method_name,self.actual_class)
+        self.tac.add(l=self.tac.returnSpecificLabel(method_name,self.actual_class))
 
         print('method_name: ', method_name, '\n')
         print('method_type: ', method_type, '\n')
@@ -316,6 +321,10 @@ class YAPLVisit(ParseTreeVisitor):
         print("method expr type: ", method_expr_type)
         print("self.actualAmbit: ",self.actualAmbit)
         print("=============================")
+        
+        #agregar el fin del metodo del metodo en tac
+        
+        self.tac.add(l=str(self.tac.returnSpecificLabel(method_name,self.actual_class)) + "_EndTask")
         
         #revisar si tiene un valor igual al tipo del metodo 
         if type(method_expr_type) == list:
@@ -380,7 +389,10 @@ class YAPLVisit(ParseTreeVisitor):
         
         #definir que este sera un tipo S0 donde luego se revisara si este ya esta definido
         self.tac.addClassElements(var_name, "S")
-
+        
+        #agregar el label del metodo en tac
+        self.tac.addLables(var_name,self.actual_class)
+        self.tac.add(l=self.tac.returnSpecificLabel(var_name,self.actual_class))
         
         #revisar si el var_expr es un tipo de lista
         if type(var_expr) == list:
@@ -438,6 +450,9 @@ class YAPLVisit(ParseTreeVisitor):
         # else:
         #     registro = self.tac.returnSpecificRegistro(var_name)
             # self.tac.add("declare",registro,var_name)
+            
+        #agregar el fin del metodo del metodo en tac
+        self.tac.add(l=str(self.tac.returnSpecificLabel(var_name,self.actual_class)) +"_EndTask")
 
         print("visitProperty var_type: ",var_type)
         print("=============================")
@@ -1145,8 +1160,8 @@ class YAPLVisit(ParseTreeVisitor):
             return "ifError"
         
         #agregar el if en la labels del tac
-        self.tac.addLables("if")
-        self.tac.add(l=self.tac.returnSpecificLabel("if"))
+        self.tac.addLables("if",self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabel("if",self.actualAmbit))
         
         #logica del if
         ifstate = expresions[0] #if
@@ -1166,8 +1181,8 @@ class YAPLVisit(ParseTreeVisitor):
         #obtener los resultados de elstate y thenstate
         elsestate = expresions[2] #else
         #agregar el else en la labels del tac
-        self.tac.addLables("else")
-        self.tac.add(l=self.tac.returnSpecificLabel("else"))
+        self.tac.addLables("else",self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabel("else",self.actualAmbit))
         
         print("Corriendo el else")
         #limpieza de los temporales
@@ -1180,8 +1195,8 @@ class YAPLVisit(ParseTreeVisitor):
         thenstate = expresions[1] #then
         print("Corriendo el then")
         #agregar el then en la labels del tac
-        self.tac.addLables("then")
-        self.tac.add(l=self.tac.returnSpecificLabel("then"))
+        self.tac.addLables("then",self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabel("then",self.actualAmbit))
         
         #limpieza de los temporales
         self.tac.clearTemporals()
@@ -1189,17 +1204,17 @@ class YAPLVisit(ParseTreeVisitor):
         print("thenResult: ",thenResult)
         
         #agregar logica para que haga salto para el fi
-        self.tac.addLables("fi")
-        self.tac.add(l=self.tac.returnSpecificLabel("fi"))
+        self.tac.addLables("fi",self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabel("fi",self.actualAmbit))
         
         #reemplazando los valores de estos por su respectivo label
-        tercetoIf.s = self.tac.returnSpecificLabel("then")
-        tercetoFi.s = self.tac.returnSpecificLabel("fi")
+        tercetoIf.s = self.tac.returnSpecificLabel("then",self.actualAmbit)
+        tercetoFi.s = self.tac.returnSpecificLabel("fi",self.actualAmbit)
         #eliminarlo de la tabla de labelsCopy
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel("if"))
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel("else"))
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel("then"))
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel("fi"))
+        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel("if",self.actualAmbit))
+        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel("else",self.actualAmbit))
+        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel("then",self.actualAmbit))
+        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel("fi",self.actualAmbit))
         
         #agregar los resultados en el results
         results = []

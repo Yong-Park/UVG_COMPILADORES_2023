@@ -21,8 +21,11 @@ class ThreeAddressCode():
     def clearTemporals(self):
         self.temporals = []
         
+    def clearLabels(self):
+        self.labelsCopy = []
+        
     #para guardar los que sean tipo labels 
-    def addLables(self, value):
+    def addLables(self, value, ambit):
         registros = []
         for registross in self.labels:
             registros.append(registross[1])
@@ -34,8 +37,8 @@ class ThreeAddressCode():
                 num += 1
             else:
                 #agregar este elementos en elementos de la clase actual
-                self.labels.append([str(value),str(label)])
-                self.labelsCopy.append([str(value),str(label)])
+                self.labels.append([str(value),str(label),str(ambit)])
+                self.labelsCopy.append([str(value),str(label),str(ambit)])
                 break
         
     #value es el nombre de la variable
@@ -64,12 +67,12 @@ class ThreeAddressCode():
         indice = registrosList.index(str(label))
         self.labelsCopy.pop(indice)
         
-    def returnSpecificLabel(self,value):
+    def returnSpecificLabel(self,value,ambit):
         # print("value: ",value)
         # print("self.labelsCopy: ",self.labelsCopy)
         registrosList = []
         for registro in self.labelsCopy:
-            if registro[0] == str(value):
+            if registro[0] == str(value) and registro[2] == str(ambit):
                 registrosList.append(registro[1])
                 
         if len(registrosList) > 0:
