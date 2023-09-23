@@ -1257,7 +1257,7 @@ class YAPLVisit(ParseTreeVisitor):
         if str(inherist) == "IO":
             if id == "out_string":
                 first = expresions.pop(0)
-                firstType = self.visit(first)
+                firstType,_ = self.visit(first)
     
                 if firstType == "String":
                     # self.symbol_table.add_symbol(id,type="SELF_TYPE",recieves=firstType,ambit=self.actualAmbit)
@@ -1265,7 +1265,7 @@ class YAPLVisit(ParseTreeVisitor):
                 
             elif id == "out_int":
                 first = expresions.pop(0)
-                firstType = self.visit(first)
+                firstType,_ = self.visit(first)
                 if firstType == "Int":
                     message = "SELF_TYPE"
                     
@@ -1289,16 +1289,16 @@ class YAPLVisit(ParseTreeVisitor):
             
         elif id == "concat":
             second = expresions.pop(0)
-            secondType = self.visit(second)
+            secondType,_ = self.visit(second)
             if secondType == "String":
                 message = "String"
                 
         elif id == "substr":
             second = expresions.pop(0)
-            secondType = self.visit(second)
+            secondType,_ = self.visit(second)
             
             third = expresions.pop(0)
-            thirdType = self.visit(third)
+            thirdType,_ = self.visit(third)
             
             if secondType == "Int" and thirdType == "Int":
                 message = "String"
@@ -1469,7 +1469,7 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#methodCall.
     def visitMethodCall(self, ctx:YAPLParser.MethodCallContext):
         expresions = ctx.expr()
-        
+        valValue = None
         inherits = self.symbol_table.get_symbol_value(self.actual_class,self.actual_class,"inherits")
         print("visitMethodCall inherits: ",inherits)
         
@@ -1486,7 +1486,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("visitMethodCall firstType: ",firstType)
         print("visitMethodCall firstTypeValue: ",firstTypeValue)
         if firstType in self.errors:
-            return firstType
+            return firstType,None
         
         if id == "abort":
             message = "Object"
@@ -1498,14 +1498,14 @@ class YAPLVisit(ParseTreeVisitor):
             message = "Int"
         elif id == "concat":
             second = expresions.pop(0)
-            secondType = self.visit(second)
+            secondType,_ = self.visit(second)
             if secondType == "String":
                 message = "String"
         elif id == "substr":
             second = expresions.pop(0)
-            secondType = self.visit(second)
+            secondType,_ = self.visit(second)
             third = expresions.pop(0)
-            thirdType = self.visit(third)
+            thirdType,_ = self.visit(third)
             if secondType == "Int" and thirdType == "Int":
                 message = "String"
         elif id == "isNil":
@@ -1514,13 +1514,13 @@ class YAPLVisit(ParseTreeVisitor):
         if str(inherits) == "IO":
             if id == "out_string":
                 first = expresions.pop(0)
-                firstType = self.visit(first)
+                firstType,_ = self.visit(first)
                 
                 if firstType == "String":
                     message = "SELF_TYPE"
             elif id == "out_int":
                 first = expresions.pop(0)
-                firstType = self.visit(first)
+                firstType,_ = self.visit(first)
                 
                 if firstType == "Int":
                     message = "SELF_TYPE"
@@ -1628,7 +1628,7 @@ class YAPLVisit(ParseTreeVisitor):
             message = firstType
         
         print("visitMethodCall message if SELF_TYPE: ",message)
-        return message
+        return message,valValue
 
 
     # Visit a parse tree produced by YAPLParser#nestedLet.
