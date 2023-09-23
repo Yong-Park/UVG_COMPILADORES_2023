@@ -16,7 +16,7 @@ class Main inherits IO {
 
     main() : Int {
         {
-            operation(5);
+            (new Main).operation(5);
         }
     };
 };

@@ -39,9 +39,9 @@ class YAPLVisit(ParseTreeVisitor):
             self.tac.clearTemporals
             val = self.visit(tipo)
             #add the label of end of the label
-            self.tac.add(l=str(self.tac.returnSpecificLabel(self.actual_class,self.actual_class)) +"_EndTask")
+            self.tac.add(l=str(self.tac.returnSpecificLabelInCopy(self.actual_class,self.actual_class)) +"_EndTask")
             #delete the actual class of the copy of self.tac
-            self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel(self.actual_class,self.actual_class))
+            self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy(self.actual_class,self.actual_class))
             #clear all the labelscopy 
             self.tac.clearLabels()
             
@@ -160,7 +160,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         #agregar el label del metodo en tac
         self.tac.addLables(classtype,self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabel(classtype,self.actualAmbit))
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy(classtype,self.actualAmbit))
         
         defclaseInherits = ctx.INHERITS() #revisar si existe la funcion inherits
         # print(defclaseInherits)
@@ -203,9 +203,9 @@ class YAPLVisit(ParseTreeVisitor):
         for tipo in tipos:
             val = self.visit(tipo)
             #delete the actual feature of the copy of self.tac
-            if self.tac.returnSpecificLabel(self.actual_method,self.actualAmbit) != None:
+            if self.tac.returnSpecificLabelInCopy(self.actual_method,self.actualAmbit) != None:
                 print(self.actualAmbit)
-                self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel(self.actual_method,self.actualAmbit))
+                self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy(self.actual_method,self.actualAmbit))
             
             print("visitDefClase val ver: ", val)
             
@@ -287,7 +287,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         #agregar el label del metodo en tac
         self.tac.addLables(method_name,self.actual_class)
-        self.tac.add(l=self.tac.returnSpecificLabel(method_name,self.actual_class))
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy(method_name,self.actual_class))
 
         print('method_name: ', method_name, '\n')
         print('method_type: ', method_type, '\n')
@@ -324,7 +324,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         #agregar el fin del metodo del metodo en tac
         
-        self.tac.add(l=str(self.tac.returnSpecificLabel(method_name,self.actual_class)) + "_EndTask")
+        self.tac.add(l=str(self.tac.returnSpecificLabelInCopy(method_name,self.actual_class)) + "_EndTask")
         
         #revisar si tiene un valor igual al tipo del metodo 
         if type(method_expr_type) == list:
@@ -392,7 +392,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         #agregar el label del metodo en tac
         self.tac.addLables(var_name,self.actual_class)
-        self.tac.add(l=self.tac.returnSpecificLabel(var_name,self.actual_class))
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy(var_name,self.actual_class))
         
         #revisar si el var_expr es un tipo de lista
         if type(var_expr) == list:
@@ -452,7 +452,7 @@ class YAPLVisit(ParseTreeVisitor):
             # self.tac.add("declare",registro,var_name)
             
         #agregar el fin del metodo del metodo en tac
-        self.tac.add(l=str(self.tac.returnSpecificLabel(var_name,self.actual_class)) +"_EndTask")
+        self.tac.add(l=str(self.tac.returnSpecificLabelInCopy(var_name,self.actual_class)) +"_EndTask")
 
         print("visitProperty var_type: ",var_type)
         print("=============================")
@@ -1047,6 +1047,7 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#newObject.
     def visitNewObject(self, ctx:YAPLParser.NewObjectContext):
         print("\nvisitNewObject")
+        # print(self.tac.labels)
         value = ctx.TYPE().getText()
         print(value)
         #revisar que si existe en new type
@@ -1078,11 +1079,12 @@ class YAPLVisit(ParseTreeVisitor):
 
         self.symbol_table.add_symbol(temporal,value, width=self.temp_size_class,ambit=self.actualAmbit)
             
-            
+        classLabel = self.tac.returnSpecificLabel(value,value)
+        # print("visitNewObject classLabel: ",classLabel)
         if existNew:
-            return value
+            return value,classLabel
         else:
-            return "newError"
+            return "newError",None
 
 
     # Visit a parse tree produced by YAPLParser#true.
@@ -1161,7 +1163,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         #agregar el if en la labels del tac
         self.tac.addLables("if",self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabel("if",self.actualAmbit))
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("if",self.actualAmbit))
         
         #logica del if
         ifstate = expresions[0] #if
@@ -1182,7 +1184,7 @@ class YAPLVisit(ParseTreeVisitor):
         elsestate = expresions[2] #else
         #agregar el else en la labels del tac
         self.tac.addLables("else",self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabel("else",self.actualAmbit))
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("else",self.actualAmbit))
         
         print("Corriendo el else")
         #limpieza de los temporales
@@ -1196,7 +1198,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("Corriendo el then")
         #agregar el then en la labels del tac
         self.tac.addLables("then",self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabel("then",self.actualAmbit))
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("then",self.actualAmbit))
         
         #limpieza de los temporales
         self.tac.clearTemporals()
@@ -1205,16 +1207,16 @@ class YAPLVisit(ParseTreeVisitor):
         
         #agregar logica para que haga salto para el fi
         self.tac.addLables("fi",self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabel("fi",self.actualAmbit))
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("fi",self.actualAmbit))
         
         #reemplazando los valores de estos por su respectivo label
-        tercetoIf.s = self.tac.returnSpecificLabel("then",self.actualAmbit)
-        tercetoFi.s = self.tac.returnSpecificLabel("fi",self.actualAmbit)
+        tercetoIf.s = self.tac.returnSpecificLabelInCopy("then",self.actualAmbit)
+        tercetoFi.s = self.tac.returnSpecificLabelInCopy("fi",self.actualAmbit)
         #eliminarlo de la tabla de labelsCopy
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel("if",self.actualAmbit))
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel("else",self.actualAmbit))
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel("then",self.actualAmbit))
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabel("fi",self.actualAmbit))
+        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("if",self.actualAmbit))
+        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("else",self.actualAmbit))
+        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("then",self.actualAmbit))
+        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("fi",self.actualAmbit))
         
         #agregar los resultados en el results
         results = []
@@ -1242,6 +1244,7 @@ class YAPLVisit(ParseTreeVisitor):
     def visitOwnMethodCall(self, ctx:YAPLParser.OwnMethodCallContext):
         print("\nvisitOwnMethodCall")
         message = "methodError"
+        val_value = None
         expresions = ctx.expr()
         
         inherist = self.symbol_table.get_symbol_value(self.actual_class,self.actual_class,"inherits")
@@ -1347,7 +1350,7 @@ class YAPLVisit(ParseTreeVisitor):
                 message = self.symbol_table.get_symbol_value(id,self.actual_class,"type")
                 
             #agregar al self.tac para que realice un goto al mismo metodo
-            self.tac.add("j",self.tac.returnSpecificLabel(id,self.actual_class))
+            self.tac.add("j",self.tac.returnSpecificLabelInCopy(id,self.actual_class))
             
         else:
             #revisar si es de un inhertis desde el cual se esta llamando
@@ -1472,7 +1475,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         #obtener el primer tipo y segun ello trabajarlo
         first = expresions.pop(0)
-        firstType = self.visit(first)
+        firstType,firstTypeValue = self.visit(first)
         
         print("\nvisitMethodCall")
         message = "methodError"
@@ -1480,7 +1483,8 @@ class YAPLVisit(ParseTreeVisitor):
         
         id = ctx.ID().getText()
         print("visitMethodCall id: ",id)
-        print("visitMethodCall firstType",firstType)
+        print("visitMethodCall firstType: ",firstType)
+        print("visitMethodCall firstTypeValue: ",firstTypeValue)
         if firstType in self.errors:
             return firstType
         
@@ -1531,16 +1535,22 @@ class YAPLVisit(ParseTreeVisitor):
             #revisar si este recibe parametros
             params = self.symbol_table.get_symbol_value(id,firstType,"recieves")
             newparams = []
+            newparamsValue = []
             if params != None:
                 for p in params:
                     newparams.append(p[1])
+                    newparamsValue.append(p[0])
                 recievedParams = []
+                recievedParamsValues = []
                 for exp in expresions:
-                    val = self.visit(exp)
+                    val,valValue = self.visit(exp)
                     recievedParams.append(val)
+                    recievedParamsValues.append(valValue)
                 print("visitmethodcall params: ",params)
                 print("visitmethodcall newparams: ",newparams)
+                print("visitmethodcall newparamsValue: ",newparamsValue)
                 print("visitmethodcall recievedParams: ",recievedParams)   
+                print("visitmethodcall recievedParamsValues: ",recievedParamsValues) 
                 #revisar ahora los parametros si son del mismo largo 
                 if len(newparams) == len(recievedParams):
                     for i in range(len(newparams)):
@@ -1555,8 +1565,15 @@ class YAPLVisit(ParseTreeVisitor):
                             break
                 else:
                     message = "NotSameLenght"
+                    
+                #realizar la asigancion de los parametros q recibe el metodo con los recievedParamsValues
+                # para ello obtener o guardar aqui los a0....
+                
             else:
                 message = self.symbol_table.get_symbol_value(id,firstType,"type")
+                
+            #escribir todo los labels de ese metodo que se llama solo actualizando los labels donde correspondan
+            
         else:
             print("no es de la clase revisar si hereda y si es asi encontrar si es una de las funciones por la cual se hereda")
             #revisar si es de un inhertis desde el cual se esta llamando

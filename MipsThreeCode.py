@@ -67,11 +67,25 @@ class ThreeAddressCode():
         indice = registrosList.index(str(label))
         self.labelsCopy.pop(indice)
         
-    def returnSpecificLabel(self,value,ambit):
+    #uso principalente para el if ya que de esta forma puedo tener un orden mejor de los if para obtener el label correcto
+    def returnSpecificLabelInCopy(self,value,ambit):
         # print("value: ",value)
         # print("self.labelsCopy: ",self.labelsCopy)
         registrosList = []
         for registro in self.labelsCopy:
+            if registro[0] == str(value) and registro[2] == str(ambit):
+                registrosList.append(registro[1])
+                
+        if len(registrosList) > 0:
+            return registrosList[len(registrosList)-1]
+        else:
+            return None
+    #este se usa para busacar en todo el label. Idealmente no deberia de haber repetidos, a excepcion de los if.
+    def returnSpecificLabel(self,value,ambit):
+        # print("value: ",value)
+        # print("self.labelsCopy: ",self.labelsCopy)
+        registrosList = []
+        for registro in self.labels:
             if registro[0] == str(value) and registro[2] == str(ambit):
                 registrosList.append(registro[1])
                 
