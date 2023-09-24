@@ -23,6 +23,22 @@ class ThreeAddressCode():
         
     def clearLabels(self):
         self.labelsCopy = []
+    
+    #para obtener desde el label tal hasta su label_endtask
+    def getLabelsArray(self,label):
+        addLables = False
+        labelArray = []
+        for tac in self.tercetos:
+            if tac.l == str(label):
+                addLables = True
+            if tac.l == str(str(label)+"_EndTask"):
+                labelArray.append(tac)
+                addLables = False
+            if addLables:
+                labelArray.append(tac)
+        return labelArray
+                
+        
         
     #para guardar los que sean tipo labels 
     def addLables(self, value, ambit):
@@ -94,6 +110,19 @@ class ThreeAddressCode():
         else:
             return None
     
+    #para regresar el valor del label
+    def returnLabelValue(self,label):
+        for ll in self.labels:
+            if str(ll[1]) == str(label):
+                return ll[0]
+        if "_EndTask" in label:
+            return label 
+        
+    def returnSpecificRegistroByLabel(self,label):
+        for registro in self.classElements:
+            if registro[1] == str(label):
+                return registro[0]
+    
         
     def returnSpecificRegistro(self,value):
         registrosList = []
@@ -128,6 +157,10 @@ class ThreeAddressCode():
                 print("\t" + str(tac.x) + " <= " + str(tac.y) + " GOTO " + str(tac.s))
             elif tac.o == "blt":
                 print("\t" + str(tac.x) + " < " + str(tac.y) + " GOTO " + str(tac.s))
+            elif tac.o == "call" and not tac.y:
+                print("\t" + str(tac.s) + " <- " + "Call " + str(tac.x))
+            elif tac.o == "call" and tac.y:
+                print("\t" + str(tac.s) + " <- " + "Call " + str(tac.x) +  "(" + str(str(tac.y)[1:-1]) +")")
             elif tac.o == "j":
                 print("\t" + "GOTO " + str(tac.s))
             elif tac.o == "not":

@@ -487,7 +487,12 @@ class YAPLVisit(ParseTreeVisitor):
             self.forml_size = 2
             
         #add the value of receving parameter in the self.tac
-        self.tac.addClassElements(idtext,"a")
+        
+        recivingElements = []
+        for ce in self.tac.classElements:
+            recivingElements.append(str(ce[0]))
+        if str(idtext) not in recivingElements:
+            self.tac.addClassElements(idtext,"a")
         
         #actualizar el peso de la tabla
         self.symbol_table.add_symbol(idtext,tipo, width= self.forml_size,ambit=self.actualAmbit)
@@ -702,14 +707,14 @@ class YAPLVisit(ParseTreeVisitor):
     def visitInvert(self, ctx:YAPLParser.InvertContext):
         print("\nvisitInvert")
         
-        value = self.visit(ctx.expr())
+        value,valurFeature = self.visit(ctx.expr())
         
         # value = self.symbol_table.get_symbol_type(value) if self.symbol_table.get_symbol_type(value) else value
         print("visitInvert value: ",value)
         if str(value) == "Int":
-            return "Int"
+            return "Int",valurFeature
         else:
-            return "invertNotInt"
+            return "invertNotInt",None
         
         
     # Visit a parse tree produced by YAPLParser#string.
@@ -821,17 +826,18 @@ class YAPLVisit(ParseTreeVisitor):
         print("right: ",right)
         
         #agregar la asigancion de la condicion segun el tipo del self.actual_conditional (if, while)
-        if self.actual_conditional == "if":
-            tercetoResult = self.tac.add("ble",s="then",x=left_value,y=right_value)
+        self.actual_conditional = "lteq"
+        # if self.actual_conditional == "if":
+        #     tercetoResult = self.tac.add("ble",s="then",x=left_value,y=right_value)
         
         if left == "Int" and right == "Int":
-            return "Bool",tercetoResult
+            return "Bool",[left_value,right_value]
         if left == "Int" and right == "Bool":
-            return "Bool",tercetoResult
+            return "Bool",[left_value,right_value]
         if left == "Bool" and right == "Int":
-            return "Bool",tercetoResult
+            return "Bool",[left_value,right_value]
         if left == "Bool" and right == "Bool":
-            return "Bool",tercetoResult
+            return "Bool",[left_value,right_value]
         else:
             return "notLessorequal",None
         
@@ -854,17 +860,18 @@ class YAPLVisit(ParseTreeVisitor):
         print("right: ",right)
         
         #agregar la asigancion de la condicion segun el tipo del self.actual_conditional (if, while)
-        if self.actual_conditional == "if":
-            tercetoResult = self.tac.add("blt",s="then",x=left_value,y=right_value)
+        self.actual_conditional = "lt"
+        # if self.actual_conditional == "if":
+        #     tercetoResult = self.tac.add("blt",s="then",x=left_value,y=right_value)
         
         if left == "Int" and right == "Int":
-            return "Bool",tercetoResult
+            return "Bool",[left_value,right_value]
         if left == "Int" and right == "Bool":
-            return "Bool",tercetoResult
+            return "Bool",[left_value,right_value]
         if left == "Bool" and right == "Int":
-            return "Bool",tercetoResult
+            return "Bool",[left_value,right_value]
         if left == "Bool" and right == "Bool":
-            return "Bool",tercetoResult
+            return "Bool",[left_value,right_value]
         else:
             return "notLess",None
 
@@ -999,7 +1006,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("left_value equal", left_value)
         
         if left in self.errors:
-            return  left
+            return  left,None
         
         right, right_value = self.visit(ctx.expr(1))
         # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.get_symbol_type(right) else right
@@ -1007,24 +1014,25 @@ class YAPLVisit(ParseTreeVisitor):
         print("right_value equal", right_value)
         
         if right in self.errors:
-            return  right
+            return  right,None
         
         #agregar la asigancion de la condicion segun el tipo del self.actual_conditional (if, while)
-        if self.actual_conditional == "if":
-            tercetoResult = self.tac.add("beq",s="then",x=left_value,y=right_value)
+        self.actual_conditional = "equal"
+        # if self.actual_conditional == "if":
+        #     tercetoResult = self.tac.add("beq",s="then",x=left_value,y=right_value)
             
         
         print("=============================")
         if right in ["Int","String","Bool"]:
             if left == right:
-                return "Bool",tercetoResult
+                return "Bool",[left_value,right_value]
             else:
                 return "notequal",None
         else:
             if left == "Int" and right == "Bool":
-                return "Bool",tercetoResult
+                return "Bool",[left_value,right_value]
             elif left == "Bool" and right == "Int":
-                return "Bool",tercetoResult
+                return "Bool",[left_value,right_value]
             else:
                 return "notequal",None
 
@@ -1151,6 +1159,7 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#if.
     def visitIf(self, ctx:YAPLParser.IfContext):
         print("\nif visitado")
+        self.actual_conditional = None
         print("self.tac.classElements: ", self.tac.classElements)
         print("self.tac.temporals: ", self.tac.temporals)
         print("self.tac.labels: ",self.tac.labels)
@@ -1168,8 +1177,18 @@ class YAPLVisit(ParseTreeVisitor):
         #logica del if
         ifstate = expresions[0] #if
         print("corriendo el if")
-        self.actual_conditional = "if"
-        ifResult,tercetoIf = self.visit(ifstate)
+        # self.actual_conditional = "if"
+        ifResult,conditioners = self.visit(ifstate)
+        
+        if self.actual_conditional == "equal":
+            tercetoResult = self.tac.add("beq",s="then",x=conditioners[0],y=conditioners[1])
+        elif self.actual_conditional == "lteq":
+            tercetoResult = self.tac.add("ble",s="then",x=conditioners[0],y=conditioners[1])
+        elif self.actual_conditional == "lt":
+            tercetoResult = self.tac.add("blt",s="then",x=conditioners[0],y=conditioners[1])
+        else:
+            tercetoResult = self.tac.add("beq",s="then",x=conditioners,y="1")
+            
         
         print("ifResult: ",ifResult)
         
@@ -1210,7 +1229,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.tac.add(l=self.tac.returnSpecificLabelInCopy("fi",self.actualAmbit))
         
         #reemplazando los valores de estos por su respectivo label
-        tercetoIf.s = self.tac.returnSpecificLabelInCopy("then",self.actualAmbit)
+        tercetoResult.s = self.tac.returnSpecificLabelInCopy("then",self.actualAmbit)
         tercetoFi.s = self.tac.returnSpecificLabelInCopy("fi",self.actualAmbit)
         #eliminarlo de la tabla de labelsCopy
         self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("if",self.actualAmbit))
@@ -1245,6 +1264,8 @@ class YAPLVisit(ParseTreeVisitor):
         print("\nvisitOwnMethodCall")
         message = "methodError"
         val_value = None
+        temporalToAdd = None
+        recievedParamsValues = None
         expresions = ctx.expr()
         
         inherist = self.symbol_table.get_symbol_value(self.actual_class,self.actual_class,"inherits")
@@ -1305,7 +1326,8 @@ class YAPLVisit(ParseTreeVisitor):
                 
         #revisar si el id es un metodo que se esta llamando que es del mismo metodo
         if self.symbol_table.contains_symbol(id,self.actual_class):
-            print("visitOwnMethodCall si es un metodo de la misma clase")
+   
+            print("visitOwnMethodCall si es un metodo de la clase actual")
             #revisar si este recibe parametros
             params = self.symbol_table.get_symbol_value(id,self.actual_class,"recieves")
             
@@ -1342,16 +1364,25 @@ class YAPLVisit(ParseTreeVisitor):
                 else:
                     message = "NotSameLenght"
                 #si todo esta bien realizar la asignacion del valor de recievedParamsValues al newparamsValue
-                for index in range(len(newparamsValue)):
-                    location = self.tac.returnSpecificRegistro(newparamsValue[index])
-                    self.tac.add("<-",location,recievedParamsValues[index])
+                # for index in range(len(newparamsValue)):
+                #     location = self.tac.returnSpecificRegistro(newparamsValue[index])
+                #     self.tac.add("<-",location,recievedParamsValues[index])
                 
             else:
                 message = self.symbol_table.get_symbol_value(id,self.actual_class,"type")
                 
             #agregar al self.tac para que realice un goto al mismo metodo
-            self.tac.add("j",self.tac.returnSpecificLabelInCopy(id,self.actual_class))
-            
+            temporals = self.tac.temporals
+            num = 0
+            while True:
+                temporalToAdd = "t" + str(num)
+                if temporalToAdd in temporals:
+                    num += 1
+                else:
+                    self.tac.temporals.append(temporalToAdd)
+                    self.tac.add("call",temporalToAdd,self.tac.returnSpecificLabelInCopy(id,self.actual_class),recievedParamsValues)
+                    break 
+                
         else:
             #revisar si es de un inhertis desde el cual se esta llamando
             #primero obtener si existe un inhertis de la clase
@@ -1399,7 +1430,7 @@ class YAPLVisit(ParseTreeVisitor):
                 
         print("visitOwnMethodCall message: ",message)
         
-        return message,val_value
+        return message,temporalToAdd
 
 
     # Visit a parse tree produced by YAPLParser#INTEGER.
@@ -1470,6 +1501,8 @@ class YAPLVisit(ParseTreeVisitor):
     def visitMethodCall(self, ctx:YAPLParser.MethodCallContext):
         expresions = ctx.expr()
         valValue = None
+        recievedParamsValues = None
+        temporalToAdd = None
         inherits = self.symbol_table.get_symbol_value(self.actual_class,self.actual_class,"inherits")
         print("visitMethodCall inherits: ",inherits)
         
@@ -1528,9 +1561,13 @@ class YAPLVisit(ParseTreeVisitor):
                 message = "String"
             elif id == "in_int":
                 message = "Int"
-    
+        
         #revisar si el id es un metodo que se esta llamando que es del mismo metodo
         if self.symbol_table.contains_symbol(id,firstType):
+            #obtner el label del metodo:
+            methodCallLabel = self.tac.returnSpecificLabel(id,firstType)
+            print("visitmethodcall methodCallLabel: ",methodCallLabel)
+            
             print("visitmethodcall este metodo existe")
             #revisar si este recibe parametros
             params = self.symbol_table.get_symbol_value(id,firstType,"recieves")
@@ -1565,14 +1602,21 @@ class YAPLVisit(ParseTreeVisitor):
                             break
                 else:
                     message = "NotSameLenght"
-                    
-                #realizar la asigancion de los parametros q recibe el metodo con los recievedParamsValues
-                # para ello obtener o guardar aqui los a0....
-                
+
             else:
                 message = self.symbol_table.get_symbol_value(id,firstType,"type")
                 
-            #escribir todo los labels de ese metodo que se llama solo actualizando los labels donde correspondan
+            #agregar la llamada del metodo
+            temporals = self.tac.temporals
+            num = 0
+            while True:
+                temporalToAdd = "t" + str(num)
+                if temporalToAdd in temporals:
+                    num += 1
+                else:
+                    self.tac.temporals.append(temporalToAdd)
+                    self.tac.add("call",temporalToAdd,methodCallLabel,recievedParamsValues)
+                    break 
             
         else:
             print("no es de la clase revisar si hereda y si es asi encontrar si es una de las funciones por la cual se hereda")
@@ -1585,18 +1629,25 @@ class YAPLVisit(ParseTreeVisitor):
                 print("visitmethodcall id: ",id)
                 print("visitmethodcall inhertisExist: ",inhertisExist)
                 if self.symbol_table.contains_symbol(id, inhertisExist):
+                    #obtner el label del metodo:
+                    methodCallLabel = self.tac.returnSpecificLabel(id,inhertisExist)
+                    print("visitmethodcall methodCallLabel: ",methodCallLabel)
                     print("visitmethodcall si existe aqui")
                     #revisar si recibe parametros este
                     params = self.symbol_table.get_symbol_value(id,inhertisExist,"recieves")
                     newparams = []
+                    newparamsValue = []
                     if params != None:
                         #revisar ahora los parametros si son del mismo largo 
                         for p in params:
                             newparams.append(p[1])
+                            newparamsValue.append(p[0])
                         recievedParams = []
+                        recievedParamsValues = []
                         for exp in expresions:
-                            val = self.visit(exp)
+                            val,valValue = self.visit(exp)
                             recievedParams.append(val)
+                            recievedParamsValues.append(valValue)
                         print("visitmethodcall params: ",params)
                         print("visitmethodcall newparams: ",newparams)
                         print("visitmethodcall recievedParams: ",recievedParams)  
@@ -1618,17 +1669,30 @@ class YAPLVisit(ParseTreeVisitor):
                     else:
                         message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
                     inhertisExist = False
+                    
+                    #agregar la llamada del metodo
+                    temporals = self.tac.temporals
+                    num = 0
+                    while True:
+                        temporalToAdd = "t" + str(num)
+                        if temporalToAdd in temporals:
+                            num += 1
+                        else:
+                            self.tac.temporals.append(temporalToAdd)
+                            self.tac.add("call",temporalToAdd,methodCallLabel,recievedParamsValues)
+                            break 
                 else:
                     inhertisExist = self.symbol_table.get_symbol_value(inhertisExist,inhertisExist,"inherits")
                     print("visitmethodcall new inhertisExist: ",inhertisExist)
-             
+            
                     
         print("visitMethodCall message original: ",message)
         if message == "SELF_TYPE":
             message = firstType
         
         print("visitMethodCall message if SELF_TYPE: ",message)
-        return message,valValue
+        print("visitMethodCall temporalToAdd: ",temporalToAdd)
+        return message,temporalToAdd
 
 
     # Visit a parse tree produced by YAPLParser#nestedLet.
@@ -1751,7 +1815,7 @@ class YAPLVisit(ParseTreeVisitor):
                             
         #obtener la otra expr
         exprResult = expresions[1]
-        exprValue = self.visit(exprResult)
+        exprValue,_ = self.visit(exprResult)
         
         if type(exprValue) == list:
             resutls.extend(exprValue)
