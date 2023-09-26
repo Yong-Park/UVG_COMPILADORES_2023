@@ -150,6 +150,10 @@ class ThreeAddressCode():
     
     
     def printTac(self):
+        allLabels = []
+        for l in self.labels:
+            allLabels.append(l[1])
+        
         with open("output/tacResult.txt", 'w') as file:
             file.write("Three Direction Code"+ "\n")
             for tac in self.tercetos:
@@ -168,17 +172,25 @@ class ThreeAddressCode():
                 elif tac.o == "mul":
                     file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " * " + str(tac.y)+ "\n")
                 elif tac.o == "beq":
-                    file.write("\t" + str(tac.x) + " == " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
+                    file.write("\t" + str(tac.x) + " == " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
                 elif tac.o == "ble":
-                    file.write("\t" + str(tac.x) + " <= " + str(tac.y) + " GOTO " + str(tac.s) + "\n")
+                    file.write("\t" + str(tac.x) + " <= " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s))) + "\n")
                 elif tac.o == "blt":
-                    file.write("\t" + str(tac.x) + " < " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
+                    file.write("\t" + str(tac.x) + " < " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
                 elif tac.o == "call" and not tac.y:
-                    file.write("\t" + str(tac.s) + " <- " + "CALL " + str(tac.x)+ "\n")
+                    if tac.x not in allLabels:
+                    # file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x)) if "." not in str(tac.x) else str(tac.x)) + "\n")
+                        file.write("\t" + str(tac.s) + " <- " + "CALL " + str(tac.x) + "\n")
+                    else:
+                        file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x))) + "\n")
                 elif tac.o == "call" and tac.y:
-                    file.write("\t" + str(tac.s) + " <- " + "CALL " + str(tac.x) +  "(" + str(str(tac.y)[1:-1].replace("'","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
+                    if tac.x not in allLabels:
+                    # file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x)) if "." not in str(tac.x) else str(tac.x)) +  "(" + str(str(tac.y)[1:-1].replace("'","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
+                        file.write("\t" + str(tac.s) + " <- " + "CALL " + str(tac.x) +  "(" + str(str(tac.y)[1:-1].replace("'","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
+                    else:
+                        file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x))) + "(" + str(str(tac.y)[1:-1].replace("'","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
                 elif tac.o == "j":
-                    file.write("\t" + "GOTO " + str(tac.s)+ "\n")
+                    file.write("\t" + "GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
                 elif tac.o == "not":
                     file.write("\t" + str(tac.s) + " <- " + " NOT " + str(tac.x)+ "\n")
                 elif tac.o == "isvoid":

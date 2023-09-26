@@ -1336,6 +1336,10 @@ class YAPLVisit(ParseTreeVisitor):
                 temporalToAdd = self.tac.newTemporal()
                 self.tac.add("call",temporalToAdd,"SUBSTR",[str(secondTypeValue),str(thirdTypeValue)])
                 message = "String"
+        elif id == "isNil":
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("call",temporalToAdd,"ISNILL")
+            message = "Bool"
                 
         #revisar si el id es un metodo que se esta llamando que es del mismo metodo
         if self.symbol_table.contains_symbol(id,self.actual_class):
@@ -1565,6 +1569,8 @@ class YAPLVisit(ParseTreeVisitor):
                 self.tac.add("call",temporalToAdd,firstTypeValue+"."+"SUBSTR",[str(secondTypeValue),str(thirdTypeValue)])
                 message = "String"
         elif id == "isNil":
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("call",temporalToAdd,firstTypeValue+"."+"ISNILL")
             message = "Bool"
         
         if str(inherits) == "IO":
