@@ -165,6 +165,8 @@ class ThreeAddressCode():
                 print("\t" + "GOTO " + str(tac.s))
             elif tac.o == "not":
                 print("\t" + str(tac.s) + " <- " + " not " + str(tac.x))
+            elif tac.o == "create":
+                print("\t" + str(tac.s) + " CREATED AS "+ str(tac.x))
             else:
                 print("\t" + str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y))
         print("=============================")

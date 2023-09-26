@@ -394,6 +394,9 @@ class YAPLVisit(ParseTreeVisitor):
         self.tac.addLables(var_name,self.actual_class)
         self.tac.add(l=self.tac.returnSpecificLabelInCopy(var_name,self.actual_class))
         
+        #agregar al tac, la asignacion de elemtno al classelement
+        self.tac.add("create",var_name,self.tac.returnSpecificRegistro(var_name))
+
         #revisar si el var_expr es un tipo de lista
         if type(var_expr) == list:
             #revisar que el var_expr no este en errores
