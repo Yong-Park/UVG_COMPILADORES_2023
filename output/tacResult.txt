@@ -1,0 +1,15 @@
+Three Direction Code
+Main:=
+main:=
+	t0 <- Object
+	t1 <- CALL t0.TYPE_NAME
+	t2 <- CALL t1.SUBSTR(4, 1)
+	t3 <- CALL OUT_STRING(t2)
+	S0 <- SELF_TYPE
+	t4 <- ISVOID S0
+	t5 <- CALL t4.TYPE_NAME
+	t6 <- CALL t5.SUBSTR(1, 3)
+	t7 <- CALL t3.OUT_STRING(t6)
+	t8 <- CALL OUT_STRING(\n)
+main_EndTask:=
+Main_EndTask:=

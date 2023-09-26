@@ -1,3 +1,4 @@
+import os
 class Terceto():
 
     def __init__(self, o=None, s=None, x=None, y=None, l=None):
@@ -23,7 +24,19 @@ class ThreeAddressCode():
         
     def clearLabels(self):
         self.labelsCopy = []
-    
+        
+    def newTemporal(self):
+        temporals = self.temporals
+        num = 0
+        while True:
+            temporalToAdd = "t" + str(num)
+            if str(temporalToAdd) in temporals:
+                num += 1
+            else:
+                self.temporals.append(str(temporalToAdd))
+                break
+        return str(temporalToAdd)
+
     #para obtener desde el label tal hasta su label_endtask
     def getLabelsArray(self,label):
         addLables = False
@@ -119,7 +132,7 @@ class ThreeAddressCode():
             return label 
         
     def returnSpecificRegistroByLabel(self,label):
-        for registro in self.classElements:
+        for registro in self.labels:
             if registro[1] == str(label):
                 return registro[0]
     
@@ -137,39 +150,43 @@ class ThreeAddressCode():
     
     
     def printTac(self):
-        print("Three Direction Code")
-        for tac in self.tercetos:
-            if tac.l != None: 
-                print(str(tac.l) + ":=")
-            elif tac.o == "<-":
-                print("\t" + str(tac.s) + " " + str(tac.o) + " " + str(tac.x))
-            elif tac.o == "add":
-                print("\t" + str(tac.s) + " <- " + str(tac.x) + " + " + str(tac.y))
-            elif tac.o == "sub":
-                print("\t" + str(tac.s) + " <- " + str(tac.x) + " - " + str(tac.y))
-            elif tac.o == "div":
-                print("\t" + str(tac.s) + " <- " + str(tac.x) + " / " + str(tac.y))
-            elif tac.o == "mul":
-                print("\t" + str(tac.s) + " <- " + str(tac.x) + " * " + str(tac.y))
-            elif tac.o == "beq":
-                print("\t" + str(tac.x) + " == " + str(tac.y) + " GOTO " + str(tac.s))
-            elif tac.o == "ble":
-                print("\t" + str(tac.x) + " <= " + str(tac.y) + " GOTO " + str(tac.s))
-            elif tac.o == "blt":
-                print("\t" + str(tac.x) + " < " + str(tac.y) + " GOTO " + str(tac.s))
-            elif tac.o == "call" and not tac.y:
-                print("\t" + str(tac.s) + " <- " + "Call " + str(tac.x))
-            elif tac.o == "call" and tac.y:
-                print("\t" + str(tac.s) + " <- " + "Call " + str(tac.x) +  "(" + str(str(tac.y)[1:-1]) +")")
-            elif tac.o == "j":
-                print("\t" + "GOTO " + str(tac.s))
-            elif tac.o == "not":
-                print("\t" + str(tac.s) + " <- " + " not " + str(tac.x))
-            elif tac.o == "create":
-                print("\t" + str(tac.s) + " CREATED AS "+ str(tac.x))
-            else:
-                print("\t" + str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y))
-        print("=============================")
+        with open("output/tacResult.txt", 'w') as file:
+            file.write("Three Direction Code"+ "\n")
+            for tac in self.tercetos:
+                if tac.l != None and "_EndTask" in tac.l: 
+                    file.write(str(self.returnSpecificRegistroByLabel(str(tac.l).split("_")[0]))+"_"+str(tac.l).split("_")[1] + ":="+ "\n")
+                elif tac.l != None and "_EndTask" not in tac.l:
+                    file.write(str(self.returnSpecificRegistroByLabel(str(tac.l))) + ":="+ "\n")
+                elif tac.o == "<-":
+                    file.write("\t" + str(tac.s) + " " + str(tac.o) + " " + str(tac.x) + "\n")
+                elif tac.o == "add":
+                    file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " + " + str(tac.y)+ "\n")
+                elif tac.o == "sub":
+                    file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " - " + str(tac.y)+ "\n")
+                elif tac.o == "div":
+                    file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " / " + str(tac.y)+ "\n")
+                elif tac.o == "mul":
+                    file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " * " + str(tac.y)+ "\n")
+                elif tac.o == "beq":
+                    file.write("\t" + str(tac.x) + " == " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
+                elif tac.o == "ble":
+                    file.write("\t" + str(tac.x) + " <= " + str(tac.y) + " GOTO " + str(tac.s) + "\n")
+                elif tac.o == "blt":
+                    file.write("\t" + str(tac.x) + " < " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
+                elif tac.o == "call" and not tac.y:
+                    file.write("\t" + str(tac.s) + " <- " + "CALL " + str(tac.x)+ "\n")
+                elif tac.o == "call" and tac.y:
+                    file.write("\t" + str(tac.s) + " <- " + "CALL " + str(tac.x) +  "(" + str(str(tac.y)[1:-1].replace("'","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
+                elif tac.o == "j":
+                    file.write("\t" + "GOTO " + str(tac.s)+ "\n")
+                elif tac.o == "not":
+                    file.write("\t" + str(tac.s) + " <- " + " NOT " + str(tac.x)+ "\n")
+                elif tac.o == "isvoid":
+                    file.write("\t" + str(tac.s) + " <- " + "ISVOID " + str(tac.x)+ "\n")
+                elif tac.o == "create":
+                    file.write("\t" + str(tac.s) + " CREATED AS "+ str(tac.x)+ "\n")
+                else:
+                    file.write("\t" + str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y)+ "\n")
         
     # o es el tipo de operacion
     # s es donde se guardara el valor o el goto que realizara esto depende del o

@@ -202,6 +202,7 @@ class YAPLVisit(ParseTreeVisitor):
         results = []
         for tipo in tipos:
             val = self.visit(tipo)
+            self.tac.clearTemporals()
             #delete the actual feature of the copy of self.tac
             if self.tac.returnSpecificLabelInCopy(self.actual_method,self.actualAmbit) != None:
                 print(self.actualAmbit)
@@ -581,16 +582,8 @@ class YAPLVisit(ParseTreeVisitor):
             
         #en caso que siga false crear una temporal para guardar la operacion en ella
         if temporalExist == False:
-            temporals = self.tac.temporals
-            num = 0
-            while True:
-                temporalToAdd = "t" + str(num)
-                if temporalToAdd in temporals:
-                    num += 1
-                else:
-                    self.tac.temporals.append(temporalToAdd)
-                    self.tac.add("add",temporalToAdd,left_value,right_value)
-                    break 
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("add",temporalToAdd,left_value,right_value)
         else:
             self.tac.add("add",temporalToAdd,left_value,right_value)
 
@@ -655,16 +648,8 @@ class YAPLVisit(ParseTreeVisitor):
             
         #en caso que siga false crear una temporal para guardar la operacion en ella
         if temporalExist == False:
-            temporals = self.tac.temporals
-            num = 0
-            while True:
-                temporalToAdd = "t" + str(num)
-                if temporalToAdd in temporals:
-                    num += 1
-                else:
-                    self.tac.temporals.append(temporalToAdd)
-                    self.tac.add("sub",temporalToAdd,left_value,right_value)
-                    break 
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("sub",temporalToAdd,left_value,right_value)
         else:
             self.tac.add("sub",temporalToAdd,left_value,right_value)
         
@@ -696,15 +681,19 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#void.
     def visitVoid(self, ctx:YAPLParser.VoidContext):
         print("\nvisitVoid")
-        type = self.visit(ctx.expr())
+        type,typeValue = self.visit(ctx.expr())
         print("visitVoid type: ",type)
+        print("visitVoid typeValue: ",typeValue)
         print("=============================")
         #comprar si lo que se regreso es de tipo void
         if str(type) == "Void":
-            return self.visitTrue(ctx)
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("isvoid",temporalToAdd,typeValue)
+            return "bool",temporalToAdd
         else:
-            return self.visitFalse(ctx)
-
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("isvoid",temporalToAdd,typeValue)
+            return "bool",temporalToAdd
 
     # Visit a parse tree produced by YAPLParser#invert.
     def visitInvert(self, ctx:YAPLParser.InvertContext):
@@ -768,16 +757,9 @@ class YAPLVisit(ParseTreeVisitor):
         
         #en caso que siga false crear una temporal para guardar la operacion en ella
         if temporalExist == False:
-            temporals = self.tac.temporals
-            num = 0
-            while True:
-                temporalToAdd = "t" + str(num)
-                if temporalToAdd in temporals:
-                    num += 1
-                else:
-                    self.tac.temporals.append(temporalToAdd)
-                    self.tac.add("mul",temporalToAdd,left_value,right_value)
-                    break 
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("mul",temporalToAdd,left_value,right_value)
+
         else:
             self.tac.add("mul",temporalToAdd,left_value,right_value)
             
@@ -847,7 +829,9 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#false.
     def visitFalse(self, ctx:YAPLParser.FalseContext):
-        return "Bool", 1
+        temporalToAdd = self.tac.newTemporal()
+        self.tac.add("<-",temporalToAdd,0)
+        return "Bool", temporalToAdd
 
 
     # Visit a parse tree produced by YAPLParser#lt.
@@ -960,16 +944,9 @@ class YAPLVisit(ParseTreeVisitor):
         
         #en caso que siga false crear una temporal para guardar la operacion en ella
         if temporalExist == False:
-            temporals = self.tac.temporals
-            num = 0
-            while True:
-                temporalToAdd = "t" + str(num)
-                if temporalToAdd in temporals:
-                    num += 1
-                else:
-                    self.tac.temporals.append(temporalToAdd)
-                    self.tac.add("div",temporalToAdd,left_value,right_value)
-                    break 
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("div",temporalToAdd,left_value,right_value)
+                    
         else:
             self.tac.add("div",temporalToAdd,left_value,right_value)
         
@@ -1079,28 +1056,34 @@ class YAPLVisit(ParseTreeVisitor):
         #guardar ya solo los nombres
         newObjectNames = list(newObjectLists.keys())
         print("newObjectNames: ",newObjectNames)
-        #comenzar a agregarle una temporal por cada uno
-        temporal_idx = 1
-        temporal = f"t{temporal_idx}"
+        # #comenzar a agregarle una temporal por cada uno
+        # temporal_idx = 1
+        # temporal = f"t{temporal_idx}"
 
-        while temporal in newObjectNames:
-            temporal_idx += 1
-            temporal = f"t{temporal_idx}"
+        # while temporal in newObjectNames:
+        #     temporal_idx += 1
+        #     temporal = f"t{temporal_idx}"
 
-
-        self.symbol_table.add_symbol(temporal,value, width=self.temp_size_class,ambit=self.actualAmbit)
+        # self.symbol_table.add_symbol(temporal,value, width=self.temp_size_class,ambit=self.actualAmbit)
             
-        classLabel = self.tac.returnSpecificLabel(value,value)
-        # print("visitNewObject classLabel: ",classLabel)
+        # classLabel = self.tac.returnSpecificLabel(value,value)
+        
+        #agregar temporal de la asigacion de este
+        temporalToAdd = self.tac.newTemporal()
+        self.tac.add("<-",temporalToAdd,value)
+        
+        print("visitNewObject temporalToAdd: ",temporalToAdd)
         if existNew:
-            return value,classLabel
+            return value,temporalToAdd
         else:
             return "newError",None
 
 
     # Visit a parse tree produced by YAPLParser#true.
     def visitTrue(self, ctx:YAPLParser.TrueContext):
-        return "Bool", 1
+        temporalToAdd = self.tac.newTemporal()
+        self.tac.add("<-",temporalToAdd,1)
+        return "Bool", temporalToAdd
 
 
     # Visit a parse tree produced by YAPLParser#block.
@@ -1142,8 +1125,11 @@ class YAPLVisit(ParseTreeVisitor):
             #agregar el self y asi segun lo que es en la tabla
             self.symbol_table.add_symbol(value, type=self.actual_method_type, width= self.size_method,ambit=self.actualAmbit)
             # print("self.actual_method: ",self.actual_method)
-      
-            return str(self.actual_method_type),None
+            
+            #agregarlo como un valor de retorno tambien
+            self.tac.addClassElements(str(self.actual_method_type), "S")
+            self.tac.add("<-",self.tac.returnSpecificRegistro(str(self.actual_method_type)), str(self.actual_method_type))
+            return str(self.actual_method_type),self.tac.returnSpecificRegistro(str(self.actual_method_type))
         else:
             exist = self.symbol_table.contains_symbol(value,self.actual_class) if self.symbol_table.contains_symbol(value,self.actual_class) else self.symbol_table.contains_symbol(value,self.actualAmbit)
     
@@ -1210,7 +1196,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         print("Corriendo el else")
         #limpieza de los temporales
-        self.tac.clearTemporals()
+        # self.tac.clearTemporals()
         elseResult,_ = self.visit(elsestate)
         print("elseResult: ",elseResult)
         #agregar el salto hacia el fi para que finalize el if
@@ -1223,7 +1209,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.tac.add(l=self.tac.returnSpecificLabelInCopy("then",self.actualAmbit))
         
         #limpieza de los temporales
-        self.tac.clearTemporals()
+        # self.tac.clearTemporals()
         thenResult,_ = self.visit(thenstate)
         print("thenResult: ",thenResult)
         
@@ -1281,50 +1267,74 @@ class YAPLVisit(ParseTreeVisitor):
         if str(inherist) == "IO":
             if id == "out_string":
                 first = expresions.pop(0)
-                firstType,_ = self.visit(first)
+                firstType,firstTypeValue = self.visit(first)
     
                 if firstType == "String":
                     # self.symbol_table.add_symbol(id,type="SELF_TYPE",recieves=firstType,ambit=self.actualAmbit)
+                    temporalToAdd = self.tac.newTemporal()
+                    self.tac.add("call",temporalToAdd,"OUT_STRING",firstTypeValue)
                     message = "SELF_TYPE"
                 
             elif id == "out_int":
                 first = expresions.pop(0)
-                firstType,_ = self.visit(first)
+                firstType,firstTypeValue = self.visit(first)
+                print("visitOwnMethodCall out_int")
+                print("visitOwnMethodCall firstType: ",firstType)
+                print("visitOwnMethodCall firstTypeValue: ",firstTypeValue)
+                #obtener la temporal que se utilzara para guardar el valor de este
                 if firstType == "Int":
+                    temporalToAdd = self.tac.newTemporal()
+                    self.tac.add("call",temporalToAdd,"OUT_INT",firstTypeValue)
                     message = "SELF_TYPE"
                     
             elif id == "in_string":
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("call",temporalToAdd,"IN_STRING")
                 message = "String"
             elif id == "in_int":
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("call",temporalToAdd,"IN_INT")
                 message = "Int"
                     
         #cumple con alguno de los string o object
         if id == "abort":
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("call",temporalToAdd,"ABORT")
             message = "Object"
             
         elif id == "type_name":
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("call",temporalToAdd,"TYPE_NAME")
             message = "String"
             
         elif id == "copy":
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("call",temporalToAdd,"COPY")
             message = "SELF_TYPE"
             
         elif id == "length":
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("call",temporalToAdd,"LENGTH")
             message = "Int"
             
         elif id == "concat":
             second = expresions.pop(0)
-            secondType,_ = self.visit(second)
+            secondType,secondTypeValue = self.visit(second)
             if secondType == "String":
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("call",temporalToAdd,"CONCAT",secondTypeValue)
                 message = "String"
                 
         elif id == "substr":
             second = expresions.pop(0)
-            secondType,_ = self.visit(second)
+            secondType,secondTypeValue = self.visit(second)
             
             third = expresions.pop(0)
-            thirdType,_ = self.visit(third)
+            thirdType,thirdTypeValue = self.visit(third)
             
             if secondType == "Int" and thirdType == "Int":
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("call",temporalToAdd,"SUBSTR",[str(secondTypeValue),str(thirdTypeValue)])
                 message = "String"
                 
         #revisar si el id es un metodo que se esta llamando que es del mismo metodo
@@ -1375,16 +1385,9 @@ class YAPLVisit(ParseTreeVisitor):
                 message = self.symbol_table.get_symbol_value(id,self.actual_class,"type")
                 
             #agregar al self.tac para que realice un goto al mismo metodo
-            temporals = self.tac.temporals
-            num = 0
-            while True:
-                temporalToAdd = "t" + str(num)
-                if temporalToAdd in temporals:
-                    num += 1
-                else:
-                    self.tac.temporals.append(temporalToAdd)
-                    self.tac.add("call",temporalToAdd,self.tac.returnSpecificLabelInCopy(id,self.actual_class),recievedParamsValues)
-                    break 
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("call",temporalToAdd,self.tac.returnSpecificLabelInCopy(id,self.actual_class),recievedParamsValues)
+
                 
         else:
             #revisar si es de un inhertis desde el cual se esta llamando
@@ -1396,15 +1399,20 @@ class YAPLVisit(ParseTreeVisitor):
                     params = self.symbol_table.get_symbol_value(id,inhertisExist,"recieves")
                     if params != None:
                         newparams = []
+                        newparamsValue = []
                         for p in params:
                             newparams.append(p[1])
+                            newparamsValue.append(p[0])
                         #revisar ahora los parametros si son del mismo largo 
                         recievedParams = []
+                        recievedParamsValues = []
                         for exp in expresions:
                             val, val_value = self.visit(exp)
                             recievedParams.append(val)
+                            recievedParamsValues.append(val_value)
                         print("visitOwnMethodCall params: ",params)
                         print("visitOwnMethodCall newparams: ",newparams)
+                        print("visitOwnMethodCall newparamsValue: ",newparamsValue)
                         print("visitOwnMethodCall recievedParams: ",recievedParams)
                         print("visitOwnMethodCall val_value: ",val_value)
                         #comparar ahora los parametros que tengan el mismo largo y si sean del mismo tipo
@@ -1525,44 +1533,65 @@ class YAPLVisit(ParseTreeVisitor):
             return firstType,None
         
         if id == "abort":
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("call",temporalToAdd,firstTypeValue+"."+"ABORT")
             message = "Object"
         elif id == "type_name":
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("call",temporalToAdd,firstTypeValue+"."+"TYPE_NAME")
             message = "String"
         elif id == "copy":
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("call",temporalToAdd,firstTypeValue+"."+"COPY")
             message = "SELF_TYPE"
         elif id == "length":
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("call",temporalToAdd,firstTypeValue+"."+"LENGTH")
             message = "Int"
         elif id == "concat":
             second = expresions.pop(0)
-            secondType,_ = self.visit(second)
+            secondType,secondTypeValue = self.visit(second)
             if secondType == "String":
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("call",temporalToAdd,firstTypeValue+"."+"CONCAT",secondTypeValue)
                 message = "String"
         elif id == "substr":
             second = expresions.pop(0)
-            secondType,_ = self.visit(second)
+            secondType,secondTypeValue = self.visit(second)
             third = expresions.pop(0)
-            thirdType,_ = self.visit(third)
+            thirdType,thirdTypeValue = self.visit(third)
             if secondType == "Int" and thirdType == "Int":
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("call",temporalToAdd,firstTypeValue+"."+"SUBSTR",[str(secondTypeValue),str(thirdTypeValue)])
                 message = "String"
         elif id == "isNil":
             message = "Bool"
         
         if str(inherits) == "IO":
             if id == "out_string":
-                first = expresions.pop(0)
-                firstType,_ = self.visit(first)
-                
-                if firstType == "String":
+                second = expresions.pop(0)
+                secondType,secondTypeValue = self.visit(second)
+                if secondType == "String":
+                    temporalToAdd = self.tac.newTemporal()
+                    self.tac.add("call",temporalToAdd,firstTypeValue+"."+"OUT_STRING",secondTypeValue)
                     message = "SELF_TYPE"
+                    
             elif id == "out_int":
-                first = expresions.pop(0)
-                firstType,_ = self.visit(first)
-                
-                if firstType == "Int":
+                second = expresions.pop(0)
+                secondType,secondTypeValue = self.visit(second)
+                if secondType == "Int":
+                    temporalToAdd = self.tac.newTemporal()
+                    self.tac.add("call",temporalToAdd,firstTypeValue+"."+"OUT_INT",secondTypeValue)
                     message = "SELF_TYPE"
+                    
             elif id == "in_string":
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("call",temporalToAdd,firstTypeValue+"."+"IN_STRING")
                 message = "String"
+                
             elif id == "in_int":
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("call",temporalToAdd,firstTypeValue+"."+"IN_INT")
                 message = "Int"
         
         #revisar si el id es un metodo que se esta llamando que es del mismo metodo
@@ -1610,16 +1639,8 @@ class YAPLVisit(ParseTreeVisitor):
                 message = self.symbol_table.get_symbol_value(id,firstType,"type")
                 
             #agregar la llamada del metodo
-            temporals = self.tac.temporals
-            num = 0
-            while True:
-                temporalToAdd = "t" + str(num)
-                if temporalToAdd in temporals:
-                    num += 1
-                else:
-                    self.tac.temporals.append(temporalToAdd)
-                    self.tac.add("call",temporalToAdd,methodCallLabel,recievedParamsValues)
-                    break 
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("call",temporalToAdd,firstTypeValue+"."+id,recievedParamsValues)
             
         else:
             print("no es de la clase revisar si hereda y si es asi encontrar si es una de las funciones por la cual se hereda")
@@ -1674,16 +1695,9 @@ class YAPLVisit(ParseTreeVisitor):
                     inhertisExist = False
                     
                     #agregar la llamada del metodo
-                    temporals = self.tac.temporals
-                    num = 0
-                    while True:
-                        temporalToAdd = "t" + str(num)
-                        if temporalToAdd in temporals:
-                            num += 1
-                        else:
-                            self.tac.temporals.append(temporalToAdd)
-                            self.tac.add("call",temporalToAdd,methodCallLabel,recievedParamsValues)
-                            break 
+                    temporalToAdd = self.tac.newTemporal()
+                    self.tac.add("call",temporalToAdd,firstTypeValue+"."+id,recievedParamsValues)
+
                 else:
                     inhertisExist = self.symbol_table.get_symbol_value(inhertisExist,inhertisExist,"inherits")
                     print("visitmethodcall new inhertisExist: ",inhertisExist)
