@@ -1712,7 +1712,9 @@ class YAPLVisit(ParseTreeVisitor):
         #agregar el variable con su registro perspectivo
         self.tac.addClassElements(id, "S")
 
-        
+        #agregar al tac, la asignacion de elemtno al classelement
+        self.tac.add("create",id,self.tac.returnSpecificRegistro(id))
+
         self.let_size = 0
         print("visitLetIn valor de la cadena: ", self.bytesSize_string)
         
@@ -1770,7 +1772,9 @@ class YAPLVisit(ParseTreeVisitor):
         
         #agregar el variable con su registro perspectivo
         self.tac.addClassElements(id, "S")
-   
+        
+        #agregar al tac, la asignacion de elemtno al classelement
+        self.tac.add("create",id,self.tac.returnSpecificRegistro(id))
         
         #agregar el id de este a la tabla
         self.symbol_table.add_symbol(id,type=typevisit,ambit=self.actualAmbit)
