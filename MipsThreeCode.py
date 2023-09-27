@@ -222,6 +222,12 @@ class ThreeAddressCode():
                     file.write("\t" + str(tac.x) + " <= " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s))) + "\n")
                 elif tac.o == "blt":
                     file.write("\t" + str(tac.x) + " < " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
+                elif tac.o == "bnq": 
+                    file.write("\t" + str(tac.x) + " != " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
+                elif tac.o == "bg":
+                    file.write("\t" + str(tac.x) + " > " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
+                elif tac.o == "bgt":
+                    file.write("\t" + str(tac.x) + " >= " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
                 elif tac.o == "call" and not tac.y:
                     if tac.x not in allLabels:
                     # file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x)) if "." not in str(tac.x) else str(tac.x)) + "\n")
