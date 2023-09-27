@@ -1394,10 +1394,12 @@ class YAPLVisit(ParseTreeVisitor):
 
                 
         else:
+            print("visitOwnMethodCall no de la clase ver si este se esta heredando de otro")
             #revisar si es de un inhertis desde el cual se esta llamando
             #primero obtener si existe un inhertis de la clase
             inhertisExist = self.symbol_table.get_symbol_value(self.actual_class,self.actual_class,"inherits")
             while inhertisExist:
+                print("visitOwnMethodCall si existe su metodo en la herncia")
                 if self.symbol_table.contains_symbol(id, inhertisExist):
                     #revisar si recibe parametros este
                     params = self.symbol_table.get_symbol_value(id,inhertisExist,"recieves")
@@ -1414,6 +1416,7 @@ class YAPLVisit(ParseTreeVisitor):
                             val, val_value = self.visit(exp)
                             recievedParams.append(val)
                             recievedParamsValues.append(val_value)
+                        print("visitOwnMethodCall inhertisExist: ",inhertisExist)
                         print("visitOwnMethodCall params: ",params)
                         print("visitOwnMethodCall newparams: ",newparams)
                         print("visitOwnMethodCall newparamsValue: ",newparamsValue)
@@ -1436,7 +1439,15 @@ class YAPLVisit(ParseTreeVisitor):
                         
                     else:
                         message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
+
+                    #agregar la llamada del metodo
+                    temporalToAdd = self.tac.newTemporal()
+                    tacId = self.tac.returnSpecificLabel(str(id),str(inhertisExist))
+                    print("visitOwnMethodCall tacId: ",tacId)
+                    self.tac.add("call",temporalToAdd,id,recievedParamsValues)
+
                     inhertisExist = False
+
                 else:
                     inhertisExist = self.symbol_table.get_symbol_value(inhertisExist,inhertisExist,"inherits")
         
