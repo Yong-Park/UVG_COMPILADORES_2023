@@ -147,7 +147,46 @@ class ThreeAddressCode():
             return registrosList[len(registrosList)-1]
         else:
             return None
-    
+        
+    def printTacLabel(self):
+        with open("output/tacResultLabel.txt", 'w') as file:
+            file.write("Three Direction Code"+ "\n")
+            for tac in self.tercetos:
+                if tac.l != None and "_EndTask" in tac.l: 
+                    file.write(str(tac.l).split("_")[0]+"_"+str(tac.l).split("_")[1] + ":="+ "\n")
+                elif tac.l != None and "_EndTask" not in tac.l:
+                    file.write(str(tac.l) + ":="+ "\n")
+                elif tac.o == "<-":
+                    file.write("\t" + str(tac.s) + " " + str(tac.o) + " " + str(tac.x) + "\n")
+                elif tac.o == "add":
+                    file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " + " + str(tac.y)+ "\n")
+                elif tac.o == "sub":
+                    file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " - " + str(tac.y)+ "\n")
+                elif tac.o == "div":
+                    file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " / " + str(tac.y)+ "\n")
+                elif tac.o == "mul":
+                    file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " * " + str(tac.y)+ "\n")
+                elif tac.o == "beq":
+                    file.write("\t" + str(tac.x) + " == " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
+                elif tac.o == "ble":
+                    file.write("\t" + str(tac.x) + " <= " + str(tac.y) + " GOTO " + str(tac.s) + "\n")
+                elif tac.o == "blt":
+                    file.write("\t" + str(tac.x) + " < " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
+                elif tac.o == "call" and not tac.y:
+                    # file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x)) if "." not in str(tac.x) else str(tac.x)) + "\n")
+                    file.write("\t" + str(tac.s) + " <- " + "CALL " + str(tac.x) + "\n")
+                elif tac.o == "call" and tac.y:
+                    file.write("\t" + str(tac.s) + " <- " + "CALL " + str(tac.x if "." not in str(tac.x) else str(tac.x)) +  "(" + str(str(tac.y)[1:-1].replace("'","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
+                elif tac.o == "j":
+                    file.write("\t" + "GOTO " + str(tac.s)+ "\n")
+                elif tac.o == "not":
+                    file.write("\t" + str(tac.s) + " <- " + " NOT " + str(tac.x)+ "\n")
+                elif tac.o == "isvoid":
+                    file.write("\t" + str(tac.s) + " <- " + "ISVOID " + str(tac.x)+ "\n")
+                elif tac.o == "create":
+                    file.write("\t" + str(tac.s) + " CREATED AS "+ str(tac.x)+ "\n")
+                else:
+                    file.write("\t" + str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y)+ "\n")
     
     def printTac(self):
         allLabels = []

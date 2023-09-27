@@ -138,6 +138,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("=============================")
         #para hacer print el tac
         self.tac.printTac()
+        self.tac.printTacLabel()
         return message
 
 
@@ -1183,10 +1184,10 @@ class YAPLVisit(ParseTreeVisitor):
         
         if type(ifResult) == list:
             if "Bool" not in ifResult:
-                return "ifError"
+                return "ifError",None
         else:
             if ifResult != "Bool":
-                return "ifError"
+                return "ifError",None
             
         #obtener los resultados de elstate y thenstate
         elsestate = expresions[2] #else

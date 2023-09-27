@@ -1,59 +1,27 @@
 Three Direction Code
-Fibonacci:=
-fibonacci:=
-	f CREATED AS S0
-if:=
-	a0 == 1 GOTO then
-else:=
-if:=
-	a0 == 2 GOTO then
-else:=
-	t0 <- a0 - 1
-	t1 <- CALL fibonacci(t0)
-	t2 <- a0 - 2
-	t3 <- CALL fibonacci(t2)
-	t1 <- t1 + t3
-	S0 <- t1
-	GOTO fi
-then:=
-	S0 <- 1
-fi:=
-	GOTO fi
-then:=
-	S0 <- 1
-fi:=
-fibonacci_EndTask:=
-Fibonacci_EndTask:=
-Fibonacci2:=
-fiboCall:=
-	t0 <- CALL fibonacci(5)
-	S0 <- Int
-fiboCall_EndTask:=
-Fibonacci2_EndTask:=
 Main:=
 n:=
 	n CREATED AS S0
 	S0 <- 5
 n_EndTask:=
-s:=
-	s CREATED AS S1
-s_EndTask:=
 t:=
-	t CREATED AS S2
+	t CREATED AS S1
 t_EndTask:=
-myfibonacci:=
-	myfibonacci CREATED AS S3
-myfibonacci_EndTask:=
 main:=
-	t0 <- 5 + 6
-	S0 <- t0
-	t1 <- 1
-	S1 <- t1
-	S1 <-  NOT S1
-	S2 <- S1
-	t2 <- Fibonacci
-	S3 <- t2
-	t3 <- CALL S3.fibonacci(S0)
-	t4 <- CALL OUT_INT(t3)
+if:=
+	S0 == 5 GOTO then
+else:=
+if:=
+	S0 == 2 GOTO then
+else:=
+	S1 <- 5
+	GOTO fi
+then:=
+	S1 <- 1
+fi:=
+	GOTO fi
+then:=
+	S1 <- 2
+fi:=
 main_EndTask:=
 Main_EndTask:=

@@ -6,7 +6,7 @@ class Main inherits IO {
     main() : Int {
 	    {
         (
-        while b <= a loop
+        while b = a loop
 	        {
                 c <- a + 2;
 	            b <- c;

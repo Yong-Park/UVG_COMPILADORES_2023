@@ -1,0 +1,27 @@
+Three Direction Code
+L0:=
+L1:=
+	n CREATED AS S0
+	S0 <- 5
+L1_EndTask:=
+L2:=
+	t CREATED AS S1
+L2_EndTask:=
+L3:=
+L4:=
+	S0 == 5 GOTO L10
+L5:=
+L6:=
+	S0 == 2 GOTO L8
+L7:=
+	S1 <- 5
+	GOTO L9
+L8:=
+	S1 <- 1
+L9:=
+	GOTO L11
+L10:=
+	S1 <- 2
+L11:=
+L3_EndTask:=
+L0_EndTask:=
