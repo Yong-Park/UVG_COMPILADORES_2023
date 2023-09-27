@@ -867,46 +867,83 @@ class YAPLVisit(ParseTreeVisitor):
     def visitWhile(self, ctx:YAPLParser.WhileContext):
         print("\nwhile visitado")
         whileIsBool = False
-        
+        self.actual_conditional = None
         expresions = ctx.expr()
         if len(expresions) != 2:
             return "whileError"
         
         whilestate = expresions[0] #esto es lo del while que tiene que ser bool
         print("corriendo while")
-        whileResult = self.visit(whilestate)
+        #agregar el while en la labels del tac
+        self.tac.addLables("while",self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("while",self.actualAmbit))
+        whileResult, params_while = self.visit(whilestate)
         print("while result: ",whileResult)
+        print("Params while: ", params_while)
+        
+        if self.actual_conditional == "equal":
+            tercetoResult = self.tac.add("bnq",s="pool",x=params_while[0],y=params_while[1])
+        elif self.actual_conditional == "lteq":
+            tercetoResult = self.tac.add("bg",s="pool",x=params_while[0],y=params_while[1])
+        elif self.actual_conditional == "lt":
+            tercetoResult = self.tac.add("bgt",s="pool",x=params_while[0],y=params_while[1])
+        else:
+            tercetoResult = self.tac.add("bnq",s="pool",x=params_while,y="1")
         
         if type(whileResult) == list:
             if "Bool" not in whileResult:
-                return "whileError"
+                return "whileError", None
             else:
                 whileIsBool = True
         else:
             if whileResult != "Bool":
-                return "whileError"
+                return "whileError", None
             else:
                 whileIsBool = True
                 
         loopstate = expresions[1] #esto es el contenido del loop
         print("corriendo loop")
-        loopResult = self.visit(loopstate)
-        
+        #agregar el loop en la labels del tac
+        self.tac.addLables("loop",self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("loop",self.actualAmbit))
+        loopResult,_ = self.visit(loopstate)
+        print("loopResult: ", loopResult)
+        print("Valores loop no tomado en cuenta: ", _)
+        if self.actual_conditional == "equal":
+            self.tac.add("beq",s=self.tac.returnSpecificLabelInCopy("loop", self.actualAmbit),x=params_while[0],y=params_while[1])
+        elif self.actual_conditional == "lteq":
+            self.tac.add("ble",s=self.tac.returnSpecificLabelInCopy("loop", self.actualAmbit),x=params_while[0],y=params_while[1])
+        elif self.actual_conditional == "lt":
+            self.tac.add("blt",s=self.tac.returnSpecificLabelInCopy("loop", self.actualAmbit),x=params_while[0],y=params_while[1])
+        else:
+            self.tac.add("beq",s=self.tac.returnSpecificLabelInCopy("loop", self.actualAmbit),x=params_while,y="1")
         
         print("visitWhile results (loop): ",loopResult)
+        
+        print("visit while pool visitado")
+        # pool_text = ctx.POOL().getText()
+        #agregar el pool en la labels del tac
+        self.tac.addLables("pool",self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("pool",self.actualAmbit))
+        tercetoResult.s = self.tac.returnSpecificLabelInCopy("pool",self.actualAmbit)
+        
+        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("while",self.actualAmbit))
+        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("loop",self.actualAmbit))
+        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("pool",self.actualAmbit))
+        
         print("=============================")
         if type(loopResult) == list:
             for x in loopResult:
                 if x in self.errors:
-                    return x
+                    return x,None
         else:
             if loopResult in self.errors:
-                return loopResult
+                return loopResult,None
         
         if whileIsBool:
-            return "Object"
+            return "Object",None
         else:
-            return "whileError"
+            return "whileError",None
 
 
     # Visit a parse tree produced by YAPLParser#div.

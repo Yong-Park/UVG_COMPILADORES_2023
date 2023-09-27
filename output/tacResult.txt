@@ -1,27 +1,43 @@
 Three Direction Code
 Main:=
-n:=
-	n CREATED AS S0
-	S0 <- 5
-n_EndTask:=
-t:=
-	t CREATED AS S1
-t_EndTask:=
-main:=
-if:=
-	S0 == 5 GOTO then
-else:=
-if:=
-	S0 == 2 GOTO then
-else:=
+a:=
+	a CREATED AS S0
+	S0 <- 10
+a_EndTask:=
+b:=
+	b CREATED AS S1
 	S1 <- 5
-	GOTO fi
-then:=
-	S1 <- 1
-fi:=
-	GOTO fi
-then:=
-	S1 <- 2
-fi:=
+b_EndTask:=
+d:=
+	d CREATED AS S2
+	S2 <- 4
+d_EndTask:=
+e:=
+	e CREATED AS S3
+	S3 <- 2
+e_EndTask:=
+f:=
+	f CREATED AS S4
+f_EndTask:=
+c:=
+	c CREATED AS S5
+c_EndTask:=
+main:=
+while:=
+	bgt L13 S1 S0
+loop:=
+	t0 <- S0 + 2
+	S5 <- t0
+	S1 <- S5
+while:=
+	bnq L12 S1 S0
+loop:=
+	t1 <- S0 + 2
+	S5 <- t1
+	S1 <- S5
+	S1 == S0 GOTO loop
+pool:=
+	S1 == S0 GOTO loop
+pool:=
 main_EndTask:=
 Main_EndTask:=

@@ -185,6 +185,12 @@ class ThreeAddressCode():
                     file.write("\t" + str(tac.s) + " <- " + "ISVOID " + str(tac.x)+ "\n")
                 elif tac.o == "create":
                     file.write("\t" + str(tac.s) + " CREATED AS "+ str(tac.x)+ "\n")
+                elif tac.o == "bnq": 
+                    file.write("\t" + str(tac.x) + " != " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
+                elif tac.o == "bg":
+                    file.write("\t" + str(tac.x) + " > " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
+                elif tac.o == "bgt":
+                    file.write("\t" + str(tac.x) + " >= " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
                 else:
                     file.write("\t" + str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y)+ "\n")
     
