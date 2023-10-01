@@ -172,6 +172,10 @@ class ThreeAddressCode():
                     file.write("\t" + str(tac.x) + " <= " + str(tac.y) + " GOTO " + str(tac.s) + "\n")
                 elif tac.o == "blt":
                     file.write("\t" + str(tac.x) + " < " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
+                elif tac.o == "and":
+                    file.write("\t" + str(tac.x) + " & " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
+                elif tac.o == "or":
+                    file.write("\t" + str(tac.x) + " | " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
                 elif tac.o == "call" and not tac.y:
                     # file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x)) if "." not in str(tac.x) else str(tac.x)) + "\n")
                     file.write("\t" + str(tac.s) + " <- " + "CALL " + str(tac.x) + "\n")
@@ -183,6 +187,8 @@ class ThreeAddressCode():
                     file.write("\t" + str(tac.s) + " <- " + " NOT " + str(tac.x)+ "\n")
                 elif tac.o == "isvoid":
                     file.write("\t" + str(tac.s) + " <- " + "ISVOID " + str(tac.x)+ "\n")
+                elif tac.o == "invert":
+                    file.write("\t" + str(tac.s) + " <- " + "INVERT " + str(tac.x)+ "\n")
                 elif tac.o == "create":
                     file.write("\t" + str(tac.s) + " CREATED AS "+ str(tac.x)+ "\n")
                 elif tac.o == "bnq": 
@@ -228,6 +234,10 @@ class ThreeAddressCode():
                     file.write("\t" + str(tac.x) + " > " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
                 elif tac.o == "bgt":
                     file.write("\t" + str(tac.x) + " >= " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
+                elif tac.o == "and":
+                    file.write("\t" + str(tac.x) + " & " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
+                elif tac.o == "|":
+                    file.write("\t" + str(tac.x) + " | " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
                 elif tac.o == "call" and not tac.y:
                     if tac.x not in allLabels:
                     # file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x)) if "." not in str(tac.x) else str(tac.x)) + "\n")
@@ -246,6 +256,8 @@ class ThreeAddressCode():
                     file.write("\t" + str(tac.s) + " <- " + " NOT " + str(tac.x)+ "\n")
                 elif tac.o == "isvoid":
                     file.write("\t" + str(tac.s) + " <- " + "ISVOID " + str(tac.x)+ "\n")
+                elif tac.o == "invert":
+                    file.write("\t" + str(tac.s) + " <- " + "INVERT " + str(tac.x)+ "\n")
                 elif tac.o == "create":
                     file.write("\t" + str(tac.s) + " CREATED AS "+ str(tac.x)+ "\n")
                 else:

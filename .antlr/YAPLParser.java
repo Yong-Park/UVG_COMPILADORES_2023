@@ -947,108 +947,108 @@ public class YAPLParser extends Parser {
 					switch ( getInterpreter().adaptivePredict(_input,14,_ctx) ) {
 					case 1:
 						{
-						_localctx = new OrContext(new ExprContext(_parentctx, _parentState));
+						_localctx = new MulContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(130);
 						if (!(precpred(_ctx, 17))) throw new FailedPredicateException(this, "precpred(_ctx, 17)");
 						setState(131);
-						match(OR);
+						match(MUL);
 						setState(132);
 						expr(18);
 						}
 						break;
 					case 2:
 						{
-						_localctx = new AndContext(new ExprContext(_parentctx, _parentState));
+						_localctx = new DivContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(133);
 						if (!(precpred(_ctx, 16))) throw new FailedPredicateException(this, "precpred(_ctx, 16)");
 						setState(134);
-						match(AND);
+						match(DIV);
 						setState(135);
 						expr(17);
 						}
 						break;
 					case 3:
 						{
-						_localctx = new MulContext(new ExprContext(_parentctx, _parentState));
+						_localctx = new AddContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(136);
 						if (!(precpred(_ctx, 15))) throw new FailedPredicateException(this, "precpred(_ctx, 15)");
 						setState(137);
-						match(MUL);
+						match(ADD);
 						setState(138);
 						expr(16);
 						}
 						break;
 					case 4:
 						{
-						_localctx = new DivContext(new ExprContext(_parentctx, _parentState));
+						_localctx = new SubContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(139);
 						if (!(precpred(_ctx, 14))) throw new FailedPredicateException(this, "precpred(_ctx, 14)");
 						setState(140);
-						match(DIV);
+						match(SUB);
 						setState(141);
 						expr(15);
 						}
 						break;
 					case 5:
 						{
-						_localctx = new AddContext(new ExprContext(_parentctx, _parentState));
+						_localctx = new LteqContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(142);
 						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
 						setState(143);
-						match(ADD);
+						match(LTEQ);
 						setState(144);
 						expr(14);
 						}
 						break;
 					case 6:
 						{
-						_localctx = new SubContext(new ExprContext(_parentctx, _parentState));
+						_localctx = new LtContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(145);
 						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
 						setState(146);
-						match(SUB);
+						match(LT);
 						setState(147);
 						expr(13);
 						}
 						break;
 					case 7:
 						{
-						_localctx = new LteqContext(new ExprContext(_parentctx, _parentState));
+						_localctx = new EqualContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(148);
 						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
 						setState(149);
-						match(LTEQ);
+						match(EQUAL);
 						setState(150);
 						expr(12);
 						}
 						break;
 					case 8:
 						{
-						_localctx = new LtContext(new ExprContext(_parentctx, _parentState));
+						_localctx = new OrContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(151);
 						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
 						setState(152);
-						match(LT);
+						match(OR);
 						setState(153);
 						expr(11);
 						}
 						break;
 					case 9:
 						{
-						_localctx = new EqualContext(new ExprContext(_parentctx, _parentState));
+						_localctx = new AndContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(154);
 						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
 						setState(155);
-						match(EQUAL);
+						match(AND);
 						setState(156);
 						expr(10);
 						}
@@ -1354,14 +1354,14 @@ public class YAPLParser extends Parser {
 		"\\\3\2\2\2\u0082b\3\2\2\2\u0082l\3\2\2\2\u0082n\3\2\2\2\u0082p\3\2\2\2"+
 		"\u0082r\3\2\2\2\u0082t\3\2\2\2\u0082v\3\2\2\2\u0082z\3\2\2\2\u0082{\3"+
 		"\2\2\2\u0082|\3\2\2\2\u0082}\3\2\2\2\u0082~\3\2\2\2\u0082\177\3\2\2\2"+
-		"\u0083\u00b4\3\2\2\2\u0084\u0085\f\23\2\2\u0085\u0086\7)\2\2\u0086\u00b3"+
-		"\5\n\6\24\u0087\u0088\f\22\2\2\u0088\u0089\7*\2\2\u0089\u00b3\5\n\6\23"+
-		"\u008a\u008b\f\21\2\2\u008b\u008c\7!\2\2\u008c\u00b3\5\n\6\22\u008d\u008e"+
-		"\f\20\2\2\u008e\u008f\7$\2\2\u008f\u00b3\5\n\6\21\u0090\u0091\f\17\2\2"+
-		"\u0091\u0092\7\"\2\2\u0092\u00b3\5\n\6\20\u0093\u0094\f\16\2\2\u0094\u0095"+
-		"\7#\2\2\u0095\u00b3\5\n\6\17\u0096\u0097\f\r\2\2\u0097\u0098\7\'\2\2\u0098"+
-		"\u00b3\5\n\6\16\u0099\u009a\f\f\2\2\u009a\u009b\7&\2\2\u009b\u00b3\5\n"+
-		"\6\r\u009c\u009d\f\13\2\2\u009d\u009e\7%\2\2\u009e\u00b3\5\n\6\f\u009f"+
+		"\u0083\u00b4\3\2\2\2\u0084\u0085\f\23\2\2\u0085\u0086\7!\2\2\u0086\u00b3"+
+		"\5\n\6\24\u0087\u0088\f\22\2\2\u0088\u0089\7$\2\2\u0089\u00b3\5\n\6\23"+
+		"\u008a\u008b\f\21\2\2\u008b\u008c\7\"\2\2\u008c\u00b3\5\n\6\22\u008d\u008e"+
+		"\f\20\2\2\u008e\u008f\7#\2\2\u008f\u00b3\5\n\6\21\u0090\u0091\f\17\2\2"+
+		"\u0091\u0092\7\'\2\2\u0092\u00b3\5\n\6\20\u0093\u0094\f\16\2\2\u0094\u0095"+
+		"\7&\2\2\u0095\u00b3\5\n\6\17\u0096\u0097\f\r\2\2\u0097\u0098\7%\2\2\u0098"+
+		"\u00b3\5\n\6\16\u0099\u009a\f\f\2\2\u009a\u009b\7)\2\2\u009b\u00b3\5\n"+
+		"\6\r\u009c\u009d\f\13\2\2\u009d\u009e\7*\2\2\u009e\u00b3\5\n\6\f\u009f"+
 		"\u00a2\f\34\2\2\u00a0\u00a1\7\37\2\2\u00a1\u00a3\7\25\2\2\u00a2\u00a0"+
 		"\3\2\2\2\u00a2\u00a3\3\2\2\2\u00a3\u00a4\3\2\2\2\u00a4\u00a5\7\36\2\2"+
 		"\u00a5\u00a6\7\24\2\2\u00a6\u00af\7\34\2\2\u00a7\u00ac\5\n\6\2\u00a8\u00a9"+

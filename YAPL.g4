@@ -18,8 +18,6 @@ expr      : expr(AT TYPE)? DOT ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPA
           | NEW TYPE # newObject
           | TILDE expr # invert
           | ISVOID expr # void
-          | expr OR expr # or
-          | expr AND expr # and
           | expr MUL expr # mul
           | expr DIV expr # div
           | expr ADD expr # add
@@ -27,6 +25,8 @@ expr      : expr(AT TYPE)? DOT ID OPENPARENTHESES ( expr (COMMA expr)*)? CLOSEPA
           | expr LTEQ expr # lteq
           | expr LT expr # lt
           | expr EQUAL expr # equal
+          | expr OR expr # or
+          | expr AND expr # and
           | NOT expr # not
           | OPENPARENTHESES expr CLOSEPARENTHESES # factExpr
           | ID # id

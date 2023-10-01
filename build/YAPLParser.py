@@ -1,4 +1,4 @@
-# Generated from YAPL.g4 by ANTLR 4.13.0
+# Generated from YAPL.g4 by ANTLR 4.13.1
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
@@ -59,14 +59,14 @@ def serializedATN():
         1,0,0,0,128,106,1,0,0,0,128,108,1,0,0,0,128,110,1,0,0,0,128,112,
         1,0,0,0,128,114,1,0,0,0,128,116,1,0,0,0,128,120,1,0,0,0,128,121,
         1,0,0,0,128,122,1,0,0,0,128,123,1,0,0,0,128,124,1,0,0,0,128,125,
-        1,0,0,0,129,178,1,0,0,0,130,131,10,17,0,0,131,132,5,39,0,0,132,177,
-        3,8,4,18,133,134,10,16,0,0,134,135,5,40,0,0,135,177,3,8,4,17,136,
-        137,10,15,0,0,137,138,5,31,0,0,138,177,3,8,4,16,139,140,10,14,0,
-        0,140,141,5,34,0,0,141,177,3,8,4,15,142,143,10,13,0,0,143,144,5,
-        32,0,0,144,177,3,8,4,14,145,146,10,12,0,0,146,147,5,33,0,0,147,177,
-        3,8,4,13,148,149,10,11,0,0,149,150,5,37,0,0,150,177,3,8,4,12,151,
-        152,10,10,0,0,152,153,5,36,0,0,153,177,3,8,4,11,154,155,10,9,0,0,
-        155,156,5,35,0,0,156,177,3,8,4,10,157,160,10,26,0,0,158,159,5,29,
+        1,0,0,0,129,178,1,0,0,0,130,131,10,17,0,0,131,132,5,31,0,0,132,177,
+        3,8,4,18,133,134,10,16,0,0,134,135,5,34,0,0,135,177,3,8,4,17,136,
+        137,10,15,0,0,137,138,5,32,0,0,138,177,3,8,4,16,139,140,10,14,0,
+        0,140,141,5,33,0,0,141,177,3,8,4,15,142,143,10,13,0,0,143,144,5,
+        37,0,0,144,177,3,8,4,14,145,146,10,12,0,0,146,147,5,36,0,0,147,177,
+        3,8,4,13,148,149,10,11,0,0,149,150,5,35,0,0,150,177,3,8,4,12,151,
+        152,10,10,0,0,152,153,5,39,0,0,153,177,3,8,4,11,154,155,10,9,0,0,
+        155,156,5,40,0,0,156,177,3,8,4,10,157,160,10,26,0,0,158,159,5,29,
         0,0,159,161,5,19,0,0,160,158,1,0,0,0,160,161,1,0,0,0,161,162,1,0,
         0,0,162,163,5,28,0,0,163,164,5,18,0,0,164,173,5,26,0,0,165,170,3,
         8,4,0,166,167,5,25,0,0,167,169,3,8,4,0,168,166,1,0,0,0,169,172,1,
@@ -173,7 +173,7 @@ class YAPLParser ( Parser ):
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
-        self.checkVersion("4.13.0")
+        self.checkVersion("4.13.1")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
@@ -1647,118 +1647,118 @@ class YAPLParser ( Parser ):
                     self._errHandler.sync(self)
                     la_ = self._interp.adaptivePredict(self._input,14,self._ctx)
                     if la_ == 1:
-                        localctx = YAPLParser.OrContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
+                        localctx = YAPLParser.MulContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 130
                         if not self.precpred(self._ctx, 17):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 17)")
                         self.state = 131
-                        self.match(YAPLParser.OR)
+                        self.match(YAPLParser.MUL)
                         self.state = 132
                         self.expr(18)
                         pass
 
                     elif la_ == 2:
-                        localctx = YAPLParser.AndContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
+                        localctx = YAPLParser.DivContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 133
                         if not self.precpred(self._ctx, 16):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 16)")
                         self.state = 134
-                        self.match(YAPLParser.AND)
+                        self.match(YAPLParser.DIV)
                         self.state = 135
                         self.expr(17)
                         pass
 
                     elif la_ == 3:
-                        localctx = YAPLParser.MulContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
+                        localctx = YAPLParser.AddContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 136
                         if not self.precpred(self._ctx, 15):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 15)")
                         self.state = 137
-                        self.match(YAPLParser.MUL)
+                        self.match(YAPLParser.ADD)
                         self.state = 138
                         self.expr(16)
                         pass
 
                     elif la_ == 4:
-                        localctx = YAPLParser.DivContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
+                        localctx = YAPLParser.SubContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 139
                         if not self.precpred(self._ctx, 14):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 14)")
                         self.state = 140
-                        self.match(YAPLParser.DIV)
+                        self.match(YAPLParser.SUB)
                         self.state = 141
                         self.expr(15)
                         pass
 
                     elif la_ == 5:
-                        localctx = YAPLParser.AddContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
+                        localctx = YAPLParser.LteqContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 142
                         if not self.precpred(self._ctx, 13):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 13)")
                         self.state = 143
-                        self.match(YAPLParser.ADD)
+                        self.match(YAPLParser.LTEQ)
                         self.state = 144
                         self.expr(14)
                         pass
 
                     elif la_ == 6:
-                        localctx = YAPLParser.SubContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
+                        localctx = YAPLParser.LtContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 145
                         if not self.precpred(self._ctx, 12):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 12)")
                         self.state = 146
-                        self.match(YAPLParser.SUB)
+                        self.match(YAPLParser.LT)
                         self.state = 147
                         self.expr(13)
                         pass
 
                     elif la_ == 7:
-                        localctx = YAPLParser.LteqContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
+                        localctx = YAPLParser.EqualContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 148
                         if not self.precpred(self._ctx, 11):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 11)")
                         self.state = 149
-                        self.match(YAPLParser.LTEQ)
+                        self.match(YAPLParser.EQUAL)
                         self.state = 150
                         self.expr(12)
                         pass
 
                     elif la_ == 8:
-                        localctx = YAPLParser.LtContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
+                        localctx = YAPLParser.OrContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 151
                         if not self.precpred(self._ctx, 10):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 10)")
                         self.state = 152
-                        self.match(YAPLParser.LT)
+                        self.match(YAPLParser.OR)
                         self.state = 153
                         self.expr(11)
                         pass
 
                     elif la_ == 9:
-                        localctx = YAPLParser.EqualContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
+                        localctx = YAPLParser.AndContext(self, YAPLParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 154
                         if not self.precpred(self._ctx, 9):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 9)")
                         self.state = 155
-                        self.match(YAPLParser.EQUAL)
+                        self.match(YAPLParser.AND)
                         self.state = 156
                         self.expr(10)
                         pass

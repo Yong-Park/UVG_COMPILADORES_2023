@@ -22,6 +22,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.actual_class = None
         self.actual_method_type = None
         self.actualAmbit = None
+        self.and_or_conditional = None
         # Codigo de tres direcciones
         self.tac = ThreeAddressCode()
         self.errors = ["ArithError","BothNotBool","RepeatedValue","assignError","methodValuesNotSame","NotSameLenght","TypeNotExist","notContainsType","diferentMethodType","diferentRecievers","recursiveInherit","whileError","DobleMain","newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
@@ -511,41 +512,72 @@ class YAPLVisit(ParseTreeVisitor):
         
     # Visit a parse tree produced by YAPLParser#or.
     def visitOr(self, ctx:YAPLParser.OrContext):
-        left = self.visit(ctx.expr(0))
+        self.and_or_conditional = "or"
+        left, left_value = self.visit(ctx.expr(0))
         # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        print("Left normal visitOR: ", left)
+        print("Left value visitOR: ", left_value)
        
-        right = self.visit(ctx.expr(1))
+        right, right_value = self.visit(ctx.expr(1))
         # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
+        print("Right normal visitOR: ", right)
+        print("Right value visitOR: ", right_value)
+        self.actual_conditional = "or"
+        self.and_or_conditional = None
         
+    
         #revisar que no sean parte del algun del los errors
         if left in self.errors:
-            return left
+            return left, None
         if right in self.errors:
-            return right
+            return right, None
         
         if left == "Bool" and right == "Bool":
-            return left
+            if type(left_value) == list and type(right_value) != list:
+                return left, [left_value[0], right_value]
+            elif type(left_value) != list and type(right_value) == list:
+                return left, [left_value, right_value[0]]
+            elif type(left_value) == list and type(right_value) == list:
+                return left, [left_value[0], right_value[0]]
+            else: 
+                return left, [left_value, right_value]
         else:
-            return "BothNotBool"
+            return "BothNotBool", None
     
     # Visit a parse tree produced by YAPLParser#and.
     def visitAnd(self, ctx:YAPLParser.AndContext):
-        left = self.visit(ctx.expr(0))
+        self.and_or_conditional = "and"
+        left, left_value = self.visit(ctx.expr(0))
         # left_type = self.symbol_table.get_symbol_type(left) if self.symbol_table.contains_symbol(left) else left
+        print("Left normal visitAND: ", left)
+        print("Left value visitAND: ", left_value)
         
-        right = self.visit(ctx.expr(1))
+        right, right_value = self.visit(ctx.expr(1))
         # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.contains_symbol(right) else right
-        
+        print("Right normal visitAND: ", right)
+        print("Right value visitAND: ", right_value)
+        self.actual_conditional = "and"
+        self.and_or_conditional = None
+
         #revisar que no sean parte del algun del los errors
         if left in self.errors:
-            return left
+            return left, None
         if right in self.errors:
-            return right
-        
+            return right, None
+        print("type visitAND leftvalue: ", type(left_value))
+        print("type visitAND rightvalue: ", type(right_value))
         if left == "Bool" and right == "Bool":
-            return left
+            if type(left_value) == list and type(right_value) != list:
+                return left, [left_value[0], right_value]
+            elif type(left_value) != list and type(right_value) == list:
+                return left, [left_value, right_value[0]]
+            elif type(left_value) == list and type(right_value) == list:
+                return left, [left_value[0], right_value[0]]
+            else: 
+                return left, [left_value, right_value]
+            
         else:
-            return "BothNotBool"
+            return "BothNotBool", None
 
     # Visit a parse tree produced by YAPLParser#add.
     def visitAdd(self, ctx:YAPLParser.AddContext):
@@ -705,6 +737,8 @@ class YAPLVisit(ParseTreeVisitor):
         # value = self.symbol_table.get_symbol_type(value) if self.symbol_table.get_symbol_type(value) else value
         print("visitInvert value: ",value)
         if str(value) == "Int":
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("invert",temporalToAdd,valurFeature)
             return "Int",valurFeature
         else:
             return "invertNotInt",None
@@ -1030,6 +1064,7 @@ class YAPLVisit(ParseTreeVisitor):
         # right_type = self.symbol_table.get_symbol_type(right) if self.symbol_table.get_symbol_type(right) else right
         print("right equal", right)
         print("right_value equal", right_value)
+            
         
         if right in self.errors:
             return  right,None
@@ -1043,13 +1078,19 @@ class YAPLVisit(ParseTreeVisitor):
         print("=============================")
         if right in ["Int","String","Bool"]:
             if left == right:
+                if self.and_or_conditional == "and":
+                    self.tac.add('<-', left_value, 1)
                 return "Bool",[left_value,right_value]
             else:
                 return "notequal",None
         else:
             if left == "Int" and right == "Bool":
+                if self.and_or_conditional == "and":
+                    self.tac.add('<-', left_value, 1)
                 return "Bool",[left_value,right_value]
             elif left == "Bool" and right == "Int":
+                if self.and_or_conditional == "and":
+                    self.tac.add('<-', left_value, 1)
                 return "Bool",[left_value,right_value]
             else:
                 return "notequal",None
@@ -1059,7 +1100,8 @@ class YAPLVisit(ParseTreeVisitor):
     def visitNot(self, ctx:YAPLParser.NotContext):
         print("\nvisitNot")
         values,valuesFeature = self.visit(ctx.expr())
-        self.tac.add("not",valuesFeature,valuesFeature)
+        temporalToAdd = self.tac.newTemporal()
+        self.tac.add("not",temporalToAdd,valuesFeature)
         
         # results = []
         # if type(values) == list:
@@ -1067,7 +1109,7 @@ class YAPLVisit(ParseTreeVisitor):
         # else:
         #     results.append(values)
         print("visitNot results: ",values)
-        return values,valuesFeature
+        return values,temporalToAdd
 
 
     # Visit a parse tree produced by YAPLParser#newObject.
@@ -1206,6 +1248,8 @@ class YAPLVisit(ParseTreeVisitor):
         print("corriendo el if")
         # self.actual_conditional = "if"
         ifResult,conditioners = self.visit(ifstate)
+        print("visitIf ifResult: " , ifResult)
+        print("visitIf conditioners: ", conditioners)
         
         if self.actual_conditional == "equal":
             tercetoResult = self.tac.add("beq",s="then",x=conditioners[0],y=conditioners[1])
@@ -1213,6 +1257,10 @@ class YAPLVisit(ParseTreeVisitor):
             tercetoResult = self.tac.add("ble",s="then",x=conditioners[0],y=conditioners[1])
         elif self.actual_conditional == "lt":
             tercetoResult = self.tac.add("blt",s="then",x=conditioners[0],y=conditioners[1])
+        elif self.actual_conditional == "and":
+            tercetoResult = self.tac.add("and",s="then",x=conditioners[0],y=conditioners[1])
+        elif self.actual_conditional == "or":
+            tercetoResult = self.tac.add("or",s="then",x=conditioners[0],y=conditioners[1])
         else:
             tercetoResult = self.tac.add("beq",s="then",x=conditioners,y="1")
             
