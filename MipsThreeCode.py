@@ -236,7 +236,7 @@ class ThreeAddressCode():
                     file.write("\t" + str(tac.x) + " >= " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
                 elif tac.o == "and":
                     file.write("\t" + str(tac.x) + " & " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
-                elif tac.o == "|":
+                elif tac.o == "or":
                     file.write("\t" + str(tac.x) + " | " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
                 elif tac.o == "call" and not tac.y:
                     if tac.x not in allLabels:

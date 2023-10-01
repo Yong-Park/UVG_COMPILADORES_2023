@@ -739,7 +739,7 @@ class YAPLVisit(ParseTreeVisitor):
         if str(value) == "Int":
             temporalToAdd = self.tac.newTemporal()
             self.tac.add("invert",temporalToAdd,valurFeature)
-            return "Int",valurFeature
+            return "Int",temporalToAdd
         else:
             return "invertNotInt",None
         
@@ -751,9 +751,12 @@ class YAPLVisit(ParseTreeVisitor):
         text = text[1:-1]
         lenText = len(text)
         print("visitString text: ",text)
+        temporalToAdd = self.tac.newTemporal()
+        self.tac.add("<-",temporalToAdd,text)
+        
         self.bytesSize_string = lenText * 2
         print("VISIT STRING Peso de la cadena: ", self.bytesSize_string)
-        return "String", text
+        return "String", temporalToAdd
 
 
     # Visit a parse tree produced by YAPLParser#mul.
