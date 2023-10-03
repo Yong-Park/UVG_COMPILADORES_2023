@@ -747,7 +747,9 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#string.
     def visitString(self, ctx:YAPLParser.StringContext):
         print("visitString")
+        
         text = ctx.STRING().getText()
+        print("visitString before text: ",text)
         text = text[1:-1]
         lenText = len(text)
         print("visitString text: ",text)
@@ -910,6 +912,7 @@ class YAPLVisit(ParseTreeVisitor):
             return "whileError"
         
         whilestate = expresions[0] #esto es lo del while que tiene que ser bool
+        self.tac.clearTemporals()
         print("corriendo while")
         #agregar el while en la labels del tac
         self.tac.addLables("while",self.actualAmbit)
@@ -927,6 +930,8 @@ class YAPLVisit(ParseTreeVisitor):
         else:
             tercetoResult = self.tac.add("bnq",s="pool",x=params_while,y="1")
         
+        self.actual_conditional = None
+        
         if type(whileResult) == list:
             if "Bool" not in whileResult:
                 return "whileError", None
@@ -940,20 +945,24 @@ class YAPLVisit(ParseTreeVisitor):
                 
         loopstate = expresions[1] #esto es el contenido del loop
         print("corriendo loop")
+        self.tac.clearTemporals()
         #agregar el loop en la labels del tac
         self.tac.addLables("loop",self.actualAmbit)
         self.tac.add(l=self.tac.returnSpecificLabelInCopy("loop",self.actualAmbit))
         loopResult,_ = self.visit(loopstate)
         print("loopResult: ", loopResult)
         print("Valores loop no tomado en cuenta: ", _)
-        if self.actual_conditional == "equal":
-            self.tac.add("beq",s=self.tac.returnSpecificLabelInCopy("loop", self.actualAmbit),x=params_while[0],y=params_while[1])
-        elif self.actual_conditional == "lteq":
-            self.tac.add("ble",s=self.tac.returnSpecificLabelInCopy("loop", self.actualAmbit),x=params_while[0],y=params_while[1])
-        elif self.actual_conditional == "lt":
-            self.tac.add("blt",s=self.tac.returnSpecificLabelInCopy("loop", self.actualAmbit),x=params_while[0],y=params_while[1])
-        else:
-            self.tac.add("beq",s=self.tac.returnSpecificLabelInCopy("loop", self.actualAmbit),x=params_while,y="1")
+        #hacer el salto para que vaya de regreso al while
+        self.tac.add("j",s=self.tac.returnSpecificLabelInCopy("while", self.actualAmbit))
+        
+        # if self.actual_conditional == "equal":
+        #     self.tac.add("beq",s=self.tac.returnSpecificLabelInCopy("while", self.actualAmbit),x=params_while[0],y=params_while[1])
+        # elif self.actual_conditional == "lteq":
+        #     self.tac.add("ble",s=self.tac.returnSpecificLabelInCopy("while", self.actualAmbit),x=params_while[0],y=params_while[1])
+        # elif self.actual_conditional == "lt":
+        #     self.tac.add("blt",s=self.tac.returnSpecificLabelInCopy("while", self.actualAmbit),x=params_while[0],y=params_while[1])
+        # else:
+        #     self.tac.add("beq",s=self.tac.returnSpecificLabelInCopy("while", self.actualAmbit),x=params_while,y="1")
         
         print("visitWhile results (loop): ",loopResult)
         
@@ -1174,6 +1183,7 @@ class YAPLVisit(ParseTreeVisitor):
         expresions = ctx.expr()
         results = []
         for expresion in expresions:
+            self.tac.clearTemporals()
             val,_ = self.visit(expresion)
             if type(val) == list:
                 results.extend(val)
@@ -1230,6 +1240,8 @@ class YAPLVisit(ParseTreeVisitor):
 
     # Visit a parse tree produced by YAPLParser#if.
     def visitIf(self, ctx:YAPLParser.IfContext):
+        # self.tac.clearTemporals()
+        self.ifLogicTemporal = None
         print("\nif visitado")
         self.actual_conditional = None
         print("self.tac.classElements: ", self.tac.classElements)
@@ -1250,6 +1262,7 @@ class YAPLVisit(ParseTreeVisitor):
         ifstate = expresions[0] #if
         print("corriendo el if")
         # self.actual_conditional = "if"
+        self.tac.clearTemporals()
         ifResult,conditioners = self.visit(ifstate)
         print("visitIf ifResult: " , ifResult)
         print("visitIf conditioners: ", conditioners)
@@ -1267,7 +1280,7 @@ class YAPLVisit(ParseTreeVisitor):
         else:
             tercetoResult = self.tac.add("beq",s="then",x=conditioners,y="1")
             
-        
+        self.actual_conditional = None
         print("ifResult: ",ifResult)
         
         if type(ifResult) == list:
@@ -1285,9 +1298,13 @@ class YAPLVisit(ParseTreeVisitor):
         
         print("Corriendo el else")
         #limpieza de los temporales
-        # self.tac.clearTemporals()
-        elseResult,_ = self.visit(elsestate)
+        self.tac.clearTemporals()
+        elseResult,elseResultValue = self.visit(elsestate)
         print("elseResult: ",elseResult)
+        print("elseResultValue:",elseResultValue ),
+        if self.ifLogicTemporal == None:
+            self.ifLogicTemporal = elseResultValue
+        # self.tac.add("<-",self.ifLogicTemporal,elseResultValue)
         #agregar el salto hacia el fi para que finalize el if
         tercetoFi = self.tac.add("j","fi")
         
@@ -1298,9 +1315,13 @@ class YAPLVisit(ParseTreeVisitor):
         self.tac.add(l=self.tac.returnSpecificLabelInCopy("then",self.actualAmbit))
         
         #limpieza de los temporales
-        # self.tac.clearTemporals()
-        thenResult,_ = self.visit(thenstate)
+        self.tac.clearTemporals()
+        thenResult,thenResultValue = self.visit(thenstate)
         print("thenResult: ",thenResult)
+        print("thenResultValue: ",thenResultValue)
+        if self.ifLogicTemporal == None:
+            self.ifLogicTemporal = thenResultValue
+        # self.tac.add("<-",self.ifLogicTemporal,thenResultValue)
         
         #agregar logica para que haga salto para el fi
         self.tac.addLables("fi",self.actualAmbit)
@@ -1315,6 +1336,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("then",self.actualAmbit))
         self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("fi",self.actualAmbit))
         
+        self.tac.clearTemporals()
         #agregar los resultados en el results
         results = []
         
@@ -1335,7 +1357,7 @@ class YAPLVisit(ParseTreeVisitor):
             if result in self.errors:
                 return result
             
-        return results,None
+        return results,self.ifLogicTemporal
         
     # Visit a parse tree produced by YAPLParser#ownMethodCall.
     def visitOwnMethodCall(self, ctx:YAPLParser.OwnMethodCallContext):
@@ -1360,8 +1382,12 @@ class YAPLVisit(ParseTreeVisitor):
     
                 if firstType == "String":
                     # self.symbol_table.add_symbol(id,type="SELF_TYPE",recieves=firstType,ambit=self.actualAmbit)
-                    temporalToAdd = self.tac.newTemporal()
-                    self.tac.add("call",temporalToAdd,"OUT_STRING",firstTypeValue)
+                    if firstTypeValue not in self.tac.temporals:
+                        temporalToAdd = self.tac.newTemporal()
+                        self.tac.add("call",temporalToAdd,"OUT_STRING",firstTypeValue)
+                    else:
+                        temporalToAdd = firstTypeValue
+                        self.tac.add("call",temporalToAdd,"OUT_STRING",firstTypeValue)
                     message = "SELF_TYPE"
                 
             elif id == "out_int":
@@ -1372,63 +1398,94 @@ class YAPLVisit(ParseTreeVisitor):
                 print("visitOwnMethodCall firstTypeValue: ",firstTypeValue)
                 #obtener la temporal que se utilzara para guardar el valor de este
                 if firstType == "Int":
-                    temporalToAdd = self.tac.newTemporal()
-                    self.tac.add("call",temporalToAdd,"OUT_INT",firstTypeValue)
+                    if firstTypeValue not in self.tac.temporals:
+                        temporalToAdd = self.tac.newTemporal()
+                        self.tac.add("call",temporalToAdd,"OUT_INT",firstTypeValue)
+                    else:
+                        temporalToAdd = firstTypeValue
+                        self.tac.add("call",temporalToAdd,"OUT_INT",firstTypeValue)
                     message = "SELF_TYPE"
                     
             elif id == "in_string":
-                temporalToAdd = self.tac.newTemporal()
-                self.tac.add("call",temporalToAdd,"IN_STRING")
+                if firstTypeValue not in self.tac.temporals: 
+                    temporalToAdd = self.tac.newTemporal()
+                    self.tac.add("call",temporalToAdd,"IN_STRING")
+                else:
+                    temporalToAdd = firstTypeValue
+                    self.tac.add("call",temporalToAdd,"IN_STRING")
                 message = "String"
             elif id == "in_int":
-                temporalToAdd = self.tac.newTemporal()
-                self.tac.add("call",temporalToAdd,"IN_INT")
+                if firstTypeValue not in self.tac.temporals: 
+                    temporalToAdd = self.tac.newTemporal()
+                    self.tac.add("call",temporalToAdd,"IN_INT")
+                else:
+                    temporalToAdd = firstTypeValue
+                    self.tac.add("call",temporalToAdd,"IN_INT")
                 message = "Int"
-                    
-        #cumple con alguno de los string o object
-        if id == "abort":
-            temporalToAdd = self.tac.newTemporal()
-            self.tac.add("call",temporalToAdd,"ABORT")
-            message = "Object"
-            
-        elif id == "type_name":
-            temporalToAdd = self.tac.newTemporal()
-            self.tac.add("call",temporalToAdd,"TYPE_NAME")
-            message = "String"
-            
-        elif id == "copy":
-            temporalToAdd = self.tac.newTemporal()
-            self.tac.add("call",temporalToAdd,"COPY")
-            message = "SELF_TYPE"
-            
-        elif id == "length":
-            temporalToAdd = self.tac.newTemporal()
-            self.tac.add("call",temporalToAdd,"LENGTH")
-            message = "Int"
-            
-        elif id == "concat":
-            second = expresions.pop(0)
-            secondType,secondTypeValue = self.visit(second)
-            if secondType == "String":
+                
+        if self.symbol_table.contains_symbol(id,self.actual_class) == False:
+            #cumple con alguno de los string o object
+            if id == "abort":
                 temporalToAdd = self.tac.newTemporal()
-                self.tac.add("call",temporalToAdd,"CONCAT",secondTypeValue)
+                self.tac.add("call",temporalToAdd,"ABORT")
+                message = "Object"
+                
+            elif id == "type_name":
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("call",temporalToAdd,"TYPE_NAME")
                 message = "String"
                 
-        elif id == "substr":
-            second = expresions.pop(0)
-            secondType,secondTypeValue = self.visit(second)
-            
-            third = expresions.pop(0)
-            thirdType,thirdTypeValue = self.visit(third)
-            
-            if secondType == "Int" and thirdType == "Int":
+            elif id == "copy":
                 temporalToAdd = self.tac.newTemporal()
-                self.tac.add("call",temporalToAdd,"SUBSTR",[str(secondTypeValue),str(thirdTypeValue)])
-                message = "String"
-        elif id == "isNil":
-            temporalToAdd = self.tac.newTemporal()
-            self.tac.add("call",temporalToAdd,"ISNILL")
-            message = "Bool"
+                self.tac.add("call",temporalToAdd,"COPY")
+                message = "SELF_TYPE"
+                
+            elif id == "length":
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("call",temporalToAdd,"LENGTH")
+                message = "Int"
+                
+            elif id == "concat":
+                second = expresions.pop(0)
+                secondType,secondTypeValue = self.visit(second)
+                if secondType == "String":
+                    if secondTypeValue not in self.tac.temporals: 
+                        temporalToAdd = self.tac.newTemporal()
+                        self.tac.add("call",temporalToAdd,"CONCAT",secondTypeValue)
+                    else:
+                        temporalToAdd = secondTypeValue
+                        self.tac.add("call",temporalToAdd,"CONCAT",secondTypeValue)
+                    message = "String"
+                    
+            elif id == "substr":
+                second = expresions.pop(0)
+                secondType,secondTypeValue = self.visit(second)
+                
+                third = expresions.pop(0)
+                thirdType,thirdTypeValue = self.visit(third)
+                
+                if secondType == "Int" and thirdType == "Int":
+                    if secondTypeValue not in self.tac.temporals and thirdTypeValue not in self.tac.temporals: 
+                        temporalToAdd = self.tac.newTemporal()
+                        self.tac.add("call",temporalToAdd,"SUBSTR",[str(secondTypeValue),str(thirdTypeValue)])
+                    elif secondTypeValue in self.tac.temporals and thirdTypeValue not in self.tac.temporals:
+                        temporalToAdd = secondTypeValue
+                        self.tac.add("call",temporalToAdd,"SUBSTR",[str(secondTypeValue),str(thirdTypeValue)])
+                    elif secondTypeValue not in self.tac.temporals and thirdTypeValue in self.tac.temporals: 
+                        temporalToAdd = thirdTypeValue
+                        self.tac.add("call",temporalToAdd,"SUBSTR",[str(secondTypeValue),str(thirdTypeValue)])
+                    elif secondTypeValue in self.tac.temporals and thirdTypeValue in self.tac.temporals: 
+                        if secondTypeValue < thirdTypeValue:
+                            temporalToAdd = secondTypeValue
+                        else:
+                            temporalToAdd = thirdTypeValue
+                        self.tac.add("call",temporalToAdd,"SUBSTR",[str(secondTypeValue),str(thirdTypeValue)])
+
+                    message = "String"
+            elif id == "isNil":
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("call",temporalToAdd,"ISNILL")
+                message = "Bool"
                 
         #revisar si el id es un metodo que se esta llamando que es del mismo metodo
         if self.symbol_table.contains_symbol(id,self.actual_class):
@@ -1478,7 +1535,7 @@ class YAPLVisit(ParseTreeVisitor):
                 message = self.symbol_table.get_symbol_value(id,self.actual_class,"type")
                 
             #agregar al self.tac para que realice un goto al mismo metodo
-            temporalToAdd = self.tac.newTemporal()
+            temporalToAdd = recievedParamsValues[0]
             self.tac.add("call",temporalToAdd,self.tac.returnSpecificLabelInCopy(id,self.actual_class),recievedParamsValues)
 
                 
@@ -1530,7 +1587,7 @@ class YAPLVisit(ParseTreeVisitor):
                         message = self.symbol_table.get_symbol_value(id,inhertisExist,"type")
 
                     #agregar la llamada del metodo
-                    temporalToAdd = self.tac.newTemporal()
+                    temporalToAdd = recievedParamsValues[0]
                     tacId = self.tac.returnSpecificLabel(str(id),str(inhertisExist))
                     print("visitOwnMethodCall tacId: ",tacId)
                     self.tac.add("call",temporalToAdd,id,recievedParamsValues)
@@ -1636,49 +1693,51 @@ class YAPLVisit(ParseTreeVisitor):
         if firstType in self.errors:
             return firstType,None
         
-        if id == "abort":
-            temporalToAdd = self.tac.newTemporal()
-            self.tac.add("call",temporalToAdd,firstTypeValue+"."+"ABORT")
-            message = "Object"
-        elif id == "type_name":
-            temporalToAdd = self.tac.newTemporal()
-            self.tac.add("call",temporalToAdd,firstTypeValue+"."+"TYPE_NAME")
-            message = "String"
-        elif id == "copy":
-            temporalToAdd = self.tac.newTemporal()
-            self.tac.add("call",temporalToAdd,firstTypeValue+"."+"COPY")
-            message = "SELF_TYPE"
-        elif id == "length":
-            temporalToAdd = self.tac.newTemporal()
-            self.tac.add("call",temporalToAdd,firstTypeValue+"."+"LENGTH")
-            message = "Int"
-        elif id == "concat":
-            second = expresions.pop(0)
-            secondType,secondTypeValue = self.visit(second)
-            if secondType == "String":
-                temporalToAdd = self.tac.newTemporal()
-                self.tac.add("call",temporalToAdd,firstTypeValue+"."+"CONCAT",secondTypeValue)
+        if self.symbol_table.contains_symbol(id,firstType) == False:
+        
+            if id == "abort":
+                temporalToAdd = firstTypeValue
+                self.tac.add("call",temporalToAdd,firstTypeValue+"."+"ABORT")
+                message = "Object"
+            elif id == "type_name":
+                temporalToAdd = firstTypeValue
+                self.tac.add("call",temporalToAdd,firstTypeValue+"."+"TYPE_NAME")
                 message = "String"
-        elif id == "substr":
-            second = expresions.pop(0)
-            secondType,secondTypeValue = self.visit(second)
-            third = expresions.pop(0)
-            thirdType,thirdTypeValue = self.visit(third)
-            if secondType == "Int" and thirdType == "Int":
-                temporalToAdd = self.tac.newTemporal()
-                self.tac.add("call",temporalToAdd,firstTypeValue+"."+"SUBSTR",[str(secondTypeValue),str(thirdTypeValue)])
-                message = "String"
-        elif id == "isNil":
-            temporalToAdd = self.tac.newTemporal()
-            self.tac.add("call",temporalToAdd,firstTypeValue+"."+"ISNILL")
-            message = "Bool"
+            elif id == "copy":
+                temporalToAdd = firstTypeValue
+                self.tac.add("call",temporalToAdd,firstTypeValue+"."+"COPY")
+                message = "SELF_TYPE"
+            elif id == "length":
+                temporalToAdd = firstTypeValue
+                self.tac.add("call",temporalToAdd,firstTypeValue+"."+"LENGTH")
+                message = "Int"
+            elif id == "concat":
+                second = expresions.pop(0)
+                secondType,secondTypeValue = self.visit(second)
+                if secondType == "String":
+                    temporalToAdd = firstTypeValue
+                    self.tac.add("call",temporalToAdd,firstTypeValue+"."+"CONCAT",secondTypeValue)
+                    message = "String"
+            elif id == "substr":
+                second = expresions.pop(0)
+                secondType,secondTypeValue = self.visit(second)
+                third = expresions.pop(0)
+                thirdType,thirdTypeValue = self.visit(third)
+                if secondType == "Int" and thirdType == "Int":
+                    temporalToAdd = firstTypeValue
+                    self.tac.add("call",temporalToAdd,firstTypeValue+"."+"SUBSTR",[str(secondTypeValue),str(thirdTypeValue)])
+                    message = "String"
+            elif id == "isNil":
+                temporalToAdd = firstTypeValue
+                self.tac.add("call",temporalToAdd,firstTypeValue+"."+"ISNILL")
+                message = "Bool"
         
         if str(inherits) == "IO":
             if id == "out_string":
                 second = expresions.pop(0)
                 secondType,secondTypeValue = self.visit(second)
                 if secondType == "String":
-                    temporalToAdd = self.tac.newTemporal()
+                    temporalToAdd = firstTypeValue
                     self.tac.add("call",temporalToAdd,firstTypeValue+"."+"OUT_STRING",secondTypeValue)
                     message = "SELF_TYPE"
                     
@@ -1686,17 +1745,17 @@ class YAPLVisit(ParseTreeVisitor):
                 second = expresions.pop(0)
                 secondType,secondTypeValue = self.visit(second)
                 if secondType == "Int":
-                    temporalToAdd = self.tac.newTemporal()
+                    temporalToAdd = firstTypeValue
                     self.tac.add("call",temporalToAdd,firstTypeValue+"."+"OUT_INT",secondTypeValue)
                     message = "SELF_TYPE"
                     
             elif id == "in_string":
-                temporalToAdd = self.tac.newTemporal()
+                temporalToAdd = firstTypeValue
                 self.tac.add("call",temporalToAdd,firstTypeValue+"."+"IN_STRING")
                 message = "String"
                 
             elif id == "in_int":
-                temporalToAdd = self.tac.newTemporal()
+                temporalToAdd = firstTypeValue
                 self.tac.add("call",temporalToAdd,firstTypeValue+"."+"IN_INT")
                 message = "Int"
         
@@ -1745,8 +1804,12 @@ class YAPLVisit(ParseTreeVisitor):
                 message = self.symbol_table.get_symbol_value(id,firstType,"type")
                 
             #agregar la llamada del metodo
-            temporalToAdd = self.tac.newTemporal()
-            self.tac.add("call",temporalToAdd,firstTypeValue+"."+id,recievedParamsValues)
+            if firstTypeValue not in self.tac.temporals:
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("call",temporalToAdd,firstTypeValue+"."+id,recievedParamsValues)
+            else:
+                temporalToAdd = firstTypeValue
+                self.tac.add("call",firstTypeValue,firstTypeValue+"."+id,recievedParamsValues)
             
         else:
             print("no es de la clase revisar si hereda y si es asi encontrar si es una de las funciones por la cual se hereda")
@@ -1801,8 +1864,12 @@ class YAPLVisit(ParseTreeVisitor):
                     inhertisExist = False
                     
                     #agregar la llamada del metodo
-                    temporalToAdd = self.tac.newTemporal()
-                    self.tac.add("call",temporalToAdd,firstTypeValue+"."+id,recievedParamsValues)
+                    if firstTypeValue not in self.tac.temporals:
+                        temporalToAdd = self.tac.newTemporal()
+                        self.tac.add("call",temporalToAdd,firstTypeValue+"."+id,recievedParamsValues)
+                    else:
+                        temporalToAdd = firstTypeValue
+                        self.tac.add("call",firstTypeValue,firstTypeValue+"."+id,recievedParamsValues)
 
                 else:
                     inhertisExist = self.symbol_table.get_symbol_value(inhertisExist,inhertisExist,"inherits")

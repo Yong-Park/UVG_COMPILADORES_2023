@@ -1,250 +1,27 @@
 Three Direction Code
 L0:=
 L1:=
-	var CREATED AS S0
-	S0 <- 0
+	n CREATED AS S0
+	S0 <- 5
 L1_EndTask:=
 L2:=
+	t CREATED AS S1
 L2_EndTask:=
 L3:=
-	S0 <- a0
-	S1 <- SELF_TYPE
-L3_EndTask:=
 L4:=
-	S2 <- SELF_TYPE
-L4_EndTask:=
+	S0 == 5 GOTO L10
 L5:=
-	x CREATED AS S3
-	t0 <- a1 + a2
-	S3 <- t0
-	t1 <- A
-	t2 <- CALL t1.set_var(S3)
-L5_EndTask:=
 L6:=
-	x CREATED AS S4
-	t0 <- INVERT a0
-	S4 <- t0
-	t1 <- A
-	t2 <- CALL t1.set_var(S4)
-L6_EndTask:=
+	S0 == 2 GOTO L8
 L7:=
+	S1 <- 5
+	GOTO L9
 L8:=
-	a2 < a1 GOTO L10
+	S1 <- 1
 L9:=
-	x CREATED AS S5
-	t0 <- a2 - a1
-	S5 <- t0
-	t1 <- A
-	t2 <- CALL t1.set_var(S5)
 	GOTO L11
 L10:=
-	x CREATED AS S6
-	t3 <- a1 - a2
-	S6 <- t3
-	t4 <- A
-	t5 <- CALL t4.set_var(S6)
+	S1 <- 2
 L11:=
-L7_EndTask:=
-L12:=
-	x CREATED AS S7
-	S7 <- 1
-	y CREATED AS S8
-	S8 <- 1
-L13:=
-	S8 > a0 GOTO L15
-L14:=
-	t0 <- S7 * S8
-	S7 <- t0
-	t1 <- S8 + 1
-	S8 <- t1
-	S8 <= a0 GOTO L14
-L15:=
-	t2 <- A
-	t3 <- CALL t2.set_var(S7)
-L12_EndTask:=
+L3_EndTask:=
 L0_EndTask:=
-L16:=
-L17:=
-	x CREATED AS S0
-	t0 <- a0 * a0
-	S0 <- t0
-	t1 <- A
-	t2 <- CALL t1.set_var(S0)
-L17_EndTask:=
-L16_EndTask:=
-L18:=
-L19:=
-	x CREATED AS S0
-	t0 <- INVERT a0
-	S0 <- t0
-	t1 <- A
-	t2 <- CALL t1.set_var(S0)
-L19_EndTask:=
-L20:=
-	x CREATED AS S1
-	t0 <- a0 * a0
-	t0 <- t0 * a0
-	S1 <- t0
-	t1 <- A
-	t2 <- CALL t1.set_var(S1)
-L20_EndTask:=
-L18_EndTask:=
-L21:=
-L22:=
-	x CREATED AS S0
-	S0 <- a0
-L23:=
-	S0 < 0 GOTO L37
-L24:=
-L25:=
-	0 == S0 GOTO L35
-L26:=
-L27:=
-	1 == S0 GOTO L33
-L28:=
-L29:=
-	2 == S0 GOTO L31
-L30:=
-	t0 <- S0 - 3
-	t1 <- CALL L22(t0)
-	GOTO L32
-L31:=
-	t2 <- 0
-L32:=
-	GOTO L34
-L33:=
-	t3 <- 0
-L34:=
-	GOTO L36
-L35:=
-	t4 <- 1
-L36:=
-	GOTO L38
-L37:=
-	t5 <- INVERT S0
-	t6 <- CALL L22(t5)
-L38:=
-L22_EndTask:=
-L21_EndTask:=
-L39:=
-L40:=
-	x CREATED AS S0
-	t0 <- a0 / 8
-	S0 <- t0
-	t1 <- A
-	t2 <- CALL t1.set_var(S0)
-L40_EndTask:=
-L39_EndTask:=
-L41:=
-L42:=
-	char CREATED AS S0
-L42_EndTask:=
-L43:=
-	avar CREATED AS S1
-L43_EndTask:=
-L44:=
-	a_var CREATED AS S2
-L44_EndTask:=
-	t0 <- 1
-L45:=
-	flag CREATED AS S3
-	S3 <- t0
-L45_EndTask:=
-L46:=
-	x CREATED AS S4
-	S4 <- a0
-L47:=
-	S4 < 0 GOTO L57
-L48:=
-L49:=
-	0 == S4 GOTO L55
-L50:=
-L51:=
-	1 == S4 GOTO L53
-L52:=
-	t0 <- S4 - 2
-	t1 <- CALL L46(t0)
-	GOTO L54
-L53:=
-	t2 <- 0
-L54:=
-	GOTO L56
-L55:=
-	t3 <- 1
-L56:=
-	GOTO L58
-L57:=
-	t4 <- INVERT S4
-	t5 <- CALL L46(t4)
-L58:=
-L46_EndTask:=
-L59:=
-	t0 <- A
-	S1 <- t0
-	t1 <- CALL S1.set_var(2)
-	t2 <- CALL S1.value
-	t3 <- CALL OUT_INT(t2)
-L60:=
-	t4 <- CALL S1.value
-	t5 <- CALL L46(t4)
-	t5 == 1 GOTO L62
-L61:=
-	t6 <-  es impar!\n
-	t7 <- CALL OUT_STRING(t6)
-	GOTO L63
-L62:=
-	t8 <-  es par!\n
-	t9 <- CALL OUT_STRING(t8)
-L63:=
-	t10 <- A
-	t11 <- CALL t10.set_var(3)
-	S2 <- t11
-	t12 <- B
-	t13 <- CALL S1.value
-	t14 <- CALL S2.value
-	t15 <- CALL t12.method2(t13, t14)
-	S1 <- t15
-	t16 <- CALL S1.value
-	t17 <- CALL OUT_INT(t16)
-	t18 <- \n
-	t19 <- CALL OUT_STRING(t18)
-	t20 <- C
-	t21 <- CALL S1.value
-	t22 <- CALL t20.method6(t21)
-	S1 <- t22
-	t23 <- CALL S1.value
-	t24 <- CALL OUT_INT(t23)
-	t25 <- \n
-	t26 <- CALL OUT_STRING(t25)
-	t27 <- A
-	t28 <- CALL t27.set_var(5)
-	S2 <- t28
-	t29 <- D
-	t30 <- CALL S1.value
-	t31 <- CALL S2.value
-	t32 <- CALL t29.method4(t30, t31)
-	S1 <- t32
-	t33 <- CALL S1.value
-	t34 <- CALL OUT_INT(t33)
-	t35 <- \n
-	t36 <- CALL OUT_STRING(t35)
-	t37 <- CALL S1.set_var(5)
-	t38 <- C
-	t39 <- CALL S1.value
-	t40 <- CALL t38.method5(t39)
-	S1 <- t40
-	t41 <- CALL S1.value
-	t42 <- CALL OUT_INT(t41)
-	t43 <- \n
-	t44 <- CALL OUT_STRING(t43)
-	t45 <- CALL S1.set_var(6)
-	t46 <- C
-	t47 <- CALL S1.value
-	t48 <- CALL t46.method5(t47)
-	S1 <- t48
-	t49 <- CALL S1.value
-	t50 <- CALL OUT_INT(t49)
-	t51 <- \n
-	t52 <- CALL OUT_STRING(t51)
-L59_EndTask:=
-L41_EndTask:=
