@@ -1355,7 +1355,7 @@ class YAPLVisit(ParseTreeVisitor):
         #revisar que de los resultados obtenido no haya ninguno que forme parte de algun error
         for result in results:
             if result in self.errors:
-                return result
+                return result, None
             
         return results,self.ifLogicTemporal
         
