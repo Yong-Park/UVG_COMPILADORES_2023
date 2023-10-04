@@ -388,22 +388,16 @@ class YAPLVisit(ParseTreeVisitor):
         #cambiar el tipo de ambiente para que ya sea del clase mas metodo
         self.actualAmbit = self.actual_class + "." + var_name
         
+        #agregar el label del metodo en tac
+        self.tac.addLables(var_name,self.actual_class)
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy(var_name,self.actual_class))
+        
         var_expr, var_expr_value = self.visit(ctx.expr()) if ctx.expr() != None else ([], None)
         var_assign = ctx.ASSIGN()
         print("var_expr: ",var_expr)
         print('var_name: ', var_name)
         print('var_type: ', var_type)
         print('var_assign: ', var_assign, '\n')
-        
-        #definir que este sera un tipo S0 donde luego se revisara si este ya esta definido
-        self.tac.addClassElements(var_name, "S")
-        
-        #agregar el label del metodo en tac
-        self.tac.addLables(var_name,self.actual_class)
-        self.tac.add(l=self.tac.returnSpecificLabelInCopy(var_name,self.actual_class))
-        
-        #agregar al tac, la asignacion de elemtno al classelement
-        self.tac.add("create",var_name,self.tac.returnSpecificRegistro(var_name))
 
         #revisar si el var_expr es un tipo de lista
         if type(var_expr) == list:
@@ -446,8 +440,16 @@ class YAPLVisit(ParseTreeVisitor):
         self.symbol_table.change_symbol_value(var_name,self.actual_class,"displacement",self.class_displacement)
         
         self.class_displacement += self.size_val
-            
         
+        #buscar el desplazamiento del este elemento en particular
+        displacement = self.symbol_table.get_symbol_value(var_name,self.actual_class,"displacement")
+        print("visitProperty displacement: ",displacement)
+        #definir que este sera un tipo S0 donde luego se revisara si este ya esta definido
+        self.tac.addClassElements(var_name, "S", "GP["+str(displacement)+"]")
+        
+        #agregar al tac, la asignacion de elemtno al classelement
+        # self.tac.add("create",var_name,self.tac.returnSpecificRegistro(var_name))
+            
         # revisar si es del mismo tipo la asignacion cuando se realice
         if var_assign != None:
             #buscar el registro de la variable
@@ -506,16 +508,6 @@ class YAPLVisit(ParseTreeVisitor):
         else:
             self.forml_size = 2
         
-        
-            
-        #add the value of receving parameter in the self.tac
-        
-        recivingElements = []
-        for ce in self.tac.classElements:
-            recivingElements.append(str(ce[0]))
-        if str(idtext) not in recivingElements:
-            self.tac.addClassElements(idtext,"a")
-        
         #actualizar el peso de la tabla
         self.symbol_table.add_symbol(idtext,tipo, width= self.forml_size,ambit=self.actualAmbit)
         
@@ -523,6 +515,17 @@ class YAPLVisit(ParseTreeVisitor):
         self.symbol_table.change_symbol_value(idtext,self.actualAmbit,"displacement",self.method_prop_displacement)
         
         self.method_prop_displacement += self.forml_size
+        
+        #add the value of receving parameter in the self.tac
+        recivingElements = []
+        for ce in self.tac.classElements:
+            recivingElements.append(str(ce[0]))
+        if str(idtext) not in recivingElements:
+            #buscar el desplazamiento del este elemento en particular
+            displacement = self.symbol_table.get_symbol_value(idtext,self.actualAmbit,"displacement")
+            print("visitForml displacement: ",displacement)
+            #definir que este sera un tipo S0 donde luego se revisara si este ya esta definido
+            self.tac.addClassElements(idtext, "a", "LP["+str(displacement)+"]")
         
                       
         #agregarlo en el method recieves para tener un control de cuales son los parametros que este recibe
@@ -1204,21 +1207,27 @@ class YAPLVisit(ParseTreeVisitor):
     def visitBlock(self, ctx:YAPLParser.BlockContext):
         expresions = ctx.expr()
         results = []
+        values = []
         for expresion in expresions:
             self.tac.clearTemporals()
-            val,_ = self.visit(expresion)
+            val,valValue = self.visit(expresion)
             if type(val) == list:
+                if valValue != None:
+                    values.extend(valValue)
                 results.extend(val)
             else:
+                if valValue!= None:
+                    values.append(valValue)
                 results.append(val)
-        
+                
         print("\nvisitBlock result: ", results)
+        print("\nvisitBlock valValue: ", values)
         print("=============================")
         for result in results:
             if result in self.errors:
                 return result,None
             
-        return results,None
+        return results,values[len(values)-1] if len(values)!=0 else None
 
 
     # Visit a parse tree produced by YAPLParser#let.
@@ -1242,9 +1251,10 @@ class YAPLVisit(ParseTreeVisitor):
             # print("self.actual_method: ",self.actual_method)
             
             #agregarlo como un valor de retorno tambien
-            self.tac.addClassElements(str(self.actual_method_type), "S")
-            self.tac.add("<-",self.tac.returnSpecificRegistro(str(self.actual_method_type)), str(self.actual_method_type))
-            return str(self.actual_method_type),self.tac.returnSpecificRegistro(str(self.actual_method_type))
+            # self.tac.addClassElements(str(self.actual_method_type), "S")
+            # self.tac.add("<-",self.tac.returnSpecificRegistro(str(self.actual_method_type)), str(self.actual_method_type))
+            # return str(self.actual_method_type),self.tac.returnSpecificRegistro(str(self.actual_method_type))
+            return str(self.actual_method_type),str(self.actual_method_type)
         else:
             exist = self.symbol_table.contains_symbol(value,self.actual_class) if self.symbol_table.contains_symbol(value,self.actual_class) else self.symbol_table.contains_symbol(value,self.actualAmbit)
     
@@ -1918,20 +1928,15 @@ class YAPLVisit(ParseTreeVisitor):
         print("\nvisitLetIn")
         id = ctx.ID().getText()
         letinType = ctx.TYPE().getText()
-        
-        #agregar el variable con su registro perspectivo
-        self.tac.addClassElements(id, "S")
 
         #agregar al tac, la asignacion de elemtno al classelement
-        self.tac.add("create",id,self.tac.returnSpecificRegistro(id))
+        # self.tac.add("create",id,self.tac.returnSpecificRegistro(id))
 
         self.let_size = 0
         print("visitLetIn valor de la cadena: ", self.bytesSize_string)
         
         #agregarlo a la tabla el nuevo valor del id
         self.symbol_table.add_symbol(id,type=letinType, ambit=self.actualAmbit)
-        
-        result,_ = self.visit(ctx.expr())
         
         #logica para agregar el peso 
         
@@ -1970,6 +1975,17 @@ class YAPLVisit(ParseTreeVisitor):
         
         self.method_prop_displacement += self.let_size
         
+        # #agregar el variable con su registro perspectivo
+        # self.tac.addClassElements(id, "S")
+        
+        #buscar el desplazamiento del este elemento en particular
+        displacement = self.symbol_table.get_symbol_value(id,self.actualAmbit,"displacement")
+        print("visitLetIn displacement: ",displacement)
+        #definir que este sera un tipo S0 donde luego se revisara si este ya esta definido
+        self.tac.addClassElements(id, "S", "LP["+str(displacement)+"]")
+        
+        result,_ = self.visit(ctx.expr())
+        
         print("visitLetIn result: ",result)
         return result,None
         
@@ -1989,11 +2005,8 @@ class YAPLVisit(ParseTreeVisitor):
         self.let_assign_size = 0
         print("visitLetAssignIn typevisit: ",typevisit)
         
-        #agregar el variable con su registro perspectivo
-        self.tac.addClassElements(id, "S")
-        
         #agregar al tac, la asignacion de elemtno al classelement
-        self.tac.add("create",id,self.tac.returnSpecificRegistro(id))
+        # self.tac.add("create",id,self.tac.returnSpecificRegistro(id))
         
         #agregar el id de este a la tabla
         self.symbol_table.add_symbol(id,type=typevisit,ambit=self.actualAmbit)
@@ -2004,11 +2017,6 @@ class YAPLVisit(ParseTreeVisitor):
         
         assignType, assignValue = self.visit(assignExpresion)
         print("visitLetAssignIn assignValue: ",assignValue)
-        
-        #agregar la asigacion al self.tac.add
-        registro = self.tac.returnSpecificRegistro(id)
-        self.tac.add("<-",registro,assignValue)
-        
         
         resutls = []
         if type(assignType) ==  list:
@@ -2049,6 +2057,15 @@ class YAPLVisit(ParseTreeVisitor):
         
         self.method_prop_displacement += self.let_assign_size
         
+        #buscar el desplazamiento del este elemento en particular
+        displacement = self.symbol_table.get_symbol_value(id,self.actualAmbit,"displacement")
+        print("visitLetIn displacement: ",displacement)
+        #definir que este sera un tipo S0 donde luego se revisara si este ya esta definido
+        self.tac.addClassElements(id, "S", "LP["+str(displacement)+"]")
+        
+        #agregar la asigacion al self.tac.add
+        registro = self.tac.returnSpecificRegistro(id)
+        self.tac.add("<-",registro,assignValue)
                             
         #obtener la otra expr
         exprResult = expresions[1]

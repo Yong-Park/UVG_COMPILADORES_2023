@@ -72,7 +72,7 @@ class ThreeAddressCode():
         
     #value es el nombre de la variable
     #regirsto es el tipo, digamos es s0,t0 y asi
-    def addClassElements(self,value,registro):
+    def addClassElements(self,value,registro,displacement):
         registros = []
         for registross in self.classElements:
             registros.append(registross[1])
@@ -84,7 +84,7 @@ class ThreeAddressCode():
                 num += 1
             else:
                 #agregar este elementos en elementos de la clase actual
-                self.classElements.append([str(value),str(label)])
+                self.classElements.append([str(value),str(label),str(displacement)])
                 break
         
         # self.classElements.append([str(value),str(registro)])
@@ -141,7 +141,7 @@ class ThreeAddressCode():
         registrosList = []
         for registro in self.classElements:
             if registro[0] == str(value):
-                registrosList.append(registro[1])
+                registrosList.append(registro[2])
 
         if len(registrosList) > 0:
             return registrosList[len(registrosList)-1]
