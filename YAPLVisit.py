@@ -1252,9 +1252,10 @@ class YAPLVisit(ParseTreeVisitor):
             
             #agregarlo como un valor de retorno tambien
             # self.tac.addClassElements(str(self.actual_method_type), "S")
-            # self.tac.add("<-",self.tac.returnSpecificRegistro(str(self.actual_method_type)), str(self.actual_method_type))
+            teporalToAdd = self.tac.newTemporal()
+            self.tac.add("<-",teporalToAdd, str(self.actual_method_type))
             # return str(self.actual_method_type),self.tac.returnSpecificRegistro(str(self.actual_method_type))
-            return str(self.actual_method_type),str(self.actual_method_type)
+            return str(self.actual_method_type),teporalToAdd
         else:
             exist = self.symbol_table.contains_symbol(value,self.actual_class) if self.symbol_table.contains_symbol(value,self.actual_class) else self.symbol_table.contains_symbol(value,self.actualAmbit)
     
