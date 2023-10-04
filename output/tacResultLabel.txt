@@ -1,27 +1,74 @@
 Three Direction Code
 L0:=
 L1:=
-	n CREATED AS S0
-	S0 <- 5
+	var CREATED AS S0
+	S0 <- 0
 L1_EndTask:=
 L2:=
-	t CREATED AS S1
-L2_EndTask:=
+	f CREATED AS S1
 L3:=
+	a0 == 0 GOTO L9
 L4:=
-	S0 == 5 GOTO L10
 L5:=
+	a0 == 1 GOTO L7
 L6:=
-	S0 == 2 GOTO L8
+	t0 <- a0 - 1
+	t0 <- CALL L2(t0)
+	t0 <- a0 * t0
+	S1 <- t0
+	GOTO L8
 L7:=
-	S1 <- 5
-	GOTO L9
-L8:=
 	S1 <- 1
+L8:=
+	GOTO L10
 L9:=
-	GOTO L11
+	S1 <- 0
 L10:=
-	S1 <- 2
-L11:=
-L3_EndTask:=
+L2_EndTask:=
 L0_EndTask:=
+L11:=
+L12:=
+	f CREATED AS S0
+L13:=
+	a0 == 1 GOTO L19
+L14:=
+L15:=
+	a0 == 2 GOTO L17
+L16:=
+	t0 <- a0 - 1
+	t0 <- CALL L12(t0)
+	t1 <- a0 - 2
+	t1 <- CALL L12(t1)
+	t0 <- t0 + t1
+	S0 <- t0
+	GOTO L18
+L17:=
+	S0 <- 1
+L18:=
+	GOTO L20
+L19:=
+	S0 <- 1
+L20:=
+L12_EndTask:=
+L11_EndTask:=
+L21:=
+L22:=
+	n CREATED AS S0
+	S0 <- 10
+L22_EndTask:=
+L23:=
+	facto CREATED AS S1
+L23_EndTask:=
+L24:=
+	fibo CREATED AS S2
+L24_EndTask:=
+L25:=
+	t0 <- Factorial
+	S1 <- t0
+	t0 <- Fibonacci
+	S2 <- t0
+	t0 <- CALL S2.fibonacci(S0)
+	t0 <- CALL OUT_INT(t0)
+	S3 <- SELF_TYPE
+L25_EndTask:=
+L21_EndTask:=

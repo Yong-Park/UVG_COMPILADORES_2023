@@ -18,6 +18,10 @@ class YAPLVisit(ParseTreeVisitor):
         self.startType = None
         self.bytesSize_string = 0
         self.temp_size_class = 0
+        self.displacement_size = 0
+        self.displacement_size_params_method = 0
+        self.class_displacement = 0
+        self.method_prop_displacement = 0
         self.actual_method = None
         self.actual_class = None
         self.actual_method_type = None
@@ -38,6 +42,7 @@ class YAPLVisit(ParseTreeVisitor):
             # realizar limpieza de los s0,s1 y temporales 
             self.tac.clearClassElements()
             self.tac.clearTemporals
+            self.class_displacement = 0
             val = self.visit(tipo)
             #add the label of end of the label
             self.tac.add(l=str(self.tac.returnSpecificLabelInCopy(self.actual_class,self.actual_class)) +"_EndTask")
@@ -203,6 +208,7 @@ class YAPLVisit(ParseTreeVisitor):
         tipos = ctx.feature()
         results = []
         for tipo in tipos:
+            self.method_prop_displacement = 0
             val = self.visit(tipo)
             self.tac.clearTemporals()
             #delete the actual feature of the copy of self.tac
@@ -276,8 +282,8 @@ class YAPLVisit(ParseTreeVisitor):
                 self.size_method += 2
             elif method_type == "Bool":
                 self.size_method += 2
-            elif method_type == self.actual_class: 
-                print("visitMethod ActualClass viendo: ", self.actual_class)
+            else:
+                self.size_method += 1
 
         #agregar el metodo
         self.symbol_table.add_symbol(method_name, method_type,ambit=self.actual_class)
@@ -375,7 +381,6 @@ class YAPLVisit(ParseTreeVisitor):
         var_name = ctx.ID().getText()
         var_type = ctx.TYPE().getText()
         self.size_val = 0
-        
         self.actual_method = var_name
         self.actual_method_type = var_type
         
@@ -425,14 +430,23 @@ class YAPLVisit(ParseTreeVisitor):
         if var_type == "Int":
             self.size_val = 4
         elif var_type == "String":
-            self.size_val = self.bytesSize_string
+            if self.bytesSize_string == 0:
+                self.size_val = 2
+            else:
+                self.size_val = self.bytesSize_string
         elif var_type == "Bool":
             self.size_val = 2
         else:
             self.size_val = 2
-            
+        
         #Actualizamos el peso de la tabla
         self.symbol_table.change_symbol_value(var_name,self.actual_class,"width",self.size_val)
+        
+        #Aplicamos la lógica del offset
+        self.symbol_table.change_symbol_value(var_name,self.actual_class,"displacement",self.class_displacement)
+        
+        self.class_displacement += self.size_val
+            
         
         # revisar si es del mismo tipo la asignacion cuando se realice
         if var_assign != None:
@@ -491,6 +505,8 @@ class YAPLVisit(ParseTreeVisitor):
             self.forml_size = 2
         else:
             self.forml_size = 2
+        
+        
             
         #add the value of receving parameter in the self.tac
         
@@ -502,6 +518,12 @@ class YAPLVisit(ParseTreeVisitor):
         
         #actualizar el peso de la tabla
         self.symbol_table.add_symbol(idtext,tipo, width= self.forml_size,ambit=self.actualAmbit)
+        
+        #Agregamos el displacement de los parámetros del método
+        self.symbol_table.change_symbol_value(idtext,self.actualAmbit,"displacement",self.method_prop_displacement)
+        
+        self.method_prop_displacement += self.forml_size
+        
                       
         #agregarlo en el method recieves para tener un control de cuales son los parametros que este recibe
         self.methodRecieves.append([idtext,tipo])
@@ -1630,6 +1652,7 @@ class YAPLVisit(ParseTreeVisitor):
         registro = self.tac.returnSpecificRegistro(left)
         self.tac.add("<-",registro,expresion_value)
         
+        
         left = self.symbol_table.get_symbol_value(left,self.actualAmbit,"type") if self.symbol_table.get_symbol_value(left,self.actualAmbit,"type") else left
         print("left after search: ",left)
         
@@ -1915,7 +1938,10 @@ class YAPLVisit(ParseTreeVisitor):
         if str(letinType) == "Int":
             self.let_size=4
         elif  str(letinType) == "String":
-            self.let_size = self.bytesSize_string
+            if self.bytesSize_string == 0:
+                self.let_size = 2
+            else:
+                self.let_size = self.bytesSize_string
         elif str(letinType) == "Bool":
             self.let_size = 2
         else: 
@@ -1935,8 +1961,14 @@ class YAPLVisit(ParseTreeVisitor):
         print("visitLetIn id: ", id)
         print("visitLetIn self.actualAmbit:  ", self.actualAmbit)
         print("visitLetIn self.let_size ", self.let_size)
+        
         #Actualizamos el peso en la tabla
         self.symbol_table.change_symbol_value(id,self.actualAmbit,"width",self.let_size)
+        
+        #Agregamos el displacement
+        self.symbol_table.change_symbol_value(id,self.actualAmbit,"displacement",self.method_prop_displacement)
+        
+        self.method_prop_displacement += self.let_size
         
         print("visitLetIn result: ",result)
         return result,None
@@ -1994,18 +2026,29 @@ class YAPLVisit(ParseTreeVisitor):
                 
         #Asignamos el peso según el tipo que se detecta
         if typevisit == "Int": 
-            self.let_assign_size += 4
+            self.let_assign_size = 4
         elif typevisit == "String":
-            self.let_assign_size += self.bytesSize_string
+            if self.bytesSize_string == 0:
+                self.let_assign_size = 2
+            else:
+                self.let_assign_size = self.bytesSize_string
         elif typevisit == "Bool":
-            self.let_assign_size += 2
+            self.let_assign_size = 2
         elif typevisit == "SELF_TYPE":
-            self.let_assign_size += 2
+            self.let_assign_size = 2
         else:
-            self.let_assign_size += 1
-            
+            self.let_assign_size = 1
+        
+        print("visitLetAssignInt actualAmbit: ", self.actualAmbit)
+        
         #Actualizamos el peso en la tabla
         self.symbol_table.change_symbol_value(id,self.actualAmbit,"width",self.let_assign_size)
+        
+        #Agregamos el displacement 
+        self.symbol_table.change_symbol_value(id,self.actualAmbit,"displacement",self.method_prop_displacement)
+        
+        self.method_prop_displacement += self.let_assign_size
+        
                             
         #obtener la otra expr
         exprResult = expresions[1]

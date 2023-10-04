@@ -1,27 +1,74 @@
 Three Direction Code
-Main:=
-n:=
-	n CREATED AS S0
-	S0 <- 5
-n_EndTask:=
-t:=
-	t CREATED AS S1
-t_EndTask:=
-main:=
+Factorial:=
+var:=
+	var CREATED AS S0
+	S0 <- 0
+var_EndTask:=
+factorial:=
+	f CREATED AS S1
 if:=
-	S0 == 5 GOTO then
+	a0 == 0 GOTO then
 else:=
 if:=
-	S0 == 2 GOTO then
+	a0 == 1 GOTO then
 else:=
-	S1 <- 5
+	t0 <- a0 - 1
+	t0 <- CALL factorial(t0)
+	t0 <- a0 * t0
+	S1 <- t0
 	GOTO fi
 then:=
 	S1 <- 1
 fi:=
 	GOTO fi
 then:=
-	S1 <- 2
+	S1 <- 0
 fi:=
+factorial_EndTask:=
+Factorial_EndTask:=
+Fibonacci:=
+fibonacci:=
+	f CREATED AS S0
+if:=
+	a0 == 1 GOTO then
+else:=
+if:=
+	a0 == 2 GOTO then
+else:=
+	t0 <- a0 - 1
+	t0 <- CALL fibonacci(t0)
+	t1 <- a0 - 2
+	t1 <- CALL fibonacci(t1)
+	t0 <- t0 + t1
+	S0 <- t0
+	GOTO fi
+then:=
+	S0 <- 1
+fi:=
+	GOTO fi
+then:=
+	S0 <- 1
+fi:=
+fibonacci_EndTask:=
+Fibonacci_EndTask:=
+Main:=
+n:=
+	n CREATED AS S0
+	S0 <- 10
+n_EndTask:=
+facto:=
+	facto CREATED AS S1
+facto_EndTask:=
+fibo:=
+	fibo CREATED AS S2
+fibo_EndTask:=
+main:=
+	t0 <- Factorial
+	S1 <- t0
+	t0 <- Fibonacci
+	S2 <- t0
+	t0 <- CALL S2.fibonacci(S0)
+	t0 <- CALL OUT_INT(t0)
+	S3 <- SELF_TYPE
 main_EndTask:=
 Main_EndTask:=
