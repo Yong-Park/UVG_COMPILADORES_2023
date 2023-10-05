@@ -1,85 +1,54 @@
 Three Direction Code
-List:=
-isNil:=
-	t0 <- 1
-isNil_EndTask:=
-head:=
-	t0 <- CALL ABORT
-head_EndTask:=
-tail:=
-	t0 <- CALL ABORT
-	t0 <- List
-tail_EndTask:=
-car:=
-car_EndTask:=
-cdr:=
-cdr_EndTask:=
-init:=
-	GP[0] <- LP[0]
-	GP[4] <- LP[4]
-	t0 <- List
-init_EndTask:=
-cons:=
-	t0 <- List
-	t1 <- List
-	t0 <- CALL t0.init(LP[0], t1)
-cons_EndTask:=
-List_EndTask:=
-Cons:=
-car:=
-car_EndTask:=
-cdr:=
-cdr_EndTask:=
-isNil:=
-	t0 <- 0
-isNil_EndTask:=
-head:=
-head_EndTask:=
-tail:=
-tail_EndTask:=
-init:=
-	GP[0] <- LP[0]
-	GP[4] <- LP[4]
-	t0 <- List
-init_EndTask:=
-Cons_EndTask:=
-Main:=
-mylist:=
-mylist_EndTask:=
-print_list:=
+Fibonacci:=
+fibonacci:=
 if:=
-	t0 <- CALL LP[0].isNil
-	t0 == 1 GOTO then
+	LP[0] == 1 GOTO then
 else:=
-	t0 <- CALL LP[0].head
-	t0 <- CALL OUT_INT(t0)
-	t0 <-  
-	t0 <- CALL OUT_STRING(t0)
-	t0 <- CALL LP[0].tail
-	t0 <- CALL print_list(t0)
+if:=
+	LP[0] == 2 GOTO then
+else:=
+	t0 <- 1 + 2
+	t0 <- LP[0] - t0
+	t0 <- CALL fibonacci(t0)
+	t1 <- 1 + 2
+	t1 <- t1 + 3
+	t1 <- LP[0] - t1
+	t1 <- CALL fibonacci(t1)
+	t0 <- t0 * t1
+	t1 <- LP[0] - 1
+	t1 <- CALL fibonacci(t1)
+	t0 <- t0 + t1
+	LP[4] <- t0
 	GOTO fi
 then:=
-	t0 <- \n
-	t0 <- CALL OUT_STRING(t0)
+	LP[4] <- 1
 fi:=
-print_list_EndTask:=
+	GOTO fi
+then:=
+	LP[4] <- 1
+fi:=
+fibonacci_EndTask:=
+Fibonacci_EndTask:=
+Main:=
+n:=
+	GP[0] <- 5
+n_EndTask:=
+s:=
+s_EndTask:=
+t:=
+t_EndTask:=
+myfibonacci:=
+myfibonacci_EndTask:=
 main:=
-	t0 <- List
-	t0 <- CALL t0.cons(1)
-	t0 <- CALL t0.cons(2)
-	t0 <- CALL t0.cons(3)
-	t0 <- CALL t0.cons(4)
-	t0 <- CALL t0.cons(5)
+	t0 <- 5 + 6
 	GP[0] <- t0
-while:=
-	t0 <- CALL GP[0].isNil
-	t1 <-  NOT t0
-	t1 != 1 GOTO pool
-loop:=
-	GP[0] <- CALL print_list(GP[0])
-	t0 <- CALL GP[0].tail
-	GP[0] <- t0
-	GOTO while
-pool:=
+	t0 <- 1
+	GP[4] <- t0
+	t0 <-  NOT GP[4]
+	GP[6] <- t0
+	t0 <- Fibonacci
+	GP[8] <- t0
+	t0 <- CALL GP[8].fibonacci(GP[0])
+	t0 <- CALL OUT_INT(t0)
 main_EndTask:=
 Main_EndTask:=

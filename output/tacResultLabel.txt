@@ -1,85 +1,54 @@
 Three Direction Code
 L0:=
 L1:=
-	t0 <- 1
-L1_EndTask:=
 L2:=
-	t0 <- CALL ABORT
-L2_EndTask:=
+	LP[0] == 1 GOTO L8
 L3:=
-	t0 <- CALL ABORT
-	t0 <- List
-L3_EndTask:=
 L4:=
-L4_EndTask:=
+	LP[0] == 2 GOTO L6
 L5:=
-L5_EndTask:=
+	t0 <- 1 + 2
+	t0 <- LP[0] - t0
+	t0 <- CALL L1(t0)
+	t1 <- 1 + 2
+	t1 <- t1 + 3
+	t1 <- LP[0] - t1
+	t1 <- CALL L1(t1)
+	t0 <- t0 * t1
+	t1 <- LP[0] - 1
+	t1 <- CALL L1(t1)
+	t0 <- t0 + t1
+	LP[4] <- t0
+	GOTO L7
 L6:=
-	GP[0] <- LP[0]
-	GP[4] <- LP[4]
-	t0 <- List
-L6_EndTask:=
+	LP[4] <- 1
 L7:=
-	t0 <- List
-	t1 <- List
-	t0 <- CALL t0.init(LP[0], t1)
-L7_EndTask:=
-L0_EndTask:=
+	GOTO L9
 L8:=
+	LP[4] <- 1
 L9:=
-L9_EndTask:=
+L1_EndTask:=
+L0_EndTask:=
 L10:=
-L10_EndTask:=
 L11:=
-	t0 <- 0
+	GP[0] <- 5
 L11_EndTask:=
 L12:=
 L12_EndTask:=
 L13:=
 L13_EndTask:=
 L14:=
-	GP[0] <- LP[0]
-	GP[4] <- LP[4]
-	t0 <- List
 L14_EndTask:=
-L8_EndTask:=
 L15:=
-L16:=
-L16_EndTask:=
-L17:=
-L18:=
-	t0 <- CALL LP[0].isNil
-	t0 == 1 GOTO L20
-L19:=
-	t0 <- CALL LP[0].head
+	t0 <- 5 + 6
+	GP[0] <- t0
+	t0 <- 1
+	GP[4] <- t0
+	t0 <-  NOT GP[4]
+	GP[6] <- t0
+	t0 <- Fibonacci
+	GP[8] <- t0
+	t0 <- CALL GP[8].fibonacci(GP[0])
 	t0 <- CALL OUT_INT(t0)
-	t0 <-  
-	t0 <- CALL OUT_STRING(t0)
-	t0 <- CALL LP[0].tail
-	t0 <- CALL L17(t0)
-	GOTO L21
-L20:=
-	t0 <- \n
-	t0 <- CALL OUT_STRING(t0)
-L21:=
-L17_EndTask:=
-L22:=
-	t0 <- List
-	t0 <- CALL t0.cons(1)
-	t0 <- CALL t0.cons(2)
-	t0 <- CALL t0.cons(3)
-	t0 <- CALL t0.cons(4)
-	t0 <- CALL t0.cons(5)
-	GP[0] <- t0
-L23:=
-	t0 <- CALL GP[0].isNil
-	t1 <-  NOT t0
-	t1 != 1 GOTO L25
-L24:=
-	GP[0] <- CALL L17(GP[0])
-	t0 <- CALL GP[0].tail
-	GP[0] <- t0
-	GOTO L23
-L25:=
-L22_EndTask:=
 L15_EndTask:=
+L10_EndTask:=

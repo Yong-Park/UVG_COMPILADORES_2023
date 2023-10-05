@@ -635,8 +635,10 @@ class YAPLVisit(ParseTreeVisitor):
             
             if left_temporal < right_temporal:
                 temporalToAdd = left_value
+                self.tac.temporals.remove(right_value)
             else:
                 temporalToAdd = right_value
+                self.tac.temporals.remove(left_value)
             
         #en caso que siga false crear una temporal para guardar la operacion en ella
         if temporalExist == False:
@@ -701,8 +703,10 @@ class YAPLVisit(ParseTreeVisitor):
             
             if left_temporal < right_temporal:
                 temporalToAdd = left_value
+                self.tac.temporals.remove(right_value)
             else:
                 temporalToAdd = right_value
+                self.tac.temporals.remove(left_value)
             
         #en caso que siga false crear una temporal para guardar la operacion en ella
         if temporalExist == False:
@@ -817,8 +821,10 @@ class YAPLVisit(ParseTreeVisitor):
             
             if left_temporal < right_temporal:
                 temporalToAdd = left_value
+                self.tac.temporals.remove(right_value)
             else:
                 temporalToAdd = right_value
+                self.tac.temporals.remove(left_value)
         
         #en caso que siga false crear una temporal para guardar la operacion en ella
         if temporalExist == False:
@@ -1048,8 +1054,10 @@ class YAPLVisit(ParseTreeVisitor):
             
             if left_temporal < right_temporal:
                 temporalToAdd = left_value
+                self.tac.temporals.remove(right_value)
             else:
                 temporalToAdd = right_value
+                self.tac.temporals.remove(left_value)
         
         #en caso que siga false crear una temporal para guardar la operacion en ella
         if temporalExist == False:
