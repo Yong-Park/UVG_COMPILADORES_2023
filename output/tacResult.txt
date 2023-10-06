@@ -1,54 +1,252 @@
 Three Direction Code
-Fibonacci:=
-fibonacci:=
-if:=
-	LP[0] == 1 GOTO then
-else:=
-if:=
-	LP[0] == 2 GOTO then
-else:=
-	t0 <- 1 + 2
-	t0 <- LP[0] - t0
-	t0 <- CALL fibonacci(t0)
-	t1 <- 1 + 2
-	t1 <- t1 + 3
-	t1 <- LP[0] - t1
-	t1 <- CALL fibonacci(t1)
-	t0 <- t0 * t1
-	t1 <- LP[0] - 1
-	t1 <- CALL fibonacci(t1)
-	t0 <- t0 + t1
-	LP[4] <- t0
-	GOTO fi
-then:=
-	LP[4] <- 1
-fi:=
-	GOTO fi
-then:=
-	LP[4] <- 1
-fi:=
-fibonacci_EndTask:=
-Fibonacci_EndTask:=
-Main:=
-n:=
-	GP[0] <- 5
-n_EndTask:=
-s:=
-s_EndTask:=
-t:=
-t_EndTask:=
-myfibonacci:=
-myfibonacci_EndTask:=
-main:=
-	t0 <- 5 + 6
+A:=
+var:=
+	t0 <- 0
 	GP[0] <- t0
+var_EndTask:=
+value:=
+value_EndTask:=
+set_var:=
+	GP[0] <- LP[0]
+	t0 <- SELF_TYPE
+set_var_EndTask:=
+method1:=
+	t0 <- SELF_TYPE
+method1_EndTask:=
+method2:=
+	t0 <- LP[0] + LP[4]
+	LP[8] <- t0
+	t0 <- A
+	t0 <- CALL t0.set_var(LP[8])
+method2_EndTask:=
+method3:=
+	t0 <- INVERT LP[0]
+	LP[4] <- t0
+	t0 <- A
+	t0 <- CALL t0.set_var(LP[4])
+method3_EndTask:=
+method4:=
+if_0:=
+	LP[4] < LP[0] GOTO then_0
+else_0:=
+	t0 <- LP[4] - LP[0]
+	LP[8] <- t0
+	t0 <- A
+	t0 <- CALL t0.set_var(LP[8])
+	GOTO fi_0
+then_0:=
+	t0 <- LP[0] - LP[4]
+	LP[12] <- t0
+	t0 <- A
+	t0 <- CALL t0.set_var(LP[12])
+fi_0:=
+method4_EndTask:=
+method5:=
 	t0 <- 1
-	GP[4] <- t0
-	t0 <-  NOT GP[4]
+	LP[4] <- t0
+	t0 <- 1
+	LP[8] <- t0
+while_0:=
+	LP[8] > LP[0] GOTO pool_0
+loop_0:=
+	t0 <- LP[4] * LP[8]
+	LP[4] <- t0
+	t0 <- 1
+	t0 <- LP[8] + t0
+	LP[8] <- t0
+	GOTO while_0
+pool_0:=
+	t0 <- A
+	t0 <- CALL t0.set_var(LP[4])
+method5_EndTask:=
+A_EndTask:=
+B:=
+method5:=
+	t0 <- LP[0] * LP[0]
+	LP[4] <- t0
+	t0 <- A
+	t0 <- CALL t0.set_var(LP[4])
+method5_EndTask:=
+B_EndTask:=
+C:=
+method6:=
+	t0 <- INVERT LP[0]
+	LP[4] <- t0
+	t0 <- A
+	t0 <- CALL t0.set_var(LP[4])
+method6_EndTask:=
+method5:=
+	t0 <- LP[0] * LP[0]
+	t0 <- t0 * LP[0]
+	LP[4] <- t0
+	t0 <- A
+	t0 <- CALL t0.set_var(LP[4])
+method5_EndTask:=
+C_EndTask:=
+D:=
+method7:=
+	LP[4] <- LP[0]
+if_1:=
+	t0 <- 0
+	LP[4] < t0 GOTO then_1
+else_1:=
+if_2:=
+	t0 <- 0
+	t0 == LP[4] GOTO then_2
+else_2:=
+if_3:=
+	t0 <- 1
+	t0 == LP[4] GOTO then_3
+else_3:=
+if_4:=
+	t0 <- 2
+	t0 == LP[4] GOTO then_4
+else_4:=
+	t0 <- 3
+	t0 <- LP[4] - t0
+	t0 <- CALL method7(t0)
+	GOTO fi_4
+then_4:=
+	t0 <- 0
+fi_4:=
+	GOTO fi_3
+then_3:=
+	t0 <- 0
+fi_3:=
+	GOTO fi_2
+then_2:=
+	t0 <- 1
+fi_2:=
+	GOTO fi_1
+then_1:=
+	t0 <- INVERT LP[4]
+	t0 <- CALL method7(t0)
+fi_1:=
+method7_EndTask:=
+D_EndTask:=
+E:=
+method6:=
+	t0 <- 8
+	t0 <- LP[0] / t0
+	LP[4] <- t0
+	t0 <- A
+	t0 <- CALL t0.set_var(LP[4])
+method6_EndTask:=
+E_EndTask:=
+Main:=
+char:=
+char_EndTask:=
+avar:=
+avar_EndTask:=
+a_var:=
+a_var_EndTask:=
+flag:=
+	t0 <- 1
 	GP[6] <- t0
-	t0 <- Fibonacci
-	GP[8] <- t0
-	t0 <- CALL GP[8].fibonacci(GP[0])
+flag_EndTask:=
+is_even:=
+	LP[4] <- LP[0]
+if_5:=
+	t0 <- 0
+	LP[4] < t0 GOTO then_5
+else_5:=
+if_6:=
+	t0 <- 0
+	t0 == LP[4] GOTO then_6
+else_6:=
+if_7:=
+	t0 <- 1
+	t0 == LP[4] GOTO then_7
+else_7:=
+	t0 <- 2
+	t0 <- LP[4] - t0
+	t0 <- CALL is_even(t0)
+	GOTO fi_7
+then_7:=
+	t0 <- 0
+fi_7:=
+	GOTO fi_6
+then_6:=
+	t0 <- 1
+fi_6:=
+	GOTO fi_5
+then_5:=
+	t0 <- INVERT LP[4]
+	t0 <- CALL is_even(t0)
+fi_5:=
+is_even_EndTask:=
+main:=
+	t0 <- A
+	GP[2] <- t0
+	t0 <- 2
+	t1 <- CALL GP[2].set_var(t0)
+	t0 <- CALL GP[2].value
 	t0 <- CALL OUT_INT(t0)
+if_8:=
+	t0 <- CALL GP[2].value
+	t0 <- CALL is_even(t0)
+	t0 == 1 GOTO then_8
+else_8:=
+	t0 <-  es impar!\n
+	t0 <- CALL OUT_STRING(t0)
+	GOTO fi_8
+then_8:=
+	t0 <-  es par!\n
+	t0 <- CALL OUT_STRING(t0)
+fi_8:=
+	t0 <- A
+	t1 <- 3
+	t0 <- CALL t0.set_var(t1)
+	GP[4] <- t0
+	t0 <- B
+	t1 <- CALL GP[2].value
+	t2 <- CALL GP[4].value
+	t0 <- CALL t0.method2(t1, t2)
+	GP[2] <- t0
+	t0 <- CALL GP[2].value
+	t0 <- CALL OUT_INT(t0)
+	t0 <- \n
+	t0 <- CALL OUT_STRING(t0)
+	t0 <- C
+	t1 <- CALL GP[2].value
+	t0 <- CALL t0.method6(t1)
+	GP[2] <- t0
+	t0 <- CALL GP[2].value
+	t0 <- CALL OUT_INT(t0)
+	t0 <- \n
+	t0 <- CALL OUT_STRING(t0)
+	t0 <- A
+	t1 <- 5
+	t0 <- CALL t0.set_var(t1)
+	GP[4] <- t0
+	t0 <- D
+	t1 <- CALL GP[2].value
+	t2 <- CALL GP[4].value
+	t0 <- CALL t0.method4(t1, t2)
+	GP[2] <- t0
+	t0 <- CALL GP[2].value
+	t0 <- CALL OUT_INT(t0)
+	t0 <- \n
+	t0 <- CALL OUT_STRING(t0)
+	t0 <- 5
+	t1 <- CALL GP[2].set_var(t0)
+	t0 <- C
+	t1 <- CALL GP[2].value
+	t0 <- CALL t0.method5(t1)
+	GP[2] <- t0
+	t0 <- CALL GP[2].value
+	t0 <- CALL OUT_INT(t0)
+	t0 <- \n
+	t0 <- CALL OUT_STRING(t0)
+	t0 <- 6
+	t1 <- CALL GP[2].set_var(t0)
+	t0 <- C
+	t1 <- CALL GP[2].value
+	t0 <- CALL t0.method5(t1)
+	GP[2] <- t0
+	t0 <- CALL GP[2].value
+	t0 <- CALL OUT_INT(t0)
+	t0 <- \n
+	t0 <- CALL OUT_STRING(t0)
 main_EndTask:=
 Main_EndTask:=

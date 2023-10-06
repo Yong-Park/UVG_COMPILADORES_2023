@@ -5,7 +5,11 @@ class Main inherits IO {
     main() : Int {
         {(
             if n = 5 then
-		        t <- 2
+		        if n = 1 then
+                    t <- 3
+                else
+                    t <- 4
+                fi
             else
                 if n = 2 then
                     t <- 1

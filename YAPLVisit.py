@@ -27,6 +27,8 @@ class YAPLVisit(ParseTreeVisitor):
         self.actual_method_type = None
         self.actualAmbit = None
         self.and_or_conditional = None
+        self.ifposition = 0
+        self.whileposition = 0
         # Codigo de tres direcciones
         self.tac = ThreeAddressCode()
         self.errors = ["ArithError","BothNotBool","RepeatedValue","assignError","methodValuesNotSame","NotSameLenght","TypeNotExist","notContainsType","diferentMethodType","diferentRecievers","recursiveInherit","whileError","DobleMain","newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
@@ -936,6 +938,8 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#while.
     def visitWhile(self, ctx:YAPLParser.WhileContext):
         print("\nwhile visitado")
+        position = self.whileposition
+        self.whileposition += 1
         whileIsBool = False
         self.actual_conditional = None
         expresions = ctx.expr()
@@ -946,20 +950,20 @@ class YAPLVisit(ParseTreeVisitor):
         self.tac.clearTemporals()
         print("corriendo while")
         #agregar el while en la labels del tac
-        self.tac.addLables("while",self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabelInCopy("while",self.actualAmbit))
+        self.tac.addLables("while_"+str(position),self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("while_"+str(position),self.actualAmbit))
         whileResult, params_while = self.visit(whilestate)
         print("while result: ",whileResult)
         print("Params while: ", params_while)
         
         if self.actual_conditional == "equal":
-            tercetoResult = self.tac.add("bnq",s="pool",x=params_while[0],y=params_while[1])
+            tercetoResult = self.tac.add("bnq",s="pool_"+str(position),x=params_while[0],y=params_while[1])
         elif self.actual_conditional == "lteq":
-            tercetoResult = self.tac.add("bg",s="pool",x=params_while[0],y=params_while[1])
+            tercetoResult = self.tac.add("bg",s="pool_"+str(position),x=params_while[0],y=params_while[1])
         elif self.actual_conditional == "lt":
-            tercetoResult = self.tac.add("bgt",s="pool",x=params_while[0],y=params_while[1])
+            tercetoResult = self.tac.add("bgt",s="pool_"+str(position),x=params_while[0],y=params_while[1])
         else:
-            tercetoResult = self.tac.add("bnq",s="pool",x=params_while,y="1")
+            tercetoResult = self.tac.add("bnq",s="pool_"+str(position),x=params_while,y="1")
         
         self.actual_conditional = None
         
@@ -978,35 +982,26 @@ class YAPLVisit(ParseTreeVisitor):
         print("corriendo loop")
         self.tac.clearTemporals()
         #agregar el loop en la labels del tac
-        self.tac.addLables("loop",self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabelInCopy("loop",self.actualAmbit))
+        self.tac.addLables("loop_"+str(position),self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("loop_"+str(position),self.actualAmbit))
         loopResult,_ = self.visit(loopstate)
         print("loopResult: ", loopResult)
         print("Valores loop no tomado en cuenta: ", _)
         #hacer el salto para que vaya de regreso al while
-        self.tac.add("j",s=self.tac.returnSpecificLabelInCopy("while", self.actualAmbit))
-        
-        # if self.actual_conditional == "equal":
-        #     self.tac.add("beq",s=self.tac.returnSpecificLabelInCopy("while", self.actualAmbit),x=params_while[0],y=params_while[1])
-        # elif self.actual_conditional == "lteq":
-        #     self.tac.add("ble",s=self.tac.returnSpecificLabelInCopy("while", self.actualAmbit),x=params_while[0],y=params_while[1])
-        # elif self.actual_conditional == "lt":
-        #     self.tac.add("blt",s=self.tac.returnSpecificLabelInCopy("while", self.actualAmbit),x=params_while[0],y=params_while[1])
-        # else:
-        #     self.tac.add("beq",s=self.tac.returnSpecificLabelInCopy("while", self.actualAmbit),x=params_while,y="1")
+        self.tac.add("j",s=self.tac.returnSpecificLabelInCopy("while_"+str(position), self.actualAmbit))
         
         print("visitWhile results (loop): ",loopResult)
         
         print("visit while pool visitado")
         # pool_text = ctx.POOL().getText()
         #agregar el pool en la labels del tac
-        self.tac.addLables("pool",self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabelInCopy("pool",self.actualAmbit))
-        tercetoResult.s = self.tac.returnSpecificLabelInCopy("pool",self.actualAmbit)
+        self.tac.addLables("pool_"+str(position),self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("pool_"+str(position),self.actualAmbit))
+        tercetoResult.s = self.tac.returnSpecificLabelInCopy("pool_"+str(position),self.actualAmbit)
         
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("while",self.actualAmbit))
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("loop",self.actualAmbit))
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("pool",self.actualAmbit))
+        # self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("while",self.actualAmbit))
+        # self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("loop",self.actualAmbit))
+        # self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("pool",self.actualAmbit))
         
         print("=============================")
         if type(loopResult) == list:
@@ -1282,6 +1277,8 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#if.
     def visitIf(self, ctx:YAPLParser.IfContext):
         # self.tac.clearTemporals()
+        position = self.ifposition
+        self.ifposition += 1
         self.ifLogicTemporal = None
         print("\nif visitado")
         self.actual_conditional = None
@@ -1296,8 +1293,8 @@ class YAPLVisit(ParseTreeVisitor):
             return "ifError"
         
         #agregar el if en la labels del tac
-        self.tac.addLables("if",self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabelInCopy("if",self.actualAmbit))
+        self.tac.addLables("if_"+str(position),self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("if_"+str(position),self.actualAmbit))
         
         #logica del if
         ifstate = expresions[0] #if
@@ -1309,17 +1306,17 @@ class YAPLVisit(ParseTreeVisitor):
         print("visitIf conditioners: ", conditioners)
         
         if self.actual_conditional == "equal":
-            tercetoResult = self.tac.add("beq",s="then",x=conditioners[0],y=conditioners[1])
+            tercetoResult = self.tac.add("beq",s="then_"+str(position),x=conditioners[0],y=conditioners[1])
         elif self.actual_conditional == "lteq":
-            tercetoResult = self.tac.add("ble",s="then",x=conditioners[0],y=conditioners[1])
+            tercetoResult = self.tac.add("ble",s="then_"+str(position),x=conditioners[0],y=conditioners[1])
         elif self.actual_conditional == "lt":
-            tercetoResult = self.tac.add("blt",s="then",x=conditioners[0],y=conditioners[1])
+            tercetoResult = self.tac.add("blt",s="then_"+str(position),x=conditioners[0],y=conditioners[1])
         elif self.actual_conditional == "and":
-            tercetoResult = self.tac.add("and",s="then",x=conditioners[0],y=conditioners[1])
+            tercetoResult = self.tac.add("and",s="then_"+str(position),x=conditioners[0],y=conditioners[1])
         elif self.actual_conditional == "or":
-            tercetoResult = self.tac.add("or",s="then",x=conditioners[0],y=conditioners[1])
+            tercetoResult = self.tac.add("or",s="then_"+str(position),x=conditioners[0],y=conditioners[1])
         else:
-            tercetoResult = self.tac.add("beq",s="then",x=conditioners,y="1")
+            tercetoResult = self.tac.add("beq",s="then_"+str(position),x=conditioners,y="1")
             
         self.actual_conditional = None
         print("ifResult: ",ifResult)
@@ -1332,12 +1329,13 @@ class YAPLVisit(ParseTreeVisitor):
                 return "ifError",None
             
         #obtener los resultados de elstate y thenstate
-        elsestate = expresions[2] #else
-        #agregar el else en la labels del tac
-        self.tac.addLables("else",self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabelInCopy("else",self.actualAmbit))
-        
         print("Corriendo el else")
+        elsestate = expresions[2] #else
+
+        #agregar el else en la labels del tac
+        self.tac.addLables("else_"+str(position),self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("else_"+str(position),self.actualAmbit))
+        
         #limpieza de los temporales
         self.tac.clearTemporals()
         elseResult,elseResultValue = self.visit(elsestate)
@@ -1347,13 +1345,14 @@ class YAPLVisit(ParseTreeVisitor):
             self.ifLogicTemporal = elseResultValue
         # self.tac.add("<-",self.ifLogicTemporal,elseResultValue)
         #agregar el salto hacia el fi para que finalize el if
-        tercetoFi = self.tac.add("j","fi")
+        tercetoFi = self.tac.add("j","fi_"+str(position))
         
         thenstate = expresions[1] #then
         print("Corriendo el then")
+        
         #agregar el then en la labels del tac
-        self.tac.addLables("then",self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabelInCopy("then",self.actualAmbit))
+        self.tac.addLables("then_"+str(position),self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("then_"+str(position),self.actualAmbit))
         
         #limpieza de los temporales
         self.tac.clearTemporals()
@@ -1365,18 +1364,19 @@ class YAPLVisit(ParseTreeVisitor):
         # self.tac.add("<-",self.ifLogicTemporal,thenResultValue)
         
         #agregar logica para que haga salto para el fi
-        self.tac.addLables("fi",self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabelInCopy("fi",self.actualAmbit))
+        self.tac.addLables("fi_"+str(position),self.actualAmbit)
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy("fi_"+str(position),self.actualAmbit))
         
         #reemplazando los valores de estos por su respectivo label
-        tercetoResult.s = self.tac.returnSpecificLabelInCopy("then",self.actualAmbit)
-        tercetoFi.s = self.tac.returnSpecificLabelInCopy("fi",self.actualAmbit)
+        tercetoResult.s = self.tac.returnSpecificLabelInCopy("then_"+str(position),self.actualAmbit)
+        tercetoFi.s = self.tac.returnSpecificLabelInCopy("fi_"+str(position),self.actualAmbit)
         #eliminarlo de la tabla de labelsCopy
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("if",self.actualAmbit))
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("else",self.actualAmbit))
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("then",self.actualAmbit))
-        self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("fi",self.actualAmbit))
-        
+        # self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("if_"+str(positionToGo),self.actualAmbit))
+        # self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("else_"+str(positionToGo),self.actualAmbit))
+        # self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("then_"+str(positionToGo),self.actualAmbit))
+        # self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy("fi_"+str(positionToGo),self.actualAmbit))
+        print("visitif labelscopy: ",self.tac.labelsCopy)
+
         self.tac.clearTemporals()
         #agregar los resultados en el results
         results = []
@@ -1651,7 +1651,10 @@ class YAPLVisit(ParseTreeVisitor):
         print("visitINTEGER")
         value = ctx.INTEGER().getText()
         print("visitINTEGER value: ",value)
-        return "Int", value
+        #agregar la asignacion del valor a una temporal
+        temporaltoAdd = self.tac.newTemporal()
+        self.tac.add("<-",temporaltoAdd,value)
+        return "Int", temporaltoAdd
 
 
     # Visit a parse tree produced by YAPLParser#assign.
