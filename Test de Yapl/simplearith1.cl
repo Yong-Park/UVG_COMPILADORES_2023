@@ -1,11 +1,12 @@
 class Main inherits IO {
-    a : Int <- 100;
-    b : Int <- 515; 
+    a : Int <- 10;
+    b : Int <- 2;
+    d : Int; 
 
     main(s : Int) : Int {
-    (let c : Int  in
+    (let c : Int <- 5  in
 	 {
-            c <- a+b;
+            d <- c+a+b;
 	 }
     )
     };

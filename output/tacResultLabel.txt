@@ -2,20 +2,26 @@
 	GP: .space 0
 	LP: .space 0
 L0:=
-	$t0 <- 100
+	$t0 <- 10
 	0($s0) <- $t0
 L0_EndTask:=
 L1:=
-	$t0 <- 515
+	$t0 <- 2
 	4($s0) <- $t0
 L1_EndTask:=
 L2:=
+L2_EndTask:=
+L3:=
 	$s0 <- GP
 	$s1 <- LP
 	CALL L0
 	CALL L1
-	$t0 <- 0($s0)
+	$t0 <- 5
+	4($s1) <- $t0
+	$t0 <- 4($s1)
+	$t1 <- 0($s0)
+	$t0 <- $t0 + $t1
 	$t1 <- 4($s0)
 	$t0 <- $t0 + $t1
-	4($s1) <- $t0
-L2_EndTask:=
+	8($s0) <- $t0
+L3_EndTask:=

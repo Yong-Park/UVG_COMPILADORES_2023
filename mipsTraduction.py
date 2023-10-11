@@ -35,10 +35,11 @@ class mipsTraduction():
                             file.write("\tsw " + str(clean_line[2].strip()) +", "+ str(clean_line[0].strip())+ "\n")
                         elif "$s1" in clean_line[0] and "LP" == clean_line[2].strip():
                             file.write("\tla " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ "\n")
-                        elif "$t" in clean_line[0] and "$s0" not in clean_line[2]:
-                            if "s1" not in clean_line[2]:
-                                file.write("\tli " + str(clean_line[0].strip()) + ", " + str(clean_line[2].strip()) + "\n")
-                        elif "$t" in clean_line[0] and "$s0" in clean_line[2] or "$t" in clean_line[0] and "$s1" in clean_line[2]:
+                        elif "$t" in clean_line[0] and "$s0" not in clean_line[2] and "s1" not in clean_line[2]:
+                            file.write("\tli " + str(clean_line[0].strip()) + ", " + str(clean_line[2].strip()) + "\n")
+                        elif "$t" in clean_line[0] and "$s1" in str(clean_line[2]):
+                            file.write("\tlw " + str(clean_line[0].strip()) + ", " + str(clean_line[2].strip()) + "\n")
+                        elif "$t" in clean_line[0] and "$s0" in str(clean_line[2]):
                             file.write("\tlw " + str(clean_line[0].strip()) + ", " + str(clean_line[2].strip()) + "\n")
                     else:
                         lineAgroup = ' '.join(clean_line)

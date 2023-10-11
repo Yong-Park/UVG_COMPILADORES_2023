@@ -242,8 +242,8 @@ class ThreeAddressCode():
         with open("output/tacResult.txt", 'w') as file:
             # file.write("Three Direction Code"+ "\n")
             file.write(".data\n")
-            file.write("\tGP: .space 0\n")
-            file.write("\tLP: .space 0\n")
+            file.write("\tGP: .space 40\n")
+            file.write("\tLP: .space 40\n")
             for tac in self.tercetos:
                 if tac.l != None and "_EndTask" in tac.l: 
                     file.write(str(self.returnSpecificRegistroByLabel(str(tac.l).split("_")[0]))+"_"+str(tac.l).split("_")[1] + ":="+ "\n")
