@@ -7,6 +7,7 @@ else:
 from MipsThreeCode import ThreeAddressCode
 from SymbolTable import SymbolTable
 from copy import *
+from mipsTraduction import mipsTraduction
 import re
 
 # This class defines a complete generic visitor for a parse tree produced by YAPLParser.
@@ -47,12 +48,12 @@ class YAPLVisit(ParseTreeVisitor):
             self.class_displacement = 0
             val = self.visit(tipo)
             #add the label of end of the label
-            self.tac.add(l=str(self.tac.returnSpecificLabelInCopy(self.actual_class,self.actual_class)) +"_EndTask")
+            # self.tac.add(l=str(self.tac.returnSpecificLabelInCopy(self.actual_class,self.actual_class)) +"_EndTask")
             #delete the actual class of the copy of self.tac
-            self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy(self.actual_class,self.actual_class))
+            # self.tac.deleteSpecifiLabel(self.tac.returnSpecificLabelInCopy(self.actual_class,self.actual_class))
             #clear all the labelscopy 
             self.tac.clearLabels()
-            
+            self.tac.clearVisitProperties()
             print("self.tac.classElements: ", self.tac.classElements)
             print("self.tac.temporals: ", self.tac.temporals)
             print("self.tac.labels: ",self.tac.labels)
@@ -147,6 +148,10 @@ class YAPLVisit(ParseTreeVisitor):
         #para hacer print el tac
         self.tac.printTac()
         self.tac.printTacLabel()
+        
+        #transformar el resultado del codigo intermedio ya a mips
+        mips = mipsTraduction("./output/tacResult.txt")
+        mips.adaptToMips()
         return message
 
 
@@ -168,8 +173,8 @@ class YAPLVisit(ParseTreeVisitor):
         self.actualAmbit = classtype
         
         #agregar el label del metodo en tac
-        self.tac.addLables(classtype,self.actualAmbit)
-        self.tac.add(l=self.tac.returnSpecificLabelInCopy(classtype,self.actualAmbit))
+        # self.tac.addLables(classtype,self.actualAmbit)
+        # self.tac.add(l=self.tac.returnSpecificLabelInCopy(classtype,self.actualAmbit))
         
         defclaseInherits = ctx.INHERITS() #revisar si existe la funcion inherits
         # print(defclaseInherits)
@@ -206,12 +211,12 @@ class YAPLVisit(ParseTreeVisitor):
                 
         else:
             self.symbol_table.add_symbol(classtype, type=defclaseClass,ambit=self.actual_class)
-        
         tipos = ctx.feature()
         results = []
         for tipo in tipos:
             self.method_prop_displacement = 0
             val = self.visit(tipo)
+            
             self.tac.clearTemporals()
             #delete the actual feature of the copy of self.tac
             if self.tac.returnSpecificLabelInCopy(self.actual_method,self.actualAmbit) != None:
@@ -255,7 +260,6 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#method.
     def visitMethod(self, ctx:YAPLParser.MethodContext):
         print("\nvisitMethod")
-        
         self.size_method = 0
         self.method_recieves_size = 0
         self.forml_type = False
@@ -297,9 +301,21 @@ class YAPLVisit(ParseTreeVisitor):
         formlExist = ctx.formal()
         
         #agregar el label del metodo en tac
-        self.tac.addLables(method_name,self.actual_class)
-        self.tac.add(l=self.tac.returnSpecificLabelInCopy(method_name,self.actual_class))
-
+        if self.actual_class == "Main" and method_name == "main":
+            methodtoadd = method_name
+        else:
+            methodtoadd = self.actualAmbit
+        
+        self.tac.addLables(methodtoadd,self.actual_class)
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy(methodtoadd,self.actual_class))
+        self.tac.add("<-","$s0","GP")
+        self.tac.add("<-","$s1","LP")
+        #revisar si el self.tac.visitProperties tiene valores y si es asi añadir la llamada a estos
+        if len(self.tac.visitProperties) > 0:
+            print("VisitMethod self.tac.visitProperties: ",self.tac.visitProperties)
+            for vp in self.tac.visitProperties:
+                self.tac.add("call",vp)
+        
         print('method_name: ', method_name, '\n')
         print('method_type: ', method_type, '\n')
         
@@ -335,7 +351,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         #agregar el fin del metodo del metodo en tac
         
-        self.tac.add(l=str(self.tac.returnSpecificLabelInCopy(method_name,self.actual_class)) + "_EndTask")
+        self.tac.add(l=str(self.tac.returnSpecificLabelInCopy(methodtoadd,self.actual_class)) + "_EndTask")
         
         #revisar si tiene un valor igual al tipo del metodo 
         if type(method_expr_type) == list:
@@ -389,10 +405,11 @@ class YAPLVisit(ParseTreeVisitor):
         self.symbol_table.add_symbol(var_name, type=var_type, ambit=self.actual_class)
         #cambiar el tipo de ambiente para que ya sea del clase mas metodo
         self.actualAmbit = self.actual_class + "." + var_name
+        valPosition = self.actual_class + "." + var_name
         
         #agregar el label del metodo en tac
-        self.tac.addLables(var_name,self.actual_class)
-        self.tac.add(l=self.tac.returnSpecificLabelInCopy(var_name,self.actual_class))
+        self.tac.addLables(valPosition,self.actual_class)
+        self.tac.add(l=self.tac.returnSpecificLabelInCopy(valPosition,self.actual_class))
         
         var_expr, var_expr_value = self.visit(ctx.expr()) if ctx.expr() != None else ([], None)
         var_assign = ctx.ASSIGN()
@@ -447,10 +464,10 @@ class YAPLVisit(ParseTreeVisitor):
         displacement = self.symbol_table.get_symbol_value(var_name,self.actual_class,"displacement")
         print("visitProperty displacement: ",displacement)
         #definir que este sera un tipo S0 donde luego se revisara si este ya esta definido
-        self.tac.addClassElements(var_name, "S", "GP["+str(displacement)+"]")
-        
+        # self.tac.addClassElements(var_name, "S", "GP["+str(displacement)+"]")
+        self.tac.addClassElements(var_name, "S", str(displacement)+"($s0)")
         #agregar al tac, la asignacion de elemtno al classelement
-        # self.tac.add("create",var_name,self.tac.returnSpecificRegistro(var_name))
+        # self.tac.add("create",var_name,"GP["+str(displacement)+"]")
             
         # revisar si es del mismo tipo la asignacion cuando se realice
         if var_assign != None:
@@ -459,6 +476,9 @@ class YAPLVisit(ParseTreeVisitor):
             #agregar la agregacion 
             # self.tac.add("declare",registro,var_name)
             self.tac.add("<-",registro,var_expr_value)
+            #agregar la logica en el self.tac.visitProperties para que se agregue para que se logre vistar despues en los metodos
+            self.tac.addVisitProperties(self.tac.returnSpecificLabelInCopy(valPosition,self.actual_class))
+            print("visitProperty valPosition: ",valPosition)
             
             #revisar si var_expr es un tipo de lista
             if type(var_expr) == list:
@@ -476,7 +496,7 @@ class YAPLVisit(ParseTreeVisitor):
             # self.tac.add("declare",registro,var_name)
             
         #agregar el fin del metodo del metodo en tac
-        self.tac.add(l=str(self.tac.returnSpecificLabelInCopy(var_name,self.actual_class)) +"_EndTask")
+        self.tac.add(l=str(self.tac.returnSpecificLabelInCopy(valPosition,self.actual_class)) +"_EndTask")
 
         print("visitProperty var_type: ",var_type)
         print("=============================")
@@ -527,7 +547,10 @@ class YAPLVisit(ParseTreeVisitor):
             displacement = self.symbol_table.get_symbol_value(idtext,self.actualAmbit,"displacement")
             print("visitForml displacement: ",displacement)
             #definir que este sera un tipo S0 donde luego se revisara si este ya esta definido
-            self.tac.addClassElements(idtext, "a", "LP["+str(displacement)+"]")
+            # self.tac.addClassElements(idtext, "a", "LP["+str(displacement)+"]")
+            self.tac.addClassElements(idtext, "a", str(displacement)+"($s1)")
+            #agregar al tac, la asignacion de elemtno al classelement
+            # self.tac.add("create",idtext,"LP["+str(displacement)+"]")
         
                       
         #agregarlo en el method recieves para tener un control de cuales son los parametros que este recibe
@@ -622,18 +645,18 @@ class YAPLVisit(ParseTreeVisitor):
         
         #revisar si el left_value o el right_value es una temporal
         temporalExist = False
-        if left_value.startswith("t"):
+        if left_value.startswith("$t"):
             temporalToAdd = left_value
             temporalExist = True
-        if right_value.startswith("t"):
+        if right_value.startswith("$t"):
             temporalToAdd = right_value
             temporalExist = True
             
         #revisar en caso que ambos lados regresen una temporal
-        if left_value.startswith("t") and right_value.startswith("t"):
+        if left_value.startswith("$t") and right_value.startswith("$t"):
             #realiazar una comparacion para ver cual de los dos es el menor ya que ese es el que se usara para guardar o asignar el temporal
-            left_temporal = int(left_value[1:])
-            right_temporal = int(right_value[1:])
+            left_temporal = int(left_value[2:])
+            right_temporal = int(right_value[2:])
             
             if left_temporal < right_temporal:
                 temporalToAdd = left_value
@@ -690,18 +713,18 @@ class YAPLVisit(ParseTreeVisitor):
         
         #revisar si el left_value o el right_value es una temporal
         temporalExist = False
-        if left_value.startswith("t"):
+        if left_value.startswith("$t"):
             temporalToAdd = left_value
             temporalExist = True
-        if right_value.startswith("t"):
+        if right_value.startswith("$t"):
             temporalToAdd = right_value
             temporalExist = True
             
         #revisar en caso que ambos lados regresen una temporal
-        if left_value.startswith("t") and right_value.startswith("t"):
+        if left_value.startswith("$t") and right_value.startswith("$t"):
             #realiazar una comparacion para ver cual de los dos es el menor ya que ese es el que se usara para guardar o asignar el temporal
-            left_temporal = int(left_value[1:])
-            right_temporal = int(right_value[1:])
+            left_temporal = int(left_value[2:])
+            right_temporal = int(right_value[2:])
             
             if left_temporal < right_temporal:
                 temporalToAdd = left_value
@@ -784,8 +807,9 @@ class YAPLVisit(ParseTreeVisitor):
         text = text[1:-1]
         lenText = len(text)
         print("visitString text: ",text)
+        text_position = self.tac.newTextPositionAdd(text)
         temporalToAdd = self.tac.newTemporal()
-        self.tac.add("<-",temporalToAdd,text)
+        self.tac.add("<-",temporalToAdd,text_position)
         
         self.bytesSize_string = lenText * 2
         print("VISIT STRING Peso de la cadena: ", self.bytesSize_string)
@@ -808,18 +832,18 @@ class YAPLVisit(ParseTreeVisitor):
         
         #revisar si el left_value o el right_value es una temporal
         temporalExist = False
-        if left_value.startswith("t"):
+        if left_value.startswith("$t"):
             temporalToAdd = left_value
             temporalExist = True
-        if right_value.startswith("t"):
+        if right_value.startswith("$t"):
             temporalToAdd = right_value
             temporalExist = True
             
         #revisar en caso que ambos lados regresen una temporal
-        if left_value.startswith("t") and right_value.startswith("t"):
+        if left_value.startswith("$t") and right_value.startswith("$t"):
             #realiazar una comparacion para ver cual de los dos es el menor ya que ese es el que se usara para guardar o asignar el temporal
-            left_temporal = int(left_value[1:])
-            right_temporal = int(right_value[1:])
+            left_temporal = int(left_value[2:])
+            right_temporal = int(right_value[2:])
             
             if left_temporal < right_temporal:
                 temporalToAdd = left_value
@@ -1034,18 +1058,18 @@ class YAPLVisit(ParseTreeVisitor):
         
         #revisar si el left_value o el right_value es una temporal
         temporalExist = False
-        if left_value.startswith("t"):
+        if left_value.startswith("$t"):
             temporalToAdd = left_value
             temporalExist = True
-        if right_value.startswith("t"):
+        if right_value.startswith("$t"):
             temporalToAdd = right_value
             temporalExist = True
             
         #revisar en caso que ambos lados regresen una temporal
-        if left_value.startswith("t") and right_value.startswith("t"):
+        if left_value.startswith("$t") and right_value.startswith("$t"):
             #realiazar una comparacion para ver cual de los dos es el menor ya que ese es el que se usara para guardar o asignar el temporal
-            left_temporal = int(left_value[1:])
-            right_temporal = int(right_value[1:])
+            left_temporal = int(left_value[2:])
+            right_temporal = int(right_value[2:])
             
             if left_temporal < right_temporal:
                 temporalToAdd = left_value
@@ -1265,11 +1289,16 @@ class YAPLVisit(ParseTreeVisitor):
         print("existe: ", exist)
         print("=============================")
         if exist:
+            teporalToAdd = self.tac.newTemporal()
             if self.symbol_table.get_symbol_value(value,self.actualAmbit,"type"):
-                return self.symbol_table.get_symbol_value(value,self.actualAmbit,"type"), self.tac.returnSpecificRegistro(value)
+                self.tac.add("<-",teporalToAdd, self.tac.returnSpecificRegistro(value))
+                # self.tac.add("j",self.tac.returnSpecificLabelInCopy(self.actual_class+"."+value,self.actualAmbit))
+                return self.symbol_table.get_symbol_value(value,self.actualAmbit,"type"), teporalToAdd
             
             elif self.symbol_table.get_symbol_value(value,self.actual_class,"type"):
-                return self.symbol_table.get_symbol_value(value,self.actual_class,"type"), self.tac.returnSpecificRegistro(value)
+                self.tac.add("<-",teporalToAdd, self.tac.returnSpecificRegistro(value))
+                # self.tac.add("j",self.tac.returnSpecificLabelInCopy(self.actual_class+"."+value,self.actual_class))
+                return self.symbol_table.get_symbol_value(value,self.actual_class,"type"), teporalToAdd
         else:
             return "noValue", None
 
@@ -1577,7 +1606,7 @@ class YAPLVisit(ParseTreeVisitor):
                 
             #agregar al self.tac para que realice un goto al mismo metodo
             temporalToAdd = recievedParamsValues[0]
-            self.tac.add("call",temporalToAdd,self.tac.returnSpecificLabelInCopy(id,self.actual_class),recievedParamsValues)
+            self.tac.add("call",temporalToAdd,self.tac.returnSpecificLabelInCopy(self.actual_class+"."+id,self.actual_class),recievedParamsValues)
 
                 
         else:
@@ -1941,9 +1970,6 @@ class YAPLVisit(ParseTreeVisitor):
         id = ctx.ID().getText()
         letinType = ctx.TYPE().getText()
 
-        #agregar al tac, la asignacion de elemtno al classelement
-        # self.tac.add("create",id,self.tac.returnSpecificRegistro(id))
-
         self.let_size = 0
         print("visitLetIn valor de la cadena: ", self.bytesSize_string)
         
@@ -1994,7 +2020,10 @@ class YAPLVisit(ParseTreeVisitor):
         displacement = self.symbol_table.get_symbol_value(id,self.actualAmbit,"displacement")
         print("visitLetIn displacement: ",displacement)
         #definir que este sera un tipo S0 donde luego se revisara si este ya esta definido
-        self.tac.addClassElements(id, "S", "LP["+str(displacement)+"]")
+        # self.tac.addClassElements(id, "S", "LP["+str(displacement)+"]")
+        self.tac.addClassElements(id, "S", str(displacement)+"($s1)")
+        #agregar al tac, la asignacion de elemtno al classelement
+        # self.tac.add("create",id,"LP["+str(displacement)+"]")
         
         result,_ = self.visit(ctx.expr())
         
@@ -2016,9 +2045,6 @@ class YAPLVisit(ParseTreeVisitor):
         typevisit = ctx.TYPE().getText()
         self.let_assign_size = 0
         print("visitLetAssignIn typevisit: ",typevisit)
-        
-        #agregar al tac, la asignacion de elemtno al classelement
-        # self.tac.add("create",id,self.tac.returnSpecificRegistro(id))
         
         #agregar el id de este a la tabla
         self.symbol_table.add_symbol(id,type=typevisit,ambit=self.actualAmbit)
@@ -2073,7 +2099,10 @@ class YAPLVisit(ParseTreeVisitor):
         displacement = self.symbol_table.get_symbol_value(id,self.actualAmbit,"displacement")
         print("visitLetIn displacement: ",displacement)
         #definir que este sera un tipo S0 donde luego se revisara si este ya esta definido
-        self.tac.addClassElements(id, "S", "LP["+str(displacement)+"]")
+        # self.tac.addClassElements(id, "S", "LP["+str(displacement)+"]")
+        self.tac.addClassElements(id, "S", str(displacement)+"($s1)")
+        #agregar al tac, la asignacion de elemtno al classelement
+        # self.tac.add("create",id,"LP["+str(displacement)+"]")
         
         #agregar la asigacion al self.tac.add
         registro = self.tac.returnSpecificRegistro(id)

@@ -15,6 +15,14 @@ class ThreeAddressCode():
         self.labelsCopy = []
         self.temporals = []
         self.tercetos = []
+        self.text_data = []
+        self.visitProperties = []
+        
+    def addVisitProperties(self,value):
+        self.visitProperties.append(str(value))
+        
+    def clearVisitProperties(self):
+        self.visitProperties = []
         
     def clearClassElements(self):
         self.classElements = []
@@ -29,13 +37,29 @@ class ThreeAddressCode():
         temporals = self.temporals
         num = 0
         while True:
-            temporalToAdd = "t" + str(num)
+            temporalToAdd = "$t" + str(num)
             if str(temporalToAdd) in temporals:
                 num += 1
             else:
                 self.temporals.append(str(temporalToAdd))
                 break
         return str(temporalToAdd)
+    
+    def newTextPositionAdd(self,recieved):
+        texts = self.text_data
+        text = []
+        for t in texts:
+            text.append(t[0])
+        
+        num = 0
+        while True:
+            textToAdd = "text_" + str(num)
+            if str(textToAdd) in text:
+                num += 1
+            else:
+                self.text_data.append([str(textToAdd),str(recieved)])
+                break
+        return str(textToAdd)
 
     #para obtener desde el label tal hasta su label_endtask
     def getLabelsArray(self,label):
@@ -150,7 +174,11 @@ class ThreeAddressCode():
         
     def printTacLabel(self):
         with open("output/tacResultLabel.txt", 'w') as file:
-            file.write("Three Direction Code"+ "\n")
+            # file.write("Three Direction Code"+ "\n")
+            file.write(".data\n")
+            file.write("\tGP: .space 0\n")
+            file.write("\tLP: .space 0\n")
+    
             for tac in self.tercetos:
                 if tac.l != None and "_EndTask" in tac.l: 
                     file.write(str(tac.l).split("_")[0]+"_"+str(tac.l).split("_")[1] + ":="+ "\n")
@@ -176,6 +204,8 @@ class ThreeAddressCode():
                     file.write("\t" + str(tac.x) + " & " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
                 elif tac.o == "or":
                     file.write("\t" + str(tac.x) + " | " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
+                elif tac.o == "call" and not tac.x and not tac.y:
+                    file.write("\t" + "CALL " + str(tac.s)+ "\n")
                 elif tac.o == "call" and not tac.y:
                     # file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x)) if "." not in str(tac.x) else str(tac.x)) + "\n")
                     file.write("\t" + str(tac.s) + " <- " + "CALL " + str(tac.x) + "\n")
@@ -199,6 +229,10 @@ class ThreeAddressCode():
                     file.write("\t" + str(tac.x) + " >= " + str(tac.y) + " GOTO " + str(tac.s)+ "\n")
                 else:
                     file.write("\t" + str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y)+ "\n")
+            if len(self.text_data) != 0:
+                file.write(".data: " + "\n")
+                for texts in self.text_data:
+                    file.write("\t" + str(texts[0]) + ': .asciiz "' + str(texts[1]) + '"\n')
     
     def printTac(self):
         allLabels = []
@@ -206,7 +240,10 @@ class ThreeAddressCode():
             allLabels.append(l[1])
         
         with open("output/tacResult.txt", 'w') as file:
-            file.write("Three Direction Code"+ "\n")
+            # file.write("Three Direction Code"+ "\n")
+            file.write(".data\n")
+            file.write("\tGP: .space 0\n")
+            file.write("\tLP: .space 0\n")
             for tac in self.tercetos:
                 if tac.l != None and "_EndTask" in tac.l: 
                     file.write(str(self.returnSpecificRegistroByLabel(str(tac.l).split("_")[0]))+"_"+str(tac.l).split("_")[1] + ":="+ "\n")
@@ -215,7 +252,7 @@ class ThreeAddressCode():
                 elif tac.o == "<-":
                     file.write("\t" + str(tac.s) + " " + str(tac.o) + " " + str(tac.x) + "\n")
                 elif tac.o == "add":
-                    file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " + " + str(tac.y)+ "\n")
+                    file.write("\tadd " + str(tac.s) + ", " + str(tac.x) + ", " + str(tac.y)+ "\n")
                 elif tac.o == "sub":
                     file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " - " + str(tac.y)+ "\n")
                 elif tac.o == "div":
@@ -238,6 +275,8 @@ class ThreeAddressCode():
                     file.write("\t" + str(tac.x) + " & " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
                 elif tac.o == "or":
                     file.write("\t" + str(tac.x) + " | " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
+                elif tac.o == "call" and not tac.x and not tac.y:
+                    file.write("\t" + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
                 elif tac.o == "call" and not tac.y:
                     if tac.x not in allLabels:
                     # file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x)) if "." not in str(tac.x) else str(tac.x)) + "\n")
@@ -262,6 +301,10 @@ class ThreeAddressCode():
                     file.write("\t" + str(tac.s) + " CREATED AS "+ str(tac.x)+ "\n")
                 else:
                     file.write("\t" + str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y)+ "\n")
+            if len(self.text_data) != 0:
+                file.write(".data: " + "\n")
+                for texts in self.text_data:
+                    file.write("\t" + str(texts[0]) + ': .asciiz "' + str(texts[1]) + '"\n')
         
     # o es el tipo de operacion
     # s es donde se guardara el valor o el goto que realizara esto depende del o
