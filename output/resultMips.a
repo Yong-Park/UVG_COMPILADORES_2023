@@ -12,16 +12,25 @@ Main.b:
 	sw $t0, 4($s0)
 	jr $ra
 .text
+Main.d:
+	jr $ra
+.text
 main:
 	la $s0, GP
 	la $s1, LP
 	jal Main.a
 	jal Main.b
-	lw $t0, 0($s0)
+	li $t0, 5
+	sw $t0, 4($s1)
+	lw $t0, 4($s1)
+	lw $t1, 0($s0)
+	mul $t0, $t0, $t1
 	lw $t1, 4($s0)
+	sub $t0, $t0, $t1
+	li $t1, 8
 	div $t0, $t1
 	mflo $t0
-	sw $t0, 4($s1)
+	sw $t0, 8($s0)
 	li $v0, 1
 	move $a0, $t0
 	syscall

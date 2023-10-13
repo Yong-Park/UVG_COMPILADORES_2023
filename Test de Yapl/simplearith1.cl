@@ -6,7 +6,7 @@ class Main inherits IO {
     main(s : Int) : Int {
     (let c : Int <- 5  in
 	 {
-            d <- c+a+b;
+            d <- (c*a-b) / 8;
 	 }
     )
     };
