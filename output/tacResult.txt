@@ -2,7 +2,7 @@
 	GP: .space 40
 	LP: .space 40
 Main.a:=
-	$t0 <- 10
+	$t0 <- 48
 	0($s0) <- $t0
 Main.a_EndTask:=
 Main.b:=
@@ -10,21 +10,21 @@ Main.b:=
 	4($s0) <- $t0
 Main.b_EndTask:=
 Main.d:=
+	$t0 <- 8
+	8($s0) <- $t0
 Main.d_EndTask:=
 main:=
 	$s0 <- GP
 	$s1 <- LP
 	CALL Main.a
 	CALL Main.b
-	$t0 <- 5
-	4($s1) <- $t0
-	$t0 <- 4($s1)
+	CALL Main.d
+	$t0 <- 8($s0)
 	$t1 <- 0($s0)
-	mul $t0, $t0, $t1
-	$t1 <- 4($s0)
-	sub $t0, $t0, $t1
-	$t1 <- 8
-	div $t0, $t1
-	mflo $t0
-	8($s0) <- $t0
+	$t2 <- 4($s0)
+	div $t1, $t1, $t2
+	$t2 <- 8($s0)
+	div $t1, $t1, $t2
+	add $t0, $t0, $t1
+	4($s1) <- $t0
 main_EndTask:=

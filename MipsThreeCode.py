@@ -257,9 +257,9 @@ class ThreeAddressCode():
                     file.write("\tsub " + str(tac.s) + ", " + str(tac.x) + ", " + str(tac.y)+ "\n")
                 elif tac.o == "div":
                     # t0 <- t0 / t1
-                    file.write("\tdiv " + str(tac.x) + ", " + str(tac.y)+ "\n")
-                    file.write("\tmflo " + str(tac.s)+ "\n")
-                    # file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " / " + str(tac.y)+ "\n")
+                    # file.write("\tdiv " + str(tac.x) + ", " + str(tac.y)+ "\n")
+                    # file.write("\tmflo " + str(tac.s)+ "\n")
+                    file.write("\tdiv " + str(tac.s) + ", " + str(tac.x) + ", " + str(tac.y)+ "\n")
                 elif tac.o == "mul":
                     file.write("\tmul " + str(tac.s) + ", " + str(tac.x) + ", " + str(tac.y)+ "\n")
                 elif tac.o == "beq":
