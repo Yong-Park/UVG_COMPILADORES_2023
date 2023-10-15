@@ -3,18 +3,38 @@
 	LP: .space 40
 .text
 Main.a:
-	li $t0, 48
+	li $t0, 10
 	sw $t0, 0($s0)
 	jr $ra
 .text
 Main.b:
-	li $t0, 2
+	li $t0, 5
 	sw $t0, 4($s0)
 	jr $ra
 .text
+Main.c:
+	jr $ra
+.text
 Main.d:
+	jr $ra
+.text
+Main.operation:
+	la $s0, GP
+	la $s1, LP
 	li $t0, 8
 	sw $t0, 8($s0)
+	li $t0, 2
+	sw $t0, 12($s0)
+	lw $t0, 0($s1)
+	lw $t1, 4($s0)
+	add $t0, $t0, $t1
+	lw $t1, 12($s0)
+	div $t0, $t0, $t1
+	lw $t1, 0($s0)
+	mul $t0, $t0, $t1
+	lw $t1, 8($s0)
+	sub $t0, $t0, $t1
+	sw $t0, 4($s1)
 	jr $ra
 .text
 main:
@@ -22,15 +42,9 @@ main:
 	la $s1, LP
 	jal Main.a
 	jal Main.b
-	jal Main.d
-	lw $t0, 8($s0)
-	lw $t1, 0($s0)
-	lw $t2, 4($s0)
-	div $t1, $t1, $t2
-	lw $t2, 8($s0)
-	div $t1, $t1, $t2
-	add $t0, $t0, $t1
-	sw $t0, 4($s1)
+	li $t1, 5
+	sw $t1, 0($s1)
+	jal Main.operation
 	li $v0, 1
 	move $a0, $t0
 	syscall

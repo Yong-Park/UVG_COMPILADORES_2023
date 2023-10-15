@@ -311,7 +311,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.tac.add("<-","$s0","GP")
         self.tac.add("<-","$s1","LP")
         #revisar si el self.tac.visitProperties tiene valores y si es asi añadir la llamada a estos
-        if len(self.tac.visitProperties) > 0:
+        if len(self.tac.visitProperties) > 0 and method_name == "main":
             print("VisitMethod self.tac.visitProperties: ",self.tac.visitProperties)
             for vp in self.tac.visitProperties:
                 self.tac.add("call",vp)
@@ -1214,7 +1214,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         #agregar temporal de la asigacion de este
         temporalToAdd = self.tac.newTemporal()
-        self.tac.add("<-",temporalToAdd,value)
+        # self.tac.add("<-",temporalToAdd,value)
         
         print("visitNewObject temporalToAdd: ",temporalToAdd)
         if existNew:
@@ -1871,6 +1871,9 @@ class YAPLVisit(ParseTreeVisitor):
                         else:
                             message = "methodValuesNotSame"
                             break
+                        #agregar el valor de cada uno en su respectivo indice
+                        displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(firstType + "." + id),"displacement")
+                        self.tac.add("<-",str(displacement)+"($s1)",recievedParamsValues[i])
                 else:
                     message = "NotSameLenght"
 
@@ -1880,10 +1883,10 @@ class YAPLVisit(ParseTreeVisitor):
             #agregar la llamada del metodo
             if firstTypeValue not in self.tac.temporals:
                 temporalToAdd = self.tac.newTemporal()
-                self.tac.add("call",temporalToAdd,firstTypeValue+"."+id,recievedParamsValues)
+                self.tac.add("call",temporalToAdd,firstType+"."+id,recievedParamsValues)
             else:
                 temporalToAdd = firstTypeValue
-                self.tac.add("call",firstTypeValue,firstTypeValue+"."+id,recievedParamsValues)
+                self.tac.add("call",firstTypeValue,firstType+"."+id,recievedParamsValues)
             
         else:
             print("no es de la clase revisar si hereda y si es asi encontrar si es una de las funciones por la cual se hereda")

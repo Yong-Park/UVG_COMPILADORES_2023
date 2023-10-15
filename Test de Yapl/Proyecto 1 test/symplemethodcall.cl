@@ -5,11 +5,11 @@ class Main inherits IO {
     d : Int;
 
     operation(num:Int) : Int {
-        (let e : Int <- 6 in
+        (let e : Int  in
 	        {
                 c <- 8;
                 d <- 2;
-                e <- (a+b*c-d)/(b*c-a);
+                e <- (((num+b)/d)*a)-c;
 	        }
         )
     };

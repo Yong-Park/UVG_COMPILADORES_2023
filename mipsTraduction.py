@@ -44,7 +44,29 @@ class mipsTraduction():
                     else:
                         lineAgroup = ' '.join(clean_line)
                         file.write(lineAgroup)
+                elif len(clean_line) == 4:
+                    if clean_line[1] == "<-":
+                        if clean_line[2] == "CALL":
+                            if "." in clean_line[3]:
+                                file.write("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
+                    else:
+                        lineAgroup = ' '.join(clean_line)
+                        file.write(lineAgroup)
                         
+                elif len(clean_line) == 5:
+                    if clean_line[1] == "<-":
+                        if clean_line[3] == "+":
+                            file.write("\tadd " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ ", "+ str(clean_line[4].strip()) +"\n")
+                        elif clean_line[3] == "-":
+                            file.write("\tsub " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ ", "+ str(clean_line[4].strip()) +"\n")
+                        elif clean_line[3] == "/":
+                            file.write("\tdiv " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ ", "+ str(clean_line[4].strip()) +"\n")
+                        elif clean_line[3] == "*":
+                            file.write("\tmul " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ ", "+ str(clean_line[4].strip()) +"\n")
+                    else:
+                        lineAgroup = ' '.join(clean_line)
+                        file.write(lineAgroup)
+                         
                 else:
                     lineAgroup = ' '.join(clean_line)
                     file.write(lineAgroup)

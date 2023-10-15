@@ -252,16 +252,16 @@ class ThreeAddressCode():
                 elif tac.o == "<-":
                     file.write("\t" + str(tac.s) + " " + str(tac.o) + " " + str(tac.x) + "\n")
                 elif tac.o == "add":
-                    file.write("\tadd " + str(tac.s) + ", " + str(tac.x) + ", " + str(tac.y)+ "\n")
+                    file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " + " + str(tac.y)+ "\n")
                 elif tac.o == "sub":
-                    file.write("\tsub " + str(tac.s) + ", " + str(tac.x) + ", " + str(tac.y)+ "\n")
+                    file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " - " + str(tac.y)+ "\n")
                 elif tac.o == "div":
                     # t0 <- t0 / t1
                     # file.write("\tdiv " + str(tac.x) + ", " + str(tac.y)+ "\n")
                     # file.write("\tmflo " + str(tac.s)+ "\n")
-                    file.write("\tdiv " + str(tac.s) + ", " + str(tac.x) + ", " + str(tac.y)+ "\n")
+                    file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " / " + str(tac.y)+ "\n")
                 elif tac.o == "mul":
-                    file.write("\tmul " + str(tac.s) + ", " + str(tac.x) + ", " + str(tac.y)+ "\n")
+                    file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " * " + str(tac.y)+ "\n")
                 elif tac.o == "beq":
                     file.write("\t" + str(tac.x) + " == " + str(tac.y) + " GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
                 elif tac.o == "ble":
