@@ -6,37 +6,24 @@ Main.a:=
 	0($s0) <- $t0
 Main.a_EndTask:=
 Main.b:=
-	$t0 <- 5
+	$t0 <- 2
 	4($s0) <- $t0
 Main.b_EndTask:=
-Main.c:=
-Main.c_EndTask:=
 Main.d:=
 Main.d_EndTask:=
-Main.operation:=
-	$s0 <- GP
-	$s1 <- LP
-	$t0 <- 8
-	8($s0) <- $t0
-	$t0 <- 2
-	12($s0) <- $t0
-	$t0 <- 0($s1)
-	$t1 <- 4($s0)
-	$t0 <- $t0 + $t1
-	$t1 <- 12($s0)
-	$t0 <- $t0 / $t1
-	$t1 <- 0($s0)
-	$t0 <- $t0 * $t1
-	$t1 <- 8($s0)
-	$t0 <- $t0 - $t1
-	4($s1) <- $t0
-Main.operation_EndTask:=
 main:=
 	$s0 <- GP
 	$s1 <- LP
 	CALL Main.a
 	CALL Main.b
-	$t1 <- 5
-	0($s1) <- $t1
-	$t0 <- CALL Main.operation($t1)
+	$t0 <- 5
+	4($s1) <- $t0
+	$t0 <- 4($s1)
+	$t1 <- 0($s0)
+	$t0 <- $t0 * $t1
+	$t1 <- 4($s0)
+	$t0 <- $t0 - $t1
+	$t1 <- 8
+	$t0 <- $t0 / $t1
+	8($s0) <- $t0
 main_EndTask:=
