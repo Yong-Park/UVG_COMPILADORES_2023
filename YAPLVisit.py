@@ -773,14 +773,23 @@ class YAPLVisit(ParseTreeVisitor):
         print("visitVoid typeValue: ",typeValue)
         print("=============================")
         #comprar si lo que se regreso es de tipo void
-        if str(type) == "Void":
-            temporalToAdd = self.tac.newTemporal()
-            self.tac.add("isvoid",temporalToAdd,typeValue)
-            return "bool",temporalToAdd
+        if typeValue in self.tac.temporals:
+            if str(type) == "Void":
+                self.tac.add("isvoid",typeValue,typeValue)
+                return "bool",typeValue
+            else:
+                self.tac.add("isvoid",typeValue,typeValue)
+                return "bool",typeValue
+            
         else:
-            temporalToAdd = self.tac.newTemporal()
-            self.tac.add("isvoid",temporalToAdd,typeValue)
-            return "bool",temporalToAdd
+            if str(type) == "Void":
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("isvoid",temporalToAdd,typeValue)
+                return "bool",temporalToAdd
+            else:
+                temporalToAdd = self.tac.newTemporal()
+                self.tac.add("isvoid",temporalToAdd,typeValue)
+                return "bool",temporalToAdd
 
     # Visit a parse tree produced by YAPLParser#invert.
     def visitInvert(self, ctx:YAPLParser.InvertContext):
@@ -1458,6 +1467,7 @@ class YAPLVisit(ParseTreeVisitor):
                     else:
                         temporalToAdd = firstTypeValue
                         self.tac.add("call",temporalToAdd,"OUT_STRING",firstTypeValue)
+                    # self.tac.temporals.remove(str(firstTypeValue))
                     message = "SELF_TYPE"
                 
             elif id == "out_int":
@@ -1474,6 +1484,7 @@ class YAPLVisit(ParseTreeVisitor):
                     else:
                         temporalToAdd = firstTypeValue
                         self.tac.add("call",temporalToAdd,"OUT_INT",firstTypeValue)
+                    # self.tac.temporals.remove(str(firstTypeValue))
                     message = "SELF_TYPE"
                     
             elif id == "in_string":
@@ -1525,6 +1536,7 @@ class YAPLVisit(ParseTreeVisitor):
                     else:
                         temporalToAdd = secondTypeValue
                         self.tac.add("call",temporalToAdd,"CONCAT",secondTypeValue)
+                    self.tac.temporals.remove(str(secondTypeValue))
                     message = "String"
                     
             elif id == "substr":
@@ -1550,7 +1562,9 @@ class YAPLVisit(ParseTreeVisitor):
                         else:
                             temporalToAdd = thirdTypeValue
                         self.tac.add("call",temporalToAdd,"SUBSTR",[str(secondTypeValue),str(thirdTypeValue)])
-
+                        
+                    self.tac.temporals.remove(str(secondTypeValue))
+                    self.tac.temporals.remove(str(thirdTypeValue))
                     message = "String"
             elif id == "isNil":
                 temporalToAdd = self.tac.newTemporal()
@@ -1791,6 +1805,7 @@ class YAPLVisit(ParseTreeVisitor):
                 if secondType == "String":
                     temporalToAdd = firstTypeValue
                     self.tac.add("call",temporalToAdd,firstTypeValue+"."+"CONCAT",secondTypeValue)
+                    self.tac.temporals.remove(str(secondTypeValue))
                     message = "String"
             elif id == "substr":
                 second = expresions.pop(0)
@@ -1800,6 +1815,9 @@ class YAPLVisit(ParseTreeVisitor):
                 if secondType == "Int" and thirdType == "Int":
                     temporalToAdd = firstTypeValue
                     self.tac.add("call",temporalToAdd,firstTypeValue+"."+"SUBSTR",[str(secondTypeValue),str(thirdTypeValue)])
+                    #limpiar las temporales que se usaron
+                    self.tac.temporals.remove(str(secondTypeValue))
+                    self.tac.temporals.remove(str(thirdTypeValue))
                     message = "String"
             elif id == "isNil":
                 temporalToAdd = firstTypeValue
@@ -1813,6 +1831,7 @@ class YAPLVisit(ParseTreeVisitor):
                 if secondType == "String":
                     temporalToAdd = firstTypeValue
                     self.tac.add("call",temporalToAdd,firstTypeValue+"."+"OUT_STRING",secondTypeValue)
+                    self.tac.temporals.remove(str(secondTypeValue))
                     message = "SELF_TYPE"
                     
             elif id == "out_int":
@@ -1821,6 +1840,7 @@ class YAPLVisit(ParseTreeVisitor):
                 if secondType == "Int":
                     temporalToAdd = firstTypeValue
                     self.tac.add("call",temporalToAdd,firstTypeValue+"."+"OUT_INT",secondTypeValue)
+                    self.tac.temporals.remove(str(secondTypeValue))
                     message = "SELF_TYPE"
                     
             elif id == "in_string":
