@@ -308,8 +308,10 @@ class YAPLVisit(ParseTreeVisitor):
         
         self.tac.addLables(methodtoadd,self.actual_class)
         self.tac.add(l=self.tac.returnSpecificLabelInCopy(methodtoadd,self.actual_class))
-        self.tac.add("<-","$s0","GP")
-        self.tac.add("<-","$s1","LP")
+        # self.tac.add("<-","$s0","GP")
+        # self.tac.add("<-","$s1","LP")
+        self.tac.add("<-","$s0","0($sp)")
+        self.tac.add("<-","$s1","4($sp)")
         #revisar si el self.tac.visitProperties tiene valores y si es asi añadir la llamada a estos
         if len(self.tac.visitProperties) > 0 and method_name == "main":
             print("VisitMethod self.tac.visitProperties: ",self.tac.visitProperties)
@@ -1608,6 +1610,9 @@ class YAPLVisit(ParseTreeVisitor):
                         else:
                             message = "methodValuesNotSame"
                             break
+                        #agregar el valor de cada uno en su respectivo indice
+                        displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(firstType + "." + id),"displacement")
+                        self.tac.add("<-",str(displacement)+"($s1)",recievedParamsValues[i])
                 else:
                     message = "NotSameLenght"
                 #si todo esta bien realizar la asignacion del valor de recievedParamsValues al newparamsValue
@@ -1664,6 +1669,9 @@ class YAPLVisit(ParseTreeVisitor):
                                 else:
                                     message = "methodValuesNotSame"
                                     break
+                                #agregar el valor de cada uno en su respectivo indice
+                                displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(firstType + "." + id),"displacement")
+                                self.tac.add("<-",str(displacement)+"($s1)",recievedParamsValues[i])
                         else:
                             message = "NotSameLenght"
                         
@@ -1953,6 +1961,9 @@ class YAPLVisit(ParseTreeVisitor):
                                 else:
                                     message = "methodValuesNotSame"
                                     break
+                                #agregar el valor de cada uno en su respectivo indice
+                                displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(firstType + "." + id),"displacement")
+                                self.tac.add("<-",str(displacement)+"($s1)",recievedParamsValues[i])
                         else:
                             message = "NotSameLenght"
                         

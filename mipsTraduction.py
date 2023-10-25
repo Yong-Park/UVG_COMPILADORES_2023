@@ -11,7 +11,11 @@ class mipsTraduction():
                 if ":=" in clean_line[0] and "EndTask:=" not in clean_line[0]:
                     file.write(".text\n")
                     file.write(str(clean_line[0].replace(":=",":")))
-                    
+                    if "main:=" in clean_line[0]:
+                        file.write("\tla $sp, 0x7FFFFFC0\n")
+                        file.write("\tsub $sp, $sp, 40\n")
+                        file.write("\tsw $ra, 0($sp)\n")
+                
                 elif "EndTask:=" in clean_line[0]:
                     newText = clean_line[0].split("_")
                     if str(newText[0]) != "main":
@@ -20,6 +24,8 @@ class mipsTraduction():
                         file.write("\tli $v0, 1\n")
                         file.write("\tmove $a0, $t0\n")
                         file.write("\tsyscall\n")
+                        file.write("\tlw $ra, 0($sp)\n")
+                        file.write("\tadd $sp, $sp, 40\n")
                         file.write("\tli $v0, 10\n")
                         file.write("\tsyscall\n")
                 elif clean_line[0].strip() == "CALL":
@@ -29,11 +35,11 @@ class mipsTraduction():
                     if clean_line[1] == "<-":
                         if "$s0" in clean_line[0] and "$t" in clean_line[2]:
                             file.write("\tsw " + str(clean_line[2].strip()) +", "+ str(clean_line[0].strip())+ "\n")
-                        elif "$s0" in clean_line[0] and "GP" == clean_line[2].strip():
+                        elif "$s0" in clean_line[0] and "0($sp)" == clean_line[2].strip():
                             file.write("\tla " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ "\n")
                         elif "$s1" in clean_line[0] and "$t" in clean_line[2]:
                             file.write("\tsw " + str(clean_line[2].strip()) +", "+ str(clean_line[0].strip())+ "\n")
-                        elif "$s1" in clean_line[0] and "LP" == clean_line[2].strip():
+                        elif "$s1" in clean_line[0] and "4($sp)" == clean_line[2].strip():
                             file.write("\tla " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ "\n")
                         elif "$t" in clean_line[0] and "$s0" not in clean_line[2] and "s1" not in clean_line[2]:
                             file.write("\tli " + str(clean_line[0].strip()) + ", " + str(clean_line[2].strip()) + "\n")
