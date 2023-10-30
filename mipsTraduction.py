@@ -9,12 +9,21 @@ class mipsTraduction():
             for line in self.lines:
                 clean_line = line.split(" ")
                 if ":=" in clean_line[0] and "EndTask:=" not in clean_line[0]:
-                    file.write(".text\n")
-                    file.write(str(clean_line[0].replace(":=",":")))
-                    if "main:=" in clean_line[0]:
-                        file.write("\tla $sp, 0x7FFFFFC0\n")
-                        file.write("\tsub $sp, $sp, 40\n")
-                        file.write("\tsw $ra, 0($sp)\n")
+                    if "if_" in clean_line[0]:
+                        pass
+                    elif "else_" in clean_line[0]:
+                        file.write("\tjal " + clean_line[0].split(":=")[0] + "\n")
+                        file.write(".text\n")
+                        file.write(str(clean_line[0].replace(":=",":")))
+                    else:
+                        file.write(".text\n")
+                        file.write(str(clean_line[0].replace(":=",":")))
+                        if "main:=" in clean_line[0]:
+                            file.write("\tla $sp, 0x7FFFFFC0\n")
+                            file.write("\tsub $sp, $sp, 40\n")
+                            file.write("\tsw $ra, 0($sp)\n")
+ 
+                        
                 
                 elif "EndTask:=" in clean_line[0]:
                     newText = clean_line[0].split("_")
