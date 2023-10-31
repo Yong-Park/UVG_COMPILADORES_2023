@@ -1,13 +1,17 @@
 class Main inherits IO {
-    n: Int <- 5;
-    t: Int;
+    n: Int <- 4;
+    t: Int <- 1;
 
     main() : Int {
         {(
             if n = 5 then
-                t <- 3
+                n <- 3
             else
-                t <- 1
+                if t = 3 then
+                    n <- 1
+                else
+                    n <- 10
+                fi
             fi
         );}
     };

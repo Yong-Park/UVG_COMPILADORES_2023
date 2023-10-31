@@ -14,19 +14,37 @@ class mipsTraduction():
                 self.controller.append(clean_line[0].split(":=")[0])
                 self.diccionario[self.controller[len(self.controller)-1]] = [] 
                 if "if_" in clean_line[0]:
-                    self.diccionario[self.controller[len(self.controller)-2]].append("\tjal " + clean_line[0].split(":=")[0] + "\n")
+                    # self.controller.pop(len(self.controller)-1)
+                    # del self.diccionario[clean_line[0].split(":=")[0]]
+                    if self.controller[len(self.controller)-2].split("_")[0] not in ["if","else","then","fi"]:
+                        self.diccionario[self.controller[len(self.controller)-2]].append("\tjal " + clean_line[0].split(":=")[0] + "\n")
+                    else:
+                        self.diccionario[self.controller[len(self.controller)-2]].append("\tj " + clean_line[0].split(":=")[0] + "\n")
                     self.diccionario[self.controller[len(self.controller)-1]].append(".text\n")
                     self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
+                    # self.diccionario[self.controller[len(self.controller)-1]].append("\tjr $ra\n")
                 elif "else_" in clean_line[0]:
-                    self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[0].split(":=")[0] + "\n")
-                    self.diccionario["if_"+str(clean_line[0].split("_")[1].split(":")[0])].append("\tjr $ra\n")
+                    # self.diccionario["if_"+str(clean_line[0].split("_")[1].split(":")[0])].append("\tjr $ra\n")
+                    self.diccionario[self.controller[len(self.controller)-2]].append("\tj " + clean_line[0].split(":=")[0] + "\n")
                     self.diccionario[self.controller[len(self.controller)-1]].append(".text\n")
                     self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
-                    self.controller.remove("if_"+str(clean_line[0].split("_")[1].split(":")[0]))
+                    
                 elif "fi_" in clean_line[0]:
-                    self.controller.remove("then_"+str(clean_line[0].split("_")[1].split(":")[0]))
+                    self.diccionario[self.controller[len(self.controller)-2]].append("\tj " +clean_line[0].split(":=")[0] + "\n")
+                    self.diccionario[self.controller[len(self.controller)-1]].append(".text\n")
+                    self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
                     self.diccionario[self.controller[len(self.controller)-1]].append("\tjr $ra\n")
-                    self.controller.pop(len(self.controller)-1)
+                    
+                    #eliminar todos los _algo de logica
+                    self.controller.remove("if_"+clean_line[0].split(":=")[0].split("_")[1])
+                    self.controller.remove("then_"+clean_line[0].split(":=")[0].split("_")[1])
+                    self.controller.remove("else_"+clean_line[0].split(":=")[0].split("_")[1])
+                    self.controller.remove("fi_"+clean_line[0].split(":=")[0].split("_")[1])
+                    
+                    # self.diccionario["then_"+str(clean_line[0].split("_")[1].split(":")[0])].append("\tjr $ra\n")
+                    # self.controller.remove("then_"+str(clean_line[0].split("_")[1].split(":")[0]))
+                    # self.controller.pop(len(self.controller)-1)
+                    # del self.diccionario[clean_line[0].split(":=")[0]]
                 else:
                     self.diccionario[self.controller[len(self.controller)-1]].append(".text\n")
                     self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
@@ -55,8 +73,8 @@ class mipsTraduction():
             
             elif len(clean_line) == 2:
                 if "GOTO" in clean_line[0] and "fi" in clean_line[1]:
-                    self.diccionario[self.controller[len(self.controller)-1]].append("\tjr $ra\n")
-                    self.controller.pop(len(self.controller)-1)
+                    self.diccionario[self.controller[len(self.controller)-1]].append("\tj "+ str(clean_line[1].strip()) +"\n")
+                    # self.controller.pop(len(self.controller)-1)
                     
             elif len(clean_line) == 3:
                 if clean_line[1] == "<-":
@@ -99,6 +117,8 @@ class mipsTraduction():
                         self.diccionario[self.controller[len(self.controller)-1]].append("\tdiv " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ ", "+ str(clean_line[4].strip()) +"\n")
                     elif clean_line[3] == "*":
                         self.diccionario[self.controller[len(self.controller)-1]].append("\tmul " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ ", "+ str(clean_line[4].strip()) +"\n")
+                elif clean_line[1] == "==":
+                    self.diccionario[self.controller[len(self.controller)-1]].append("\tbeq "+ str(clean_line[0].strip())+ ", "+ str(clean_line[2].strip())+ ", "+ str(clean_line[4].strip()) +"\n")
                 else:
                     lineAgroup = ' '.join(clean_line)
                     self.diccionario[self.controller[len(self.controller)-1]].append(lineAgroup)
