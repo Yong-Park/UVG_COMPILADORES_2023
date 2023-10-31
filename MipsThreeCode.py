@@ -305,7 +305,7 @@ class ThreeAddressCode():
                 else:
                     file.write("\t" + str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y)+ "\n")
             if len(self.text_data) != 0:
-                file.write(".data: " + "\n")
+                file.write(".data " + "\n")
                 for texts in self.text_data:
                     file.write("\t" + str(texts[0]) + ': .asciiz "' + str(texts[1]) + '"\n')
         

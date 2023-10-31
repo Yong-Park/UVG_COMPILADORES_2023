@@ -51,7 +51,10 @@ class mipsTraduction():
                         elif "$s1" in clean_line[0] and "4($sp)" == clean_line[2].strip():
                             file.write("\tla " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ "\n")
                         elif "$t" in clean_line[0] and "$s0" not in clean_line[2] and "s1" not in clean_line[2]:
-                            file.write("\tli " + str(clean_line[0].strip()) + ", " + str(clean_line[2].strip()) + "\n")
+                            if "text_" in clean_line[2]:
+                                file.write("\tla " + str(clean_line[0].strip()) + ", " + str(clean_line[2].strip()) + "\n")
+                            else:
+                                file.write("\tli " + str(clean_line[0].strip()) + ", " + str(clean_line[2].strip()) + "\n")
                         elif "$t" in clean_line[0] and "$s1" in str(clean_line[2]):
                             file.write("\tlw " + str(clean_line[0].strip()) + ", " + str(clean_line[2].strip()) + "\n")
                         elif "$t" in clean_line[0] and "$s0" in str(clean_line[2]):

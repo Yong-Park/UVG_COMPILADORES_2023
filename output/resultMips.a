@@ -1,10 +1,15 @@
 .text
-Main.n:
-	li $t0, 5
+Main.a:
+	li $t0, 10
 	sw $t0, 0($s0)
 	jr $ra
 .text
-Main.t:
+Main.b:
+	li $t0, 2
+	sw $t0, 4($s0)
+	jr $ra
+.text
+Main.d:
 	jr $ra
 .text
 main:
@@ -13,22 +18,18 @@ main:
 	sw $ra, 0($sp)
 	la $s0, 0($sp)
 	la $s1, 4($sp)
-	jal Main.n
-	lw $t0, 0($s0)
-	li $t1, 5
-	$t0 == $t1 GOTO then_0
-	jal else_0
-.text
-else_0:
-	li $t0, 1
-	sw $t0, 4($s0)
-	GOTO fi_0
-.text
-then_0:
-	li $t0, 3
-	sw $t0, 4($s0)
-.text
-fi_0:
+	jal Main.a
+	jal Main.b
+	li $t0, 5
+	sw $t0, 4($s1)
+	lw $t0, 4($s1)
+	lw $t1, 0($s0)
+	mul $t0, $t0, $t1
+	lw $t1, 4($s0)
+	sub $t0, $t0, $t1
+	li $t1, 8
+	div $t0, $t0, $t1
+	sw $t0, 8($s0)
 	li $v0, 1
 	move $a0, $t0
 	syscall
