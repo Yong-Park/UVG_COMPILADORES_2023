@@ -1,26 +1,14 @@
 Main.a:=
-	$t0 <- 10
-	0($s0) <- $t0
 Main.a_EndTask:=
 Main.b:=
-	$t0 <- 2
-	4($s0) <- $t0
 Main.b_EndTask:=
-Main.d:=
-Main.d_EndTask:=
 main:=
 	$s0 <- 0($sp)
 	$s1 <- 4($sp)
-	CALL Main.a
-	CALL Main.b
-	$t0 <- 5
-	4($s1) <- $t0
-	$t0 <- 4($s1)
-	$t1 <- 0($s0)
-	$t0 <- $t0 * $t1
-	$t1 <- 4($s0)
-	$t0 <- $t0 - $t1
-	$t1 <- 8
-	$t0 <- $t0 / $t1
-	8($s0) <- $t0
+	$t0 <- text_0
+	2($s0) <- $t0
+	$t0 <- 2($s0)
+	0($s0) <- $t0
 main_EndTask:=
+.data 
+	text_0: .asciiz "Hola Mundo"

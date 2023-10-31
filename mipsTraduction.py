@@ -30,7 +30,7 @@ class mipsTraduction():
                     if str(newText[0]) != "main":
                         file.write("\tjr $ra\n")
                     else:
-                        file.write("\tli $v0, 1\n")
+                        file.write("\tli $v0, 1\n") # con v0, 1 es para cuando es un entero; v0, 4 es para una cadena
                         file.write("\tmove $a0, $t0\n")
                         file.write("\tsyscall\n")
                         file.write("\tlw $ra, 0($sp)\n")

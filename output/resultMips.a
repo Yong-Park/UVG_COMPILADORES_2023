@@ -1,15 +1,8 @@
 .text
 Main.a:
-	li $t0, 10
-	sw $t0, 0($s0)
 	jr $ra
 .text
 Main.b:
-	li $t0, 2
-	sw $t0, 4($s0)
-	jr $ra
-.text
-Main.d:
 	jr $ra
 .text
 main:
@@ -18,18 +11,10 @@ main:
 	sw $ra, 0($sp)
 	la $s0, 0($sp)
 	la $s1, 4($sp)
-	jal Main.a
-	jal Main.b
-	li $t0, 5
-	sw $t0, 4($s1)
-	lw $t0, 4($s1)
-	lw $t1, 0($s0)
-	mul $t0, $t0, $t1
-	lw $t1, 4($s0)
-	sub $t0, $t0, $t1
-	li $t1, 8
-	div $t0, $t0, $t1
-	sw $t0, 8($s0)
+	la $t0, text_0
+	sw $t0, 2($s0)
+	lw $t0, 2($s0)
+	sw $t0, 0($s0)
 	li $v0, 1
 	move $a0, $t0
 	syscall
@@ -37,3 +22,5 @@ main:
 	add $sp, $sp, 40
 	li $v0, 10
 	syscall
+.data 
+	text_0: .asciiz "Hola Mundo"

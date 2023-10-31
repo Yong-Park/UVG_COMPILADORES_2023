@@ -1,26 +1,14 @@
 L0:=
-	$t0 <- 10
-	0($s0) <- $t0
 L0_EndTask:=
 L1:=
-	$t0 <- 2
-	4($s0) <- $t0
 L1_EndTask:=
 L2:=
-L2_EndTask:=
-L3:=
 	$s0 <- 0($sp)
 	$s1 <- 4($sp)
-	CALL L0
-	CALL L1
-	$t0 <- 5
-	4($s1) <- $t0
-	$t0 <- 4($s1)
-	$t1 <- 0($s0)
-	$t0 <- $t0 * $t1
-	$t1 <- 4($s0)
-	$t0 <- $t0 - $t1
-	$t1 <- 8
-	$t0 <- $t0 / $t1
-	8($s0) <- $t0
-L3_EndTask:=
+	$t0 <- text_0
+	2($s0) <- $t0
+	$t0 <- 2($s0)
+	0($s0) <- $t0
+L2_EndTask:=
+.data: 
+	text_0: .asciiz "Hola Mundo"
