@@ -1,14 +1,23 @@
-Main.a:=
-Main.a_EndTask:=
-Main.b:=
-Main.b_EndTask:=
+Main.n:=
+	$t0 <- 5
+	0($s0) <- $t0
+Main.n_EndTask:=
+Main.t:=
+Main.t_EndTask:=
 main:=
 	$s0 <- 0($sp)
 	$s1 <- 4($sp)
-	$t0 <- text_0
-	2($s0) <- $t0
-	$t0 <- 2($s0)
-	0($s0) <- $t0
+	CALL Main.n
+if_0:=
+	$t0 <- 0($s0)
+	$t1 <- 5
+	$t0 == $t1 GOTO then_0
+else_0:=
+	$t0 <- 1
+	4($s0) <- $t0
+	GOTO fi_0
+then_0:=
+	$t0 <- 3
+	4($s0) <- $t0
+fi_0:=
 main_EndTask:=
-.data 
-	text_0: .asciiz "Hola Mundo"

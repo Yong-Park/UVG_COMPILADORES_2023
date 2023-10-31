@@ -1,8 +1,27 @@
 .text
-Main.a:
+Main.n:
+	li $t0, 5
+	sw $t0, 0($s0)
 	jr $ra
 .text
-Main.b:
+Main.t:
+	jr $ra
+.text
+if_0:
+	lw $t0, 0($s0)
+	li $t1, 5
+	$t0 == $t1 GOTO then_0
+	jr $ra
+	jal else_0
+.text
+else_0:
+	li $t0, 1
+	sw $t0, 4($s0)
+	jr $ra
+.text
+then_0:
+	li $t0, 3
+	sw $t0, 4($s0)
 	jr $ra
 .text
 main:
@@ -11,10 +30,8 @@ main:
 	sw $ra, 0($sp)
 	la $s0, 0($sp)
 	la $s1, 4($sp)
-	la $t0, text_0
-	sw $t0, 2($s0)
-	lw $t0, 2($s0)
-	sw $t0, 0($s0)
+	jal Main.n
+	jal if_0
 	li $v0, 1
 	move $a0, $t0
 	syscall
@@ -22,5 +39,3 @@ main:
 	add $sp, $sp, 40
 	li $v0, 10
 	syscall
-.data 
-	text_0: .asciiz "Hola Mundo"
