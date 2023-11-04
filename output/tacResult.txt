@@ -1,36 +1,27 @@
-Main.n:=
-	$t0 <- 4
+Main.a:=
+	$t0 <- 3
 	0($s0) <- $t0
-Main.n_EndTask:=
-Main.t:=
-	$t0 <- 1
+Main.a_EndTask:=
+Main.b:=
+	$t0 <- 3
 	4($s0) <- $t0
-Main.t_EndTask:=
+Main.b_EndTask:=
+Main.c:=
+Main.c_EndTask:=
 main:=
 	$s0 <- 0($sp)
 	$s1 <- 4($sp)
-	CALL Main.n
-	CALL Main.t
-if_0:=
-	$t0 <- 0($s0)
-	$t1 <- 5
-	$t0 == $t1 GOTO then_0
-else_0:=
-if_1:=
+	CALL Main.a
+	CALL Main.b
+while_0:=
 	$t0 <- 4($s0)
-	$t1 <- 3
-	$t0 == $t1 GOTO then_1
-else_1:=
-	$t0 <- 10
+	$t1 <- 0($s0)
+	$t0 != $t1 GOTO pool_0
+loop_0:=
+	$t0 <- 0($s0)
+	$t1 <- 4($s0)
+	$t0 <- $t0 + $t1
 	0($s0) <- $t0
-	GOTO fi_1
-then_1:=
-	$t0 <- 1
-	0($s0) <- $t0
-fi_1:=
-	GOTO fi_0
-then_0:=
-	$t0 <- 3
-	0($s0) <- $t0
-fi_0:=
+	GOTO while_0
+pool_0:=
 main_EndTask:=

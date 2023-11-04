@@ -1,49 +1,37 @@
 .text
-Main.n:
-	li $t0, 4
+Main.a:
+	li $t0, 3
 	sw $t0, 0($s0)
 	jr $ra
 .text
-Main.t:
-	li $t0, 1
+Main.b:
+	li $t0, 3
 	sw $t0, 4($s0)
 	jr $ra
 .text
-if_0:
-	lw $t0, 0($s0)
-	li $t1, 5
-	beq $t0, $t1, then_0
-	j else_0
-.text
-else_0:
-	j if_1
-	j fi_0
-.text
-if_1:
-	lw $t0, 4($s0)
-	li $t1, 3
-	beq $t0, $t1, then_1
-	j else_1
-.text
-else_1:
-	li $t0, 10
-	sw $t0, 0($s0)
-	j fi_1
-.text
-then_1:
-	li $t0, 1
-	sw $t0, 0($s0)
-	j fi_1
-.text
-fi_1:
+Main.c:
 	jr $ra
 .text
-then_0:
-	li $t0, 3
-	sw $t0, 0($s0)
-	j fi_0
+while_0:
 .text
-fi_0:
+while_0:
+	lw $t0, 4($s0)
+	lw $t1, 0($s0)
+	$t0 != $t1 GOTO pool_0
+	jal loop_0
+.text
+loop_0:
+.text
+loop_0:
+	lw $t0, 0($s0)
+	lw $t1, 4($s0)
+	add $t0, $t0, $t1
+	sw $t0, 0($s0)
+	jal pool_0
+.text
+pool_0:
+.text
+pool_0:
 	jr $ra
 .text
 main:
@@ -52,9 +40,9 @@ main:
 	sw $ra, 0($sp)
 	la $s0, 0($sp)
 	la $s1, 4($sp)
-	jal Main.n
-	jal Main.t
-	jal if_0
+	jal Main.a
+	jal Main.b
+	j while_0
 	li $v0, 1
 	move $a0, $t0
 	syscall

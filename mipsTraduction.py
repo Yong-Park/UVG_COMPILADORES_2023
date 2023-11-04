@@ -52,7 +52,34 @@ class mipsTraduction():
                         self.diccionario[self.controller[len(self.controller)-1]].append("\tla $sp, 0x7FFFFFC0\n")
                         self.diccionario[self.controller[len(self.controller)-1]].append("\tsub $sp, $sp, 40\n")
                         self.diccionario[self.controller[len(self.controller)-1]].append("\tsw $ra, 0($sp)\n")
-
+                
+                #Ahora aplicamos la misma lógica para el while
+                if "while_" in clean_line[0]:
+                    #print("Holaaaaaaaaaaaaaaaaaaa")
+                    if self.controller[len(self.controller)-2].split("_")[0] not in ["while","loop","pool"]:
+                        self.diccionario[self.controller[len(self.controller)-2]].append("\tj " + clean_line[0].split(":=")[0] + "\n")
+                    else:
+                        self.diccionario[self.controller[len(self.controller)-2]].append("\tjal " + clean_line[0].split(":=")[0] + "\n")
+                    self.diccionario[self.controller[len(self.controller)-1]].append(".text\n")
+                    self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
+                #Detectamos si se encuentra la etiqueta loop
+                elif "loop_" in clean_line[0]:
+                    self.diccionario[self.controller[len(self.controller)-2]].append("\tjal " + clean_line[0].split(":=")[0] + "\n")
+                    self.diccionario[self.controller[len(self.controller)-1]].append(".text\n")
+                    self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
+                #Detectamos si se encuentra la etiqueta pool
+                elif "pool_" in clean_line[0]:
+                    self.diccionario[self.controller[len(self.controller)-2]].append("\tjal " +clean_line[0].split(":=")[0] + "\n")
+                    self.diccionario[self.controller[len(self.controller)-1]].append(".text\n")
+                    self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
+                    self.diccionario[self.controller[len(self.controller)-1]].append("\tjr $ra\n")
+                    
+                    #eliminar todos los _algo de logica
+                    self.controller.remove("while_"+clean_line[0].split(":=")[0].split("_")[1])
+                    self.controller.remove("loop_"+clean_line[0].split(":=")[0].split("_")[1])
+                    self.controller.remove("pool_"+clean_line[0].split(":=")[0].split("_")[1])
+                
+                    
             elif "EndTask:=" in clean_line[0]:
                 newText = clean_line[0].split("_")
                 if str(newText[0]) != "main":

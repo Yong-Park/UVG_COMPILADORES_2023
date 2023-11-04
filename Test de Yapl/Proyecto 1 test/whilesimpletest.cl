@@ -1,6 +1,6 @@
 class Main inherits IO {
-    a : Int <- 10;
-    b : Int <- 5; 
+    a : Int <- 3;
+    b : Int <- 3; 
     c : Int;
 
     main() : Object {
@@ -8,8 +8,7 @@ class Main inherits IO {
         (
         while b = a loop
 	        {
-                c <- a + 2;
-	            b <- c;
+                a <- a + b;
 	        }
         pool
 	
