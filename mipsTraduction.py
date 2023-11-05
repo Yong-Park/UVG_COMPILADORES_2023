@@ -57,27 +57,22 @@ class mipsTraduction():
                 if "while_" in clean_line[0]:
                     #print("Holaaaaaaaaaaaaaaaaaaa")
                     if self.controller[len(self.controller)-2].split("_")[0] not in ["while","loop","pool"]:
-                        self.diccionario[self.controller[len(self.controller)-2]].append("\tj " + clean_line[0].split(":=")[0] + "\n")
-                    else:
                         self.diccionario[self.controller[len(self.controller)-2]].append("\tjal " + clean_line[0].split(":=")[0] + "\n")
-                    self.diccionario[self.controller[len(self.controller)-1]].append(".text\n")
-                    self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
+                    else:
+                        self.diccionario[self.controller[len(self.controller)-2]].append("\tj " + clean_line[0].split(":=")[0] + "\n")
                 #Detectamos si se encuentra la etiqueta loop
                 elif "loop_" in clean_line[0]:
-                    self.diccionario[self.controller[len(self.controller)-2]].append("\tjal " + clean_line[0].split(":=")[0] + "\n")
-                    self.diccionario[self.controller[len(self.controller)-1]].append(".text\n")
-                    self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
+                    self.diccionario[self.controller[len(self.controller)-2]].append("\tj " + clean_line[0].split(":=")[0] + "\n")
                 #Detectamos si se encuentra la etiqueta pool
                 elif "pool_" in clean_line[0]:
-                    self.diccionario[self.controller[len(self.controller)-2]].append("\tjal " +clean_line[0].split(":=")[0] + "\n")
-                    self.diccionario[self.controller[len(self.controller)-1]].append(".text\n")
-                    self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
+                    self.diccionario[self.controller[len(self.controller)-2]].append("\tj " +clean_line[0].split(":=")[0] + "\n")
                     self.diccionario[self.controller[len(self.controller)-1]].append("\tjr $ra\n")
                     
                     #eliminar todos los _algo de logica
                     self.controller.remove("while_"+clean_line[0].split(":=")[0].split("_")[1])
                     self.controller.remove("loop_"+clean_line[0].split(":=")[0].split("_")[1])
                     self.controller.remove("pool_"+clean_line[0].split(":=")[0].split("_")[1])
+
                 
                     
             elif "EndTask:=" in clean_line[0]:
@@ -146,6 +141,12 @@ class mipsTraduction():
                         self.diccionario[self.controller[len(self.controller)-1]].append("\tmul " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ ", "+ str(clean_line[4].strip()) +"\n")
                 elif clean_line[1] == "==":
                     self.diccionario[self.controller[len(self.controller)-1]].append("\tbeq "+ str(clean_line[0].strip())+ ", "+ str(clean_line[2].strip())+ ", "+ str(clean_line[4].strip()) +"\n")
+                elif clean_line[1] == "!=":
+                    self.diccionario[self.controller[len(self.controller)-1]].append("\tbne "+ str(clean_line[0].strip())+ ", "+ str(clean_line[2].strip())+ ", "+ str(clean_line[4].strip()) +"\n")
+                elif clean_line[1] == ">=":
+                    self.diccionario[self.controller[len(self.controller)-1]].append("\tbge "+ str(clean_line[0].strip())+ ", "+ str(clean_line[2].strip())+ ", "+ str(clean_line[4].strip()) +"\n")
+                elif clean_line[1] == "<=":
+                    self.diccionario[self.controller[len(self.controller)-1]].append("\tble "+ str(clean_line[0].strip())+ ", "+ str(clean_line[2].strip())+ ", "+ str(clean_line[4].strip()) +"\n")
                 else:
                     lineAgroup = ' '.join(clean_line)
                     self.diccionario[self.controller[len(self.controller)-1]].append(lineAgroup)

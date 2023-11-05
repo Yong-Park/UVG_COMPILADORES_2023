@@ -1,9 +1,9 @@
 Main.a:=
-	$t0 <- 3
+	$t0 <- 6
 	0($s0) <- $t0
 Main.a_EndTask:=
 Main.b:=
-	$t0 <- 3
+	$t0 <- 6
 	4($s0) <- $t0
 Main.b_EndTask:=
 Main.c:=
@@ -18,10 +18,17 @@ while_0:=
 	$t1 <- 0($s0)
 	$t0 != $t1 GOTO pool_0
 loop_0:=
+while_1:=
+	$t0 <- 0($s0)
+	$t1 <- 6
+	$t0 != $t1 GOTO pool_1
+loop_1:=
 	$t0 <- 0($s0)
 	$t1 <- 4($s0)
 	$t0 <- $t0 + $t1
 	0($s0) <- $t0
+	GOTO while_1
+pool_1:=
 	GOTO while_0
 pool_0:=
 main_EndTask:=

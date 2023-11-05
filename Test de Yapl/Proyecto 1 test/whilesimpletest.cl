@@ -8,7 +8,10 @@ class Main inherits IO {
         (
         while b = a loop
 	        {
-                a <- a + b;
+                while a = 3 {
+                    a <- a + b;
+                }
+                
 	        }
         pool
 	
