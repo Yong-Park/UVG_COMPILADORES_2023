@@ -1,16 +1,59 @@
 .text
-Main.a:
-	li $t0, 10
+OUT_STRING:
+	move $a0, $t0
+	li $v0, 4
+	syscall
+	li $v0, 11
+	 li $a0, 10
+	syscall
+	jr $ra
+OUT_INT:
+	move $a0, $t0
+	li $v0, 1
+	syscall
+	li $v0, 11
+	 li $a0, 10
+	syscall
+	jr $ra
+.text
+Main.n:
+	li $t0, 7
 	sw $t0, 0($s0)
 	jr $ra
 .text
-Main.b:
-	li $t0, 2
+Main.t:
+	li $t0, 3
 	sw $t0, 4($s0)
 	jr $ra
 .text
-Main.d:
+if_0:
+	lw $t0, 0($s0)
+	li $t1, 5
+	beq $t0, $t1, then_0
+	j else_0
+.text
+else_0:
+	li $t0, 1
+	sw $t0, 4($s0)
+	lw $t0, 4($s0)
+	move $t4, $ra
+	jal OUT_INT
+	move $ra, $t4
+	j fi_0
+.text
+then_0:
+	li $t0, 3
+	sw $t0, 4($s0)
+	lw $t0, 4($s0)
+	move $t4, $ra
+	jal OUT_INT
+	move $ra, $t4
+	j fi_0
+.text
+fi_0:
 	jr $ra
+.data
+	text_0: .asciiz "El valor de n es: "
 .text
 main:
 	la $sp, 0x7FFFFFC0
@@ -18,21 +61,13 @@ main:
 	sw $ra, 0($sp)
 	la $s0, 0($sp)
 	la $s1, 4($sp)
-	jal Main.a
-	jal Main.b
-	li $t0, 5
-	sw $t0, 4($s1)
-	lw $t0, 4($s1)
-	lw $t1, 0($s0)
-	mul $t0, $t0, $t1
-	lw $t1, 4($s0)
-	sub $t0, $t0, $t1
-	li $t1, 8
-	div $t0, $t0, $t1
-	sw $t0, 8($s0)
-	li $v0, 1
-	move $a0, $t0
-	syscall
+	jal Main.n
+	jal Main.t
+	jal if_0
+	la $t0, text_0
+	jal OUT_STRING
+	lw $t0, 0($s0)
+	jal OUT_INT
 	lw $ra, 0($sp)
 	add $sp, $sp, 40
 	li $v0, 10

@@ -7,6 +7,7 @@ class Main inherits IO {
 	 {
 		a <- "Hola Mundo";
 		b <- a;
+        out_string(b);
 	 }
 
     };

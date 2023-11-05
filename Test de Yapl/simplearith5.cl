@@ -7,6 +7,7 @@ class Main inherits IO {
     (let c : Int  in
 	 {
             c <- ((d+a)/b);
+            out_int(c)
 	 }
     )
     };

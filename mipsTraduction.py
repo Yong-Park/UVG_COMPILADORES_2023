@@ -66,7 +66,7 @@ class mipsTraduction():
                     self.diccionario[self.controller[len(self.controller)-2]].append("\tj " + clean_line[0].split(":=")[0] + "\n")
                 #Detectamos si se encuentra la etiqueta pool
                 elif "pool_" in clean_line[0]:
-                    self.diccionario[self.controller[len(self.controller)-2]].append("\tj " +clean_line[0].split(":=")[0] + "\n")
+                    # self.diccionario[self.controller[len(self.controller)-2]].append("\tj " +clean_line[0].split(":=")[0] + "\n")
                     self.diccionario[self.controller[len(self.controller)-1]].append("\tjr $ra\n")
                     
                     #eliminar todos los _algo de logica
@@ -85,16 +85,16 @@ class mipsTraduction():
                     self.diccionario[newText[0]].append("\tjr $ra\n")
                     self.controller.remove(newText[0])
                 else:
-                    # con v0, 1 es para cuando es un entero; v0, 4 es para una cadena
-                    if self.result == "Int":
-                        self.diccionario["main"].append("\tli $v0, 1\n")
-                    elif self.result == "String":
-                        self.diccionario["main"].append("\tli $v0, 4\n")
-                    else:
-                        self.diccionario["main"].append("\tli $v0, 1\n")
+                    # # con v0, 1 es para cuando es un entero; v0, 4 es para una cadena
+                    # if self.result == "Int":
+                    #     self.diccionario["main"].append("\tli $v0, 1\n")
+                    # elif self.result == "String":
+                    #     self.diccionario["main"].append("\tli $v0, 4\n")
+                    # else:
+                    #     self.diccionario["main"].append("\tli $v0, 1\n")
                     
-                    self.diccionario["main"].append("\tmove $a0, $t0\n")
-                    self.diccionario["main"].append("\tsyscall\n")
+                    # self.diccionario["main"].append("\tmove $a0, $t0\n")
+                    # self.diccionario["main"].append("\tsyscall\n")
                     self.diccionario["main"].append("\tlw $ra, 0($sp)\n")
                     self.diccionario["main"].append("\tadd $sp, $sp, 40\n")
                     self.diccionario["main"].append("\tli $v0, 10\n")
@@ -107,6 +107,8 @@ class mipsTraduction():
                 if "GOTO" in clean_line[0] and "fi" in clean_line[1]:
                     self.diccionario[self.controller[len(self.controller)-1]].append("\tj "+ str(clean_line[1].strip()) +"\n")
                     # self.controller.pop(len(self.controller)-1)
+                elif "GOTO" in clean_line[0] and "while" in clean_line[1]:
+                    self.diccionario[self.controller[len(self.controller)-1]].append("\tj "+ str(clean_line[1].strip()) +"\n")
                     
             elif len(clean_line) == 3:
                 if clean_line[1] == "<-":
@@ -135,6 +137,20 @@ class mipsTraduction():
                     if clean_line[2] == "CALL":
                         if "." in clean_line[3]:
                             self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
+                        elif "OUT_STRING" in clean_line[3]:
+                            if self.controller[len(self.controller)-1].split("_")[0] in ["while","loop","pool","if","then","else","fi"]:
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $t4, $ra\n")
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $ra, $t4\n")
+                            else:
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
+                        elif "OUT_INT" in clean_line[3]:
+                            if self.controller[len(self.controller)-1].split("_")[0] in ["while","loop","pool","if","then","else","fi"]:
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $t4, $ra\n")
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $ra, $t4\n")
+                            else:
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
                 else:
                     # print("clean_line: ",clean_line)
                     lineAgroup = ' '.join(clean_line)
@@ -171,6 +187,25 @@ class mipsTraduction():
             print("controller: ",self.controller, "\n")
             
         with open("output/resultMips.a", 'w') as file:
+            file.write(".text\n")
+            file.write("OUT_STRING:\n")         # logica de out_string
+            file.write("\tmove $a0, $t0\n")
+            file.write("\tli $v0, 4\n")
+            file.write("\tsyscall\n")
+            file.write("\tli $v0, 11\n")       # para relizar salto
+            file.write("\t li $a0, 10\n")
+            file.write("\tsyscall\n")
+            file.write("\tjr $ra\n")
+            file.write("OUT_INT:\n")         # logica de out_int
+            file.write("\tmove $a0, $t0\n")
+            file.write("\tli $v0, 1\n")
+            file.write("\tsyscall\n")
+            file.write("\tli $v0, 11\n")       # para relizar salto
+            file.write("\t li $a0, 10\n")
+            file.write("\tsyscall\n")
+            file.write("\tjr $ra\n")
+            
+            
             for clave, valor in self.diccionario.items():
                 if clave  != "main":
                     for x in valor:

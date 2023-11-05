@@ -8,14 +8,22 @@ class Main inherits IO {
         (
         while b = a loop
 	        {
-                while a = 3 {
-                    a <- a + b;
-                }
+              (
+                while b = a loop
+                    {
+                        out_int(a);
+                        a <- a + b;
+                        out_int(a);
+                    }
+                pool
                 
+                );
 	        }
         pool
-	
+        
         );
+        out_int(a);
 	    }
     };
 };
+
