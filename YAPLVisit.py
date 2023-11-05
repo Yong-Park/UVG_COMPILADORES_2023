@@ -451,7 +451,7 @@ class YAPLVisit(ParseTreeVisitor):
             if self.bytesSize_string == 0:
                 self.size_val = 4
             else:
-                self.size_val = self.bytesSize_string
+                self.size_val = self.bytesSize_string * 4 
         elif var_type == "Bool":
             self.size_val = 2
         else:
