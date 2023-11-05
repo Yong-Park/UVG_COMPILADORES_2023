@@ -446,7 +446,7 @@ class YAPLVisit(ParseTreeVisitor):
             self.size_val = 4
         elif var_type == "String":
             if self.bytesSize_string == 0:
-                self.size_val = 2
+                self.size_val = 4
             else:
                 self.size_val = self.bytesSize_string
         elif var_type == "Bool":
@@ -2109,9 +2109,9 @@ class YAPLVisit(ParseTreeVisitor):
             self.let_assign_size = 4
         elif typevisit == "String":
             if self.bytesSize_string == 0:
-                self.let_assign_size = 2
+                self.let_assign_size = 4
             else:
-                self.let_assign_size = self.bytesSize_string
+                self.let_assign_size = self.bytesSize_string * 4
         elif typevisit == "Bool":
             self.let_assign_size = 2
         elif typevisit == "SELF_TYPE":
