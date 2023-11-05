@@ -1,8 +1,9 @@
 class mipsTraduction():
     
-    def __init__(self,direction):
+    def __init__(self,direction,result):
         self.diccionario = {}
         self.controller = []
+        self.result = result
         with open(direction, "r") as file:
             self.lines = file.readlines()
             
@@ -73,7 +74,10 @@ class mipsTraduction():
                     self.controller.remove("loop_"+clean_line[0].split(":=")[0].split("_")[1])
                     self.controller.remove("pool_"+clean_line[0].split(":=")[0].split("_")[1])
 
-                
+            elif ".data" in clean_line[0]:
+                self.controller.append(clean_line[0])
+                self.diccionario[self.controller[len(self.controller)-1]] = [] 
+                self.diccionario[self.controller[len(self.controller)-1]].append(".data\n")
                     
             elif "EndTask:=" in clean_line[0]:
                 newText = clean_line[0].split("_")
@@ -82,7 +86,13 @@ class mipsTraduction():
                     self.controller.remove(newText[0])
                 else:
                     # con v0, 1 es para cuando es un entero; v0, 4 es para una cadena
-                    self.diccionario["main"].append("\tli $v0, 1\n")
+                    if self.result == "Int":
+                        self.diccionario["main"].append("\tli $v0, 1\n")
+                    elif self.result == "String":
+                        self.diccionario["main"].append("\tli $v0, 4\n")
+                    else:
+                        self.diccionario["main"].append("\tli $v0, 1\n")
+                    
                     self.diccionario["main"].append("\tmove $a0, $t0\n")
                     self.diccionario["main"].append("\tsyscall\n")
                     self.diccionario["main"].append("\tlw $ra, 0($sp)\n")
@@ -126,7 +136,9 @@ class mipsTraduction():
                         if "." in clean_line[3]:
                             self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
                 else:
+                    # print("clean_line: ",clean_line)
                     lineAgroup = ' '.join(clean_line)
+                    # print("lineAgroup: ",lineAgroup)
                     self.diccionario[self.controller[len(self.controller)-1]].append(lineAgroup)
                     
             elif len(clean_line) == 5:

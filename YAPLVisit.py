@@ -72,6 +72,8 @@ class YAPLVisit(ParseTreeVisitor):
         # print("MainExist: ",MainExist)
         print("=============================")
         print("visitStart results: ",results)
+        final_result = results[len(results)-1]
+        
         for result in results:
             if result in self.errors:
                 self.startType = result
@@ -150,7 +152,8 @@ class YAPLVisit(ParseTreeVisitor):
         self.tac.printTacLabel()
         
         #transformar el resultado del codigo intermedio ya a mips
-        mips = mipsTraduction("./output/tacResult.txt")
+        print("final result: ",final_result)
+        mips = mipsTraduction("./output/tacResult.txt",final_result)
         mips.adaptToMips()
         return message
 
