@@ -1,44 +1,15 @@
 .text
 Main.a:
-	li $t0, 6
+	li $t0, 10
 	sw $t0, 0($s0)
 	jr $ra
 .text
 Main.b:
-	li $t0, 6
+	li $t0, 2
 	sw $t0, 4($s0)
 	jr $ra
 .text
-Main.c:
-	jr $ra
-.text
-while_0:
-	lw $t0, 4($s0)
-	lw $t1, 0($s0)
-	bne $t0, $t1, pool_0
-	j loop_0
-.text
-loop_0:
-	j while_1
-	j pool_0
-.text
-while_1:
-	lw $t0, 0($s0)
-	li $t1, 6
-	bne $t0, $t1, pool_1
-	j loop_1
-.text
-loop_1:
-	lw $t0, 0($s0)
-	lw $t1, 4($s0)
-	add $t0, $t0, $t1
-	sw $t0, 0($s0)
-	j pool_1
-.text
-pool_1:
-	jr $ra
-.text
-pool_0:
+Main.d:
 	jr $ra
 .text
 main:
@@ -49,7 +20,16 @@ main:
 	la $s1, 4($sp)
 	jal Main.a
 	jal Main.b
-	jal while_0
+	li $t0, 5
+	sw $t0, 4($s1)
+	lw $t0, 4($s1)
+	lw $t1, 0($s0)
+	mul $t0, $t0, $t1
+	lw $t1, 4($s0)
+	sub $t0, $t0, $t1
+	li $t1, 8
+	div $t0, $t0, $t1
+	sw $t0, 8($s0)
 	li $v0, 1
 	move $a0, $t0
 	syscall

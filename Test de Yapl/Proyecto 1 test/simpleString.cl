@@ -5,9 +5,8 @@ class Main inherits IO {
     main() : String {
 
 	 {
-		a <- "Hola";
-		b <- "Mundo";
-		a <- a + b;
+		a <- "Hola Mundo";
+		b <- a;
 	 }
 
     };

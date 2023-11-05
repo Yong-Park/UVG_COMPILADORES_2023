@@ -1,34 +1,26 @@
 Main.a:=
-	$t0 <- 6
+	$t0 <- 10
 	0($s0) <- $t0
 Main.a_EndTask:=
 Main.b:=
-	$t0 <- 6
+	$t0 <- 2
 	4($s0) <- $t0
 Main.b_EndTask:=
-Main.c:=
-Main.c_EndTask:=
+Main.d:=
+Main.d_EndTask:=
 main:=
 	$s0 <- 0($sp)
 	$s1 <- 4($sp)
 	CALL Main.a
 	CALL Main.b
-while_0:=
-	$t0 <- 4($s0)
+	$t0 <- 5
+	4($s1) <- $t0
+	$t0 <- 4($s1)
 	$t1 <- 0($s0)
-	$t0 != $t1 GOTO pool_0
-loop_0:=
-while_1:=
-	$t0 <- 0($s0)
-	$t1 <- 6
-	$t0 != $t1 GOTO pool_1
-loop_1:=
-	$t0 <- 0($s0)
+	$t0 <- $t0 * $t1
 	$t1 <- 4($s0)
-	$t0 <- $t0 + $t1
-	0($s0) <- $t0
-	GOTO while_1
-pool_1:=
-	GOTO while_0
-pool_0:=
+	$t0 <- $t0 - $t1
+	$t1 <- 8
+	$t0 <- $t0 / $t1
+	8($s0) <- $t0
 main_EndTask:=
