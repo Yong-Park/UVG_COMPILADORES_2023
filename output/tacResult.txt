@@ -1,23 +1,30 @@
 main:=
 	$s0 <- 0($sp)
 	$s1 <- 4($sp)
+	$s2 <- 8($sp)
 	$t0 <- text_0
 	$t0 <- CALL $t0.TYPE_NAME
 	$t1 <- 4
 	$t2 <- 1
 	$t0 <- CALL $t0.SUBSTR($t1,$t2)
 	$t0 <- CALL OUT_STRING($t0)
-	$t1 <- SELF_TYPE
+	$t1 <- text_1
 	$t1 <- ISVOID $t1
 	$t1 <- CALL $t1.TYPE_NAME
 	$t2 <- 1
 	$t3 <- 3
 	$t1 <- CALL $t1.SUBSTR($t2,$t3)
 	$t0 <- CALL $t0.OUT_STRING($t1)
-	$t0 <- text_1
+	$t0 <- text_2
 	$t0 <- CALL OUT_STRING($t0)
 main_EndTask:=
 .data 
 	object_str: .asciiz "Object"
+	void_str: .asciiz "Void"
+	bool_str: .asciiz "Bool"
+	true_str: .asciiz "true"
+	false_str: .asciiz "false"
+	substring: .space 40
 	text_0: .asciiz "Object"
-	text_1: .asciiz "\n"
+	text_1: .asciiz "SELF_TYPE"
+	text_2: .asciiz "\n"

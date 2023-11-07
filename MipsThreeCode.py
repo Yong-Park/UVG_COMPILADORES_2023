@@ -308,6 +308,11 @@ class ThreeAddressCode():
             if len(self.text_data) != 0:
                 file.write(".data " + "\n")
                 file.write("""\tobject_str: .asciiz "Object"\n""")
+                file.write("""\tvoid_str: .asciiz "Void"\n""")
+                file.write("""\tbool_str: .asciiz "Bool"\n""")
+                file.write("""\ttrue_str: .asciiz "true"\n""")
+                file.write("""\tfalse_str: .asciiz "false"\n""")
+                file.write("""\tsubstring: .space 40\n""")
                 for texts in self.text_data:
                     file.write("\t" + str(texts[0]) + ': .asciiz "' + str(texts[1]) + '"\n')
         

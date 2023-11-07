@@ -315,6 +315,7 @@ class YAPLVisit(ParseTreeVisitor):
         # self.tac.add("<-","$s1","LP")
         self.tac.add("<-","$s0","0($sp)")
         self.tac.add("<-","$s1","4($sp)")
+        self.tac.add("<-","$s2","8($sp)")
         #revisar si el self.tac.visitProperties tiene valores y si es asi añadir la llamada a estos
         if len(self.tac.visitProperties) > 0 and method_name == "main":
             print("VisitMethod self.tac.visitProperties: ",self.tac.visitProperties)
@@ -1295,10 +1296,14 @@ class YAPLVisit(ParseTreeVisitor):
             
             #agregarlo como un valor de retorno tambien
             # self.tac.addClassElements(str(self.actual_method_type), "S")
-            teporalToAdd = self.tac.newTemporal()
-            self.tac.add("<-",teporalToAdd, str(self.actual_method_type))
+            text_position = self.tac.newTextPositionAdd(str(self.actual_method_type))
+            temporalToAdd = self.tac.newTemporal()
+            self.tac.add("<-",temporalToAdd,text_position)
+            
+            # teporalToAdd = self.tac.newTemporal()
+            # self.tac.add("<-",teporalToAdd, str(self.actual_method_type))
             # return str(self.actual_method_type),self.tac.returnSpecificRegistro(str(self.actual_method_type))
-            return str(self.actual_method_type),teporalToAdd
+            return str(self.actual_method_type),temporalToAdd
         else:
             exist = self.symbol_table.contains_symbol(value,self.actual_class) if self.symbol_table.contains_symbol(value,self.actual_class) else self.symbol_table.contains_symbol(value,self.actualAmbit)
     

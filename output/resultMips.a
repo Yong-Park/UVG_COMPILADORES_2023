@@ -1,24 +1,85 @@
 .text
 OUT_STRING:
+	lw $a0, 0($s2)
 	li $v0, 4
 	syscall
 	jr $ra
 OUT_INT:
+	lw $a0, 0($s2)
 	li $v0, 1
 	syscall
 	jr $ra
 TYPE_NAME:
-	move $t0, $a0
+	lw $t0, 0($s2)
 	la $t1, object_str
 	beq $t0, $t1, is_Object
+	la $t1, true_str
+	beq $t0, $t1, is_Bool
+	la $t1, false_str
+	beq $t0, $t1, is_Bool
 	jr $ra
 is_Object:
-	move a0, object_str
+	sw $t0, 0($s2)
+	jr $ra
+is_Bool:
+	la $t0, bool_str
+	sw $t0, 0($s2)
+	jr $ra
+SUBSTR:
+	lw $t0, 0($s2)
+	lw $t1, 4($s2)
+	bge $t0, $t1, SWAP
+	j NO_SWAP
+SWAP:
+	lw $t0, 4($s2)
+	lw $t1, 0($s2)
+	j NO_SWAP
+NO_SWAP:
+	move $t3, $t0
+	add $t4, $a0, $t0
+	move $t5, $a1
+	COOPY_LOOP:
+		lb $t6, 0($t4)
+		sb $t6, 0($t5)
+		addi $t4, $t4, 1
+		addi $t5, $t5, 1
+		addi $t3, $t3, 1
+		bne $t3, $t1, COOPY_LOOP
+	li $t6, 0
+	sb $t6, 0($t5)
+	sw $a1, 0($s2)
+	jr $ra
+ISVOID:
+	lw $t0, 0($s2)
+	la $t1, void_str
+	COMPARE_VOID:
+		lb $t2, 0($t0)
+		lb $t3, 0($t1)
+		beq $t2, $t3, CONTINUE_VOID
+		j NOT_EQUAL_VOID
+	CONTINUE_VOID:
+		addi $t0, $t0, 1
+		addi $t1, $t1, 1
+		beq $t2, 0, IS_EQUAL_VOID
+		j COMPARE_VOID
+	IS_EQUAL_VOID:
+	la $t0, true_str
+	j END_COMPARE_VOID
+	NOT_EQUAL_VOID:
+	la $t0, false_str
+	END_COMPARE_VOID:
+	sw $t0, 0($s2)
 	jr $ra
 .data
 	object_str: .asciiz "Object"
+	void_str: .asciiz "Void"
+	bool_str: .asciiz "Bool"
+	true_str: .asciiz "true"
+	false_str: .asciiz "false"
+	substring: .space 40
 	text_0: .asciiz "Object"
-	text_1: .asciiz "\n"
+	text_1: .asciiz "SELF_TYPE"
+	text_2: .asciiz "\n"
 .text
 main:
 	la $sp, 0x7FFFFFC0
@@ -26,33 +87,40 @@ main:
 	sw $ra, 0($sp)
 	la $s0, 0($sp)
 	la $s1, 4($sp)
+	la $s2, 8($sp)
 	la $t0, text_0
-	move $a0, $t0
+	sw $t0, 0($s2)
 	jal TYPE_NAME
-	move $t0, $a0
+	lw $t0, 0($s2)
 	li $t1, 4
 	li $t2, 1
 	move $a0, $t0
-	move $a1, $t1
-	move $a2, $t2
+	sw $t1, 0($s2)
+	sw $t2, 4($s2)
+	la $a1, substring
 	jal SUBSTR
-	move $t0, $a0
-	move $a0, $t0
+	lw $t0, 0($s2)
+	sw $t0, 0($s2)
 	jal OUT_STRING
-	li $t1, SELF_TYPE
-	move $a0, $t1
+	la $t1, text_1
+	sw $t1, 0($s2)
+	jal ISVOID
+	lw $t1, 0($s2)
+	sw $t1, 0($s2)
 	jal TYPE_NAME
-	move $t1, $a0
+	lw $t1, 0($s2)
 	li $t2, 1
 	li $t3, 3
 	move $a0, $t1
-	move $a1, $t2
-	move $a2, $t3
+	sw $t2, 0($s2)
+	sw $t3, 4($s2)
+	la $a1, substring
 	jal SUBSTR
-	move $t1, $a0
-	jal $t0.OUT_STRING
-	la $t0, text_1
-	move $a0, $t0
+	lw $t1, 0($s2)
+	sw $t1, 0($s2)
+	jal OUT_STRING
+	la $t0, text_2
+	sw $t0, 0($s2)
 	jal OUT_STRING
 	lw $ra, 0($sp)
 	add $sp, $sp, 40
