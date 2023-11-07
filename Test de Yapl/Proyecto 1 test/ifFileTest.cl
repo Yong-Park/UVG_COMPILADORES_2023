@@ -6,17 +6,26 @@ class Main inherits IO {
         {(
             if n = 5 then
             {
-                t <- 3;
+                t <- 2;
                 out_int(t);
             }
             else
             {
-                t <- 1;
-                out_int(t);
+                if t = 3 then
+                {
+                    t <- 4;
+                    out_int(t);
+                }
+                else
+                {
+                    t <- 5;
+                    out_int(t);
+                }
+                fi
             }
             fi
         );
-        out_string("El valor de n es: ");
+        out_string("El valor de n es: \n");
         out_int(n);
         }
     };

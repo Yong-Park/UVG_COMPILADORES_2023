@@ -14,6 +14,7 @@ class ThreeAddressCode():
         self.labels = []
         self.labelsCopy = []
         self.temporals = []
+        self.recievedParameters = []
         self.tercetos = []
         self.text_data = []
         self.visitProperties = []
@@ -30,6 +31,9 @@ class ThreeAddressCode():
     def clearTemporals(self):
         self.temporals = []
         
+    def clearParameters(self):
+        self.recievedParameters = []
+        
     def clearLabels(self):
         self.labelsCopy = []
         
@@ -44,6 +48,18 @@ class ThreeAddressCode():
                 self.temporals.append(str(temporalToAdd))
                 break
         return str(temporalToAdd)
+    
+    def newRecivedParameter(self):
+        parameter = self.recievedParameters
+        num = 0
+        while True:
+            ParameterToAdd = "$a" + str(num)
+            if str(ParameterToAdd) in parameter:
+                num += 1
+            else:
+                self.recievedParameters.append(str(ParameterToAdd))
+                break
+        return str(ParameterToAdd)
     
     def newTextPositionAdd(self,recieved):
         texts = self.text_data
@@ -287,12 +303,11 @@ class ThreeAddressCode():
                     else:
                         file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x))) + "\n")
                 elif tac.o == "call" and tac.y:
-                    # print("tac.y: ", tac.y)
                     if tac.x not in allLabels:
                     # file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x)) if "." not in str(tac.x) else str(tac.x)) +  "(" + str(str(tac.y)[1:-1].replace("'","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
-                        file.write("\t" + str(tac.s) + " <- " + "CALL " + str(tac.x) +  "(" + str(str(tac.y)[1:-1].replace("'","").replace(" ","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
+                        file.write("\t" + str(tac.s) + " <- " + "CALL " + str(tac.x) +  "(" + str(str(tac.y)[1:-1].replace("'","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
                     else:
-                        file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x))) + "(" + str(str(tac.y)[1:-1].replace("'","").replace(" ","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
+                        file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x))) + "(" + str(str(tac.y)[1:-1].replace("'","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
                 elif tac.o == "j":
                     file.write("\t" + "GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
                 elif tac.o == "not":
@@ -307,7 +322,6 @@ class ThreeAddressCode():
                     file.write("\t" + str(tac.o) + " " + str(tac.s) + " " + str(tac.x) + " " + str(tac.y)+ "\n")
             if len(self.text_data) != 0:
                 file.write(".data " + "\n")
-                file.write("""\tobject_str: .asciiz "Object"\n""")
                 for texts in self.text_data:
                     file.write("\t" + str(texts[0]) + ': .asciiz "' + str(texts[1]) + '"\n')
         

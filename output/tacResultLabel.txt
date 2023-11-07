@@ -1,36 +1,22 @@
 L0:=
-	$t0 <- 7
-	0($s0) <- $t0
-L0_EndTask:=
-L1:=
-	$t0 <- 3
-	4($s0) <- $t0
-L1_EndTask:=
-L2:=
 	$s0 <- 0($sp)
 	$s1 <- 4($sp)
-	CALL L0
-	CALL L1
-L3:=
-	$t0 <- 0($s0)
-	$t1 <- 5
-	$t0 == $t1 GOTO L5
-L4:=
-	$t0 <- 1
-	4($s0) <- $t0
-	$t0 <- 4($s0)
-	$t0 <- CALL OUT_INT($t0)
-	GOTO L6
-L5:=
-	$t0 <- 3
-	4($s0) <- $t0
-	$t0 <- 4($s0)
-	$t0 <- CALL OUT_INT($t0)
-L6:=
 	$t0 <- text_0
+	$t0 <- CALL $t0.TYPE_NAME
+	$t1 <- 4
+	$t2 <- 1
+	$t0 <- CALL $t0.SUBSTR($t1, $t2)
 	$t0 <- CALL OUT_STRING($t0)
-	$t0 <- 0($s0)
-	$t0 <- CALL OUT_INT($t0)
-L2_EndTask:=
+	$t1 <- SELF_TYPE
+	$t1 <- ISVOID $t1
+	$t1 <- CALL $t1.TYPE_NAME
+	$t2 <- 1
+	$t3 <- 3
+	$t1 <- CALL $t1.SUBSTR($t2, $t3)
+	$t0 <- CALL $t0.OUT_STRING($t1)
+	$t0 <- text_1
+	$t0 <- CALL OUT_STRING($t0)
+L0_EndTask:=
 .data: 
-	text_0: .asciiz "El valor de n es: "
+	text_0: .asciiz "Object"
+	text_1: .asciiz "\n"

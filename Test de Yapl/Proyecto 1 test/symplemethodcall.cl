@@ -10,6 +10,7 @@ class Main inherits IO {
                 c <- 8;
                 d <- 2;
                 e <- (((num+b)/d)*a)-c;
+                out_int(e);
 	        }
         )
     };

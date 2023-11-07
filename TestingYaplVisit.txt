@@ -44,7 +44,8 @@ class YAPLVisit(ParseTreeVisitor):
         for tipo in tipos:
             # realizar limpieza de los s0,s1 y temporales 
             self.tac.clearClassElements()
-            self.tac.clearTemporals
+            self.tac.clearTemporals()
+            self.tac.clearParameters()
             self.class_displacement = 0
             val = self.visit(tipo)
             #add the label of end of the label
@@ -221,6 +222,7 @@ class YAPLVisit(ParseTreeVisitor):
             val = self.visit(tipo)
             
             self.tac.clearTemporals()
+            self.tac.clearParameters()
             #delete the actual feature of the copy of self.tac
             if self.tac.returnSpecificLabelInCopy(self.actual_method,self.actualAmbit) != None:
                 print(self.actualAmbit)
@@ -941,7 +943,7 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#false.
     def visitFalse(self, ctx:YAPLParser.FalseContext):
         temporalToAdd = self.tac.newTemporal()
-        self.tac.add("<-",temporalToAdd,"false")
+        self.tac.add("<-",temporalToAdd,0)
         return "Bool", temporalToAdd
 
 
@@ -986,6 +988,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         whilestate = expresions[0] #esto es lo del while que tiene que ser bool
         self.tac.clearTemporals()
+        self.tac.clearParameters()
         print("corriendo while")
         #agregar el while en la labels del tac
         self.tac.addLables("while_"+str(position),self.actualAmbit)
@@ -1019,6 +1022,7 @@ class YAPLVisit(ParseTreeVisitor):
         loopstate = expresions[1] #esto es el contenido del loop
         print("corriendo loop")
         self.tac.clearTemporals()
+        self.tac.clearParameters()
         #agregar el loop en la labels del tac
         self.tac.addLables("loop_"+str(position),self.actualAmbit)
         self.tac.add(l=self.tac.returnSpecificLabelInCopy("loop_"+str(position),self.actualAmbit))
@@ -1242,7 +1246,7 @@ class YAPLVisit(ParseTreeVisitor):
     # Visit a parse tree produced by YAPLParser#true.
     def visitTrue(self, ctx:YAPLParser.TrueContext):
         temporalToAdd = self.tac.newTemporal()
-        self.tac.add("<-",temporalToAdd,"true")
+        self.tac.add("<-",temporalToAdd,1)
         return "Bool", temporalToAdd
 
 
@@ -1253,6 +1257,7 @@ class YAPLVisit(ParseTreeVisitor):
         values = []
         for expresion in expresions:
             self.tac.clearTemporals()
+            self.tac.clearParameters()
             val,valValue = self.visit(expresion)
             if type(val) == list:
                 if valValue != None:
@@ -1303,8 +1308,26 @@ class YAPLVisit(ParseTreeVisitor):
             exist = self.symbol_table.contains_symbol(value,self.actual_class) if self.symbol_table.contains_symbol(value,self.actual_class) else self.symbol_table.contains_symbol(value,self.actualAmbit)
     
         print("existe: ", exist)
+        print("visitid self.actualAmbit: ",self.actualAmbit)
+        print("visitid self.actual_class: ",self.actual_class)
+        recieved = []
+        if "." in self.actualAmbit:
+            val = self.actualAmbit.split(".")
+            recieving = self.symbol_table.get_symbol_value(val[1],val[0],"recieves")
+            for r in recieving:
+                recieved.append(r[0])
+            print("visitid receives of tables recieved: ",recieved)
         print("=============================")
         if exist:
+            if value in recieved:
+                parameterToAdd = self.tac.newRecivedParameter()
+                # self.tac.add("<-",parameterToAdd, self.tac.returnSpecificRegistro(value))
+                
+                indice = recieved.index(value)
+                tipoRegresar = recieving[indice][1]
+                
+                return str(tipoRegresar), parameterToAdd
+                
             teporalToAdd = self.tac.newTemporal()
             if self.symbol_table.get_symbol_value(value,self.actualAmbit,"type"):
                 self.tac.add("<-",teporalToAdd, self.tac.returnSpecificRegistro(value))
@@ -1346,6 +1369,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("corriendo el if")
         # self.actual_conditional = "if"
         self.tac.clearTemporals()
+        self.tac.clearParameters()
         ifResult,conditioners = self.visit(ifstate)
         print("visitIf ifResult: " , ifResult)
         print("visitIf conditioners: ", conditioners)
@@ -1383,6 +1407,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         #limpieza de los temporales
         self.tac.clearTemporals()
+        self.tac.clearParameters()
         elseResult,elseResultValue = self.visit(elsestate)
         print("elseResult: ",elseResult)
         print("elseResultValue:",elseResultValue ),
@@ -1401,6 +1426,7 @@ class YAPLVisit(ParseTreeVisitor):
         
         #limpieza de los temporales
         self.tac.clearTemporals()
+        self.tac.clearParameters()
         thenResult,thenResultValue = self.visit(thenstate)
         print("thenResult: ",thenResult)
         print("thenResultValue: ",thenResultValue)
@@ -1423,6 +1449,7 @@ class YAPLVisit(ParseTreeVisitor):
         print("visitif labelscopy: ",self.tac.labelsCopy)
 
         self.tac.clearTemporals()
+        self.tac.clearParameters()
         #agregar los resultados en el results
         results = []
         
@@ -1588,6 +1615,7 @@ class YAPLVisit(ParseTreeVisitor):
             if params != None:
                 newparams = []
                 newparamsValue = []
+                paramToAdd = []
                 for p in params:
                     newparams.append(p[1])
                     newparamsValue.append(p[0])
@@ -1616,8 +1644,11 @@ class YAPLVisit(ParseTreeVisitor):
                             message = "methodValuesNotSame"
                             break
                         #agregar el valor de cada uno en su respectivo indice
-                        displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(firstType + "." + id),"displacement")
-                        self.tac.add("<-",str(displacement)+"($s1)",recievedParamsValues[i])
+                        # displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(firstType + "." + id),"displacement")
+                        # self.tac.add("<-",str(displacement)+"($s1)",recievedParamsValues[i])
+                        parameterToAdd = self.tac.newRecivedParameter()
+                        paramToAdd.append(parameterToAdd)
+                        self.tac.add("<-",parameterToAdd,recievedParamsValues[i])
                 else:
                     message = "NotSameLenght"
                 #si todo esta bien realizar la asignacion del valor de recievedParamsValues al newparamsValue
@@ -1630,7 +1661,7 @@ class YAPLVisit(ParseTreeVisitor):
                 
             #agregar al self.tac para que realice un goto al mismo metodo
             temporalToAdd = recievedParamsValues[0]
-            self.tac.add("call",temporalToAdd,self.tac.returnSpecificLabelInCopy(self.actual_class+"."+id,self.actual_class),recievedParamsValues)
+            self.tac.add("call",temporalToAdd,self.tac.returnSpecificLabelInCopy(self.actual_class+"."+id,self.actual_class),paramToAdd)
 
                 
         else:
@@ -1646,6 +1677,7 @@ class YAPLVisit(ParseTreeVisitor):
                     if params != None:
                         newparams = []
                         newparamsValue = []
+                        paramToAdd = []
                         for p in params:
                             newparams.append(p[1])
                             newparamsValue.append(p[0])
@@ -1675,8 +1707,11 @@ class YAPLVisit(ParseTreeVisitor):
                                     message = "methodValuesNotSame"
                                     break
                                 #agregar el valor de cada uno en su respectivo indice
-                                displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(firstType + "." + id),"displacement")
-                                self.tac.add("<-",str(displacement)+"($s1)",recievedParamsValues[i])
+                                # displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(firstType + "." + id),"displacement")
+                                # self.tac.add("<-",str(displacement)+"($s1)",recievedParamsValues[i])
+                                parameterToAdd = self.tac.newRecivedParameter()
+                                paramToAdd.append(parameterToAdd)
+                                self.tac.add("<-",parameterToAdd,recievedParamsValues[i])
                         else:
                             message = "NotSameLenght"
                         
@@ -1687,7 +1722,7 @@ class YAPLVisit(ParseTreeVisitor):
                     temporalToAdd = recievedParamsValues[0]
                     tacId = self.tac.returnSpecificLabel(str(id),str(inhertisExist))
                     print("visitOwnMethodCall tacId: ",tacId)
-                    self.tac.add("call",temporalToAdd,id,recievedParamsValues)
+                    self.tac.add("call",temporalToAdd,id,paramToAdd)
 
                     inhertisExist = False
 
@@ -1877,6 +1912,7 @@ class YAPLVisit(ParseTreeVisitor):
             params = self.symbol_table.get_symbol_value(id,firstType,"recieves")
             newparams = []
             newparamsValue = []
+            paramToAdd = []
             if params != None:
                 for p in params:
                     newparams.append(p[1])
@@ -1905,8 +1941,11 @@ class YAPLVisit(ParseTreeVisitor):
                             message = "methodValuesNotSame"
                             break
                         #agregar el valor de cada uno en su respectivo indice
-                        displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(firstType + "." + id),"displacement")
-                        self.tac.add("<-",str(displacement)+"($s1)",recievedParamsValues[i])
+                        # displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(firstType + "." + id),"displacement")
+                        # self.tac.add("<-",str(displacement)+"($s1)",recievedParamsValues[i])
+                        parameterToAdd = self.tac.newRecivedParameter()
+                        paramToAdd.append(parameterToAdd)
+                        self.tac.add("<-",parameterToAdd,recievedParamsValues[i])
                 else:
                     message = "NotSameLenght"
 
@@ -1916,10 +1955,10 @@ class YAPLVisit(ParseTreeVisitor):
             #agregar la llamada del metodo
             if firstTypeValue not in self.tac.temporals:
                 temporalToAdd = self.tac.newTemporal()
-                self.tac.add("call",temporalToAdd,firstType+"."+id,recievedParamsValues)
+                self.tac.add("call",temporalToAdd,firstType+"."+id,parameterToAdd)
             else:
                 temporalToAdd = firstTypeValue
-                self.tac.add("call",firstTypeValue,firstType+"."+id,recievedParamsValues)
+                self.tac.add("call",firstTypeValue,firstType+"."+id,parameterToAdd)
             
         else:
             print("no es de la clase revisar si hereda y si es asi encontrar si es una de las funciones por la cual se hereda")
@@ -1940,6 +1979,7 @@ class YAPLVisit(ParseTreeVisitor):
                     params = self.symbol_table.get_symbol_value(id,inhertisExist,"recieves")
                     newparams = []
                     newparamsValue = []
+                    paramToAdd = []
                     if params != None:
                         #revisar ahora los parametros si son del mismo largo 
                         for p in params:
@@ -1967,8 +2007,11 @@ class YAPLVisit(ParseTreeVisitor):
                                     message = "methodValuesNotSame"
                                     break
                                 #agregar el valor de cada uno en su respectivo indice
-                                displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(firstType + "." + id),"displacement")
-                                self.tac.add("<-",str(displacement)+"($s1)",recievedParamsValues[i])
+                                # displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(firstType + "." + id),"displacement")
+                                # self.tac.add("<-",str(displacement)+"($s1)",recievedParamsValues[i])
+                                parameterToAdd = self.tac.newRecivedParameter()
+                                paramToAdd.append(parameterToAdd)
+                                self.tac.add("<-",parameterToAdd,recievedParamsValues[i])
                         else:
                             message = "NotSameLenght"
                         
@@ -1979,10 +2022,10 @@ class YAPLVisit(ParseTreeVisitor):
                     #agregar la llamada del metodo
                     if firstTypeValue not in self.tac.temporals:
                         temporalToAdd = self.tac.newTemporal()
-                        self.tac.add("call",temporalToAdd,firstTypeValue+"."+id,recievedParamsValues)
+                        self.tac.add("call",temporalToAdd,firstTypeValue+"."+id,paramToAdd)
                     else:
                         temporalToAdd = firstTypeValue
-                        self.tac.add("call",firstTypeValue,firstTypeValue+"."+id,recievedParamsValues)
+                        self.tac.add("call",firstTypeValue,firstTypeValue+"."+id,paramToAdd)
 
                 else:
                     inhertisExist = self.symbol_table.get_symbol_value(inhertisExist,inhertisExist,"inherits")

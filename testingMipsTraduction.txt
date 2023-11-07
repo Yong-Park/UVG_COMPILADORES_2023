@@ -129,6 +129,8 @@ class mipsTraduction():
                         self.diccionario[self.controller[len(self.controller)-1]].append("\tlw " + str(clean_line[0].strip()) + ", " + str(clean_line[2].strip()) + "\n")
                     elif "$t" in clean_line[0] and "$s0" in str(clean_line[2]):
                         self.diccionario[self.controller[len(self.controller)-1]].append("\tlw " + str(clean_line[0].strip()) + ", " + str(clean_line[2].strip()) + "\n")
+                    elif "$a" in clean_line[0]:
+                        self.diccionario[self.controller[len(self.controller)-1]].append("\tmove " + str(clean_line[0].strip()) + ", " + str(clean_line[2].strip()) + "\n")
                 else:
                     lineAgroup = ' '.join(clean_line)
                     self.diccionario[self.controller[len(self.controller)-1]].append(lineAgroup)
@@ -136,58 +138,20 @@ class mipsTraduction():
                 if clean_line[1] == "<-":
                     if clean_line[2] == "CALL":
                         if "." in clean_line[3]:
-                            if "TYPE_NAME" in clean_line[3]:
-                                if self.controller[len(self.controller)-1].split("_")[0] in ["while","loop","pool","if","then","else","fi"]:
-                                    self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $t9, $ra\n")
-                                    self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $a0, " + clean_line[3].split(".")[0].strip()+ "\n")
-                                    self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split(".")[1].strip() + "\n")
-                                    self.diccionario[self.controller[len(self.controller)-1]].append("\tmove " + clean_line[0].strip() + ", $a0\n")
-                                    self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $ra, $t9\n")
-                                elif self.controller[len(self.controller)-1].split("_")[0] not in ["main"]:
-                                    self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $t9, $ra\n")
-                                    self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $a0, " + clean_line[3].split(".")[0].strip()+ "\n")
-                                    self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split(".")[1].strip() + "\n")
-                                    self.diccionario[self.controller[len(self.controller)-1]].append("\tmove " + clean_line[0].strip() + ", $a0\n")
-                                    self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $ra, $t9\n")
-                                else:
-                                    self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $a0, " + clean_line[3].split(".")[0].strip()+ "\n")
-                                    self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split(".")[1].strip() + "\n")
-                                    self.diccionario[self.controller[len(self.controller)-1]].append("\tmove " + clean_line[0].strip() + ", $a0\n")
-                            elif "SUBSTR" in clean_line[3]:
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $a0, " + clean_line[3].split(".")[0].strip()+ "\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $a1, " + clean_line[3].split("(")[1].split(",")[0].strip()+ "\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $a2, " + clean_line[3].split("(")[1].split(",")[1].replace(")","").strip()+ "\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split(".")[1].split("(")[0].strip() + "\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove " + clean_line[0].strip() + ", $a0\n")
-                            else:
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
+                            self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
                         elif "OUT_STRING" in clean_line[3]:
                             if self.controller[len(self.controller)-1].split("_")[0] in ["while","loop","pool","if","then","else","fi"]:
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $t9, $ra\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $a0, " + clean_line[3].split("(")[1].split(")")[0].strip()+ "\n")
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $t4, $ra\n")
                                 self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $ra, $t9\n")
-                            elif self.controller[len(self.controller)-1].split("_")[0] not in ["main"]:
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $t9, $ra\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $a0, " + clean_line[3].split("(")[1].split(")")[0].strip()+ "\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $ra, $t9\n")
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $ra, $t4\n")
                             else:
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $a0, " + clean_line[3].split("(")[1].split(")")[0].strip()+ "\n")
                                 self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
                         elif "OUT_INT" in clean_line[3]:
                             if self.controller[len(self.controller)-1].split("_")[0] in ["while","loop","pool","if","then","else","fi"]:
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $t9, $ra\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $a0, " + clean_line[3].split("(")[1].split(")")[0].strip()+ "\n")
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $t4, $ra\n")
                                 self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $ra, $t9\n")
-                            elif self.controller[len(self.controller)-1].split("_")[0] not in ["main"]:
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $t9, $ra\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $a0, " + clean_line[3].split("(")[1].split(")")[0].strip()+ "\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $ra, $t9\n")
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $ra, $t4\n")
                             else:
-                                self.diccionario[self.controller[len(self.controller)-1]].append("\tmove $a0, " + clean_line[3].split("(")[1].split(")")[0].strip()+ "\n")
                                 self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
                 else:
                     # print("clean_line: ",clean_line)
@@ -227,24 +191,15 @@ class mipsTraduction():
         with open("output/resultMips.a", 'w') as file:
             file.write(".text\n")
             file.write("OUT_STRING:\n")         # logica de out_string
-            file.write("\tli $v0, 4\n")         # para regresar un string
+            file.write("\tmove $a0, $t0\n")
+            file.write("\tli $v0, 4\n")
             file.write("\tsyscall\n")
             file.write("\tjr $ra\n")
             
             file.write("OUT_INT:\n")         # logica de out_int
-            file.write("\tli $v0, 1\n")        # para regresar un int
+            file.write("\tmove $a0, $t0\n")
+            file.write("\tli $v0, 1\n")
             file.write("\tsyscall\n")
-            file.write("\tjr $ra\n")
-            
-            file.write("TYPE_NAME:\n")         # logica de TYPE_NAME
-            file.write("\tmove $t0, $a0\n")
-            file.write("\tla $t1, object_str\n")
-            file.write("\tbeq $t0, $t1, is_Object\n") #logica para revisar si es tipo Object
-            
-            file.write("\tjr $ra\n")
-            
-            file.write("is_Object:\n")         # para asignar la palabra Object
-            file.write("\tmove a0, object_str\n")
             file.write("\tjr $ra\n")
             
             
