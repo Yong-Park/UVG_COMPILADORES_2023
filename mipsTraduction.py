@@ -295,14 +295,13 @@ class mipsTraduction():
             file.write("\tlw $t0, 0($s2)\n")
             file.write("\tla $t1, object_str\n")
             file.write("\tbeq $t0, $t1, is_Object\n") #logica para revisar si es tipo Object
-            file.write("\tla $t1, true_str\n")          
-            file.write("\tbeq $t0, $t1, is_Bool\n")   # logica para ver si es true
-            file.write("\tla $t1, false_str\n")          
-            file.write("\tbeq $t0, $t1, is_Bool\n")   # logica para ver si es false
+            file.write("\tla $t1, bool_str\n")          
+            file.write("\tbeq $t0, $t1, is_Bool\n")   # logica para ver si es tipo booleano
             # agregas mas lineas de logica si es necesario
             file.write("\tjr $ra\n")
             
             file.write("is_Object:\n")         # para asignar la palabra Object
+            file.write("\tla $t0, object_str\n")
             file.write("\tsw $t0, 0($s2)\n")
             file.write("\tjr $ra\n")
             

@@ -10,15 +10,17 @@ L0:=
 	$t0 <- CALL OUT_STRING($t0)
 	$t1 <- text_1
 	$t1 <- ISVOID $t1
+	$t1 <- text_2
 	$t1 <- CALL $t1.TYPE_NAME
 	$t2 <- 1
 	$t3 <- 3
 	$t1 <- CALL $t1.SUBSTR($t2, $t3)
 	$t0 <- CALL $t0.OUT_STRING($t1)
-	$t0 <- text_2
+	$t0 <- text_3
 	$t0 <- CALL OUT_STRING($t0)
 L0_EndTask:=
 .data: 
 	text_0: .asciiz "Object"
 	text_1: .asciiz "SELF_TYPE"
-	text_2: .asciiz "\n"
+	text_2: .asciiz "Bool"
+	text_3: .asciiz "\n"

@@ -782,20 +782,20 @@ class YAPLVisit(ParseTreeVisitor):
         if typeValue in self.tac.temporals:
             if str(type) == "Void":
                 self.tac.add("isvoid",typeValue,typeValue)
-                return "bool",typeValue
+                return "Bool",typeValue
             else:
                 self.tac.add("isvoid",typeValue,typeValue)
-                return "bool",typeValue
+                return "Bool",typeValue
             
         else:
             if str(type) == "Void":
                 temporalToAdd = self.tac.newTemporal()
                 self.tac.add("isvoid",temporalToAdd,typeValue)
-                return "bool",temporalToAdd
+                return "Bool",temporalToAdd
             else:
                 temporalToAdd = self.tac.newTemporal()
                 self.tac.add("isvoid",temporalToAdd,typeValue)
-                return "bool",temporalToAdd
+                return "Bool",temporalToAdd
 
     # Visit a parse tree produced by YAPLParser#invert.
     def visitInvert(self, ctx:YAPLParser.InvertContext):
@@ -1228,9 +1228,9 @@ class YAPLVisit(ParseTreeVisitor):
         # classLabel = self.tac.returnSpecificLabel(value,value)
         
         #agregar temporal de la asigacion de este
-        text_position = self.tac.newTextPositionAdd(str(value))
+        # text_position = self.tac.newTextPositionAdd(str(value))
         temporalToAdd = self.tac.newTemporal()
-        self.tac.add("<-",temporalToAdd,text_position)
+        # self.tac.add("<-",temporalToAdd,text_position)
         # self.tac.add("<-",temporalToAdd,value)
         
         print("visitNewObject temporalToAdd: ",temporalToAdd)
@@ -1806,7 +1806,11 @@ class YAPLVisit(ParseTreeVisitor):
                 self.tac.add("call",temporalToAdd,firstTypeValue+"."+"ABORT")
                 message = "Object"
             elif id == "type_name":
+                text_position = self.tac.newTextPositionAdd(firstType)
                 temporalToAdd = firstTypeValue
+                self.tac.add("<-",temporalToAdd,text_position)
+
+                # temporalToAdd = firstTypeValue
                 self.tac.add("call",temporalToAdd,firstTypeValue+"."+"TYPE_NAME")
                 message = "String"
             elif id == "copy":
