@@ -316,6 +316,7 @@ class YAPLVisit(ParseTreeVisitor):
         self.tac.add("<-","$s0","0($sp)")
         self.tac.add("<-","$s1","4($sp)")
         self.tac.add("<-","$s2","8($sp)")
+        self.tac.add("<-","$s3","12($sp)")
         #revisar si el self.tac.visitProperties tiene valores y si es asi añadir la llamada a estos
         if len(self.tac.visitProperties) > 0 and method_name == "main":
             print("VisitMethod self.tac.visitProperties: ",self.tac.visitProperties)
@@ -1621,7 +1622,7 @@ class YAPLVisit(ParseTreeVisitor):
                             message = "methodValuesNotSame"
                             break
                         #agregar el valor de cada uno en su respectivo indice
-                        displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(firstType + "." + id),"displacement")
+                        displacement = self.symbol_table.get_symbol_value(str(newparamsValue[i]),str(self.actual_class + "." + id),"displacement")
                         self.tac.add("<-",str(displacement)+"($s1)",recievedParamsValues[i])
                 else:
                     message = "NotSameLenght"
@@ -1635,7 +1636,7 @@ class YAPLVisit(ParseTreeVisitor):
                 
             #agregar al self.tac para que realice un goto al mismo metodo
             temporalToAdd = recievedParamsValues[0]
-            self.tac.add("call",temporalToAdd,self.tac.returnSpecificLabelInCopy(self.actual_class+"."+id,self.actual_class),recievedParamsValues)
+            self.tac.add("callown",temporalToAdd,self.tac.returnSpecificLabelInCopy(self.actual_class+"."+id,self.actual_class),recievedParamsValues)
 
                 
         else:

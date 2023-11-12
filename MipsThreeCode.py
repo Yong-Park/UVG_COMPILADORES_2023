@@ -293,6 +293,23 @@ class ThreeAddressCode():
                         file.write("\t" + str(tac.s) + " <- " + "CALL " + str(tac.x) +  "(" + str(str(tac.y)[1:-1].replace("'","").replace(" ","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
                     else:
                         file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x))) + "(" + str(str(tac.y)[1:-1].replace("'","").replace(" ","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
+                
+                elif tac.o == "callown" and not tac.x and not tac.y:
+                    file.write("\t" + "CALL_OWN " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
+                elif tac.o == "callown" and not tac.y:
+                    if tac.x not in allLabels:
+                    # file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x)) if "." not in str(tac.x) else str(tac.x)) + "\n")
+                        file.write("\t" + str(tac.s) + " <- " + "CALL_OWN " + str(tac.x) + "\n")
+                    else:
+                        file.write("\t" + str(tac.s) + " <- " + "CALL_OWN " + str(self.returnSpecificRegistroByLabel(str(tac.x))) + "\n")
+                elif tac.o == "callown" and tac.y:
+                    # print("tac.y: ", tac.y)
+                    if tac.x not in allLabels:
+                    # file.write("\t" + str(tac.s) + " <- " + "CALL " + str(self.returnSpecificRegistroByLabel(str(tac.x)) if "." not in str(tac.x) else str(tac.x)) +  "(" + str(str(tac.y)[1:-1].replace("'","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
+                        file.write("\t" + str(tac.s) + " <- " + "CALL_OWN " + str(tac.x) +  "(" + str(str(tac.y)[1:-1].replace("'","").replace(" ","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
+                    else:
+                        file.write("\t" + str(tac.s) + " <- " + "CALL_OWN " + str(self.returnSpecificRegistroByLabel(str(tac.x))) + "(" + str(str(tac.y)[1:-1].replace("'","").replace(" ","") if str(tac.y)[0] == "[" else str(tac.y)) +")"+ "\n")
+                
                 elif tac.o == "j":
                     file.write("\t" + "GOTO " + str(self.returnSpecificRegistroByLabel(str(tac.s)))+ "\n")
                 elif tac.o == "not":
