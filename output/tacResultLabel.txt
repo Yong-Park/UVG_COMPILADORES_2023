@@ -1,70 +1,107 @@
 L0:=
-	$s0 <- 0($sp)
-	$s1 <- 4($sp)
-	$s2 <- 8($sp)
-	$s3 <- 12($sp)
-L1:=
-	$t0 <- 0($s1)
-	$t1 <- 1
-	$t0 == $t1 GOTO L7
-L2:=
-L3:=
-	$t0 <- 0($s1)
-	$t1 <- 2
-	$t0 == $t1 GOTO L5
-L4:=
-	$t0 <- 0($s1)
-	$t1 <- 1
-	$t0 <- $t0 - $t1
-	0($s1) <- $t0
-	callown $t0 L0 ['$t0']
-	$t1 <- 0($s1)
-	$t2 <- 2
-	$t1 <- $t1 - $t2
-	0($s1) <- $t1
-	callown $t1 L0 ['$t1']
-	$t0 <- $t0 * $t1
-	4($s1) <- $t0
-	GOTO L6
-L5:=
-	$t0 <- 1
-	4($s1) <- $t0
-L6:=
-	GOTO L8
-L7:=
-	$t0 <- 1
-	4($s1) <- $t0
-L8:=
+	$t0 <- text_0
+	$t0 <- CALL OUT_STRING($t0)
+	$t0 <- 2
+	0($s0) <- $t0
 L0_EndTask:=
-L9:=
-	$t0 <- 5
-	0($s0) <- $t0
-L9_EndTask:=
-L10:=
-L10_EndTask:=
-L11:=
-L11_EndTask:=
-L12:=
-L12_EndTask:=
-L13:=
+L1:=
+	$t0 <- 0($s0)
+	4($s0) <- $t0
+L1_EndTask:=
+L2:=
+L2_EndTask:=
+L3:=
+	$t0 <- 20
+	12($s0) <- $t0
+L3_EndTask:=
+L4:=
 	$s0 <- 0($sp)
 	$s1 <- 4($sp)
 	$s2 <- 8($sp)
 	$s3 <- 12($sp)
-	CALL L9
-	$t0 <- 5
-	$t1 <- 6
-	$t0 <- $t0 + $t1
-	0($s0) <- $t0
+	$s4 <- 16($sp)
+	CALL L0
+	CALL L1
+	CALL L3
+L5:=
 	$t0 <- true
-	4($s0) <- $t0
+	$t0 != 1 GOTO L26
+L6:=
 	$t0 <- 4($s0)
-	$t1 <-  NOT $t0
-	6($s0) <- $t1
+	$t1 <- 1
+	$t0 <- $t0 + $t1
+	4($s0) <- $t0
+	$t0 <- 2
 	8($s0) <- $t0
+L7:=
+L8:=
+	$t0 <- 4($s0)
+	$t1 <- 8($s0)
+	$t2 <- 8($s0)
+	$t1 <- $t1 * $t2
+	$t0 < $t1 GOTO L14
+L9:=
+L10:=
+	$t0 <- 4($s0)
+	$t1 <- 8($s0)
+	$t2 <- 4($s0)
+	$t3 <- 8($s0)
+	$t2 <- $t2 / $t3
+	$t1 <- $t1 * $t2
+	$t0 <- $t0 - $t1
+	$t1 <- 0
+	$t0 == $t1 GOTO L12
+L11:=
+	$t0 <- true
+	GOTO L13
+L12:=
+	$t0 <- false
+L13:=
+	GOTO L15
+L14:=
+	$t0 <- false
+L15:=
+	$t0 != 1 GOTO L17
+L16:=
 	$t0 <- 8($s0)
-	$t1 <- 0($s0)
-	0($s1) <- $t1
-	$t0 <- CALL Fibonacci.fibonacci($t1)
+	$t1 <- 1
+	$t0 <- $t0 + $t1
+	8($s0) <- $t0
+	GOTO L7
+L17:=
+L18:=
+	$t0 <- 4($s0)
+	$t1 <- 8($s0)
+	$t2 <- 8($s0)
+	$t1 <- $t1 * $t2
+	$t0 < $t1 GOTO L20
+L19:=
+	$t0 <- 0
+	GOTO L21
+L20:=
+	$t0 <- 4($s0)
+	0($s0) <- $t0
+	$t0 <- 0($s0)
 	$t0 <- CALL OUT_INT($t0)
-L13_EndTask:=
+	$t0 <- text_1
+	$t0 <- CALL OUT_STRING($t0)
+L21:=
+L22:=
+	$t0 <- 12($s0)
+	$t1 <- 4($s0)
+	$t0 <= $t1 GOTO L24
+L23:=
+	$t0 <- text_2
+	GOTO L25
+L24:=
+	$t0 <- text_3
+	$t0 <- CALL $t0.ABORT
+L25:=
+	GOTO L5
+L26:=
+L4_EndTask:=
+.data: 
+	text_0: .asciiz "2 is trivially prime.\n"
+	text_1: .asciiz " is prime.\n"
+	text_2: .asciiz "continue"
+	text_3: .asciiz "halt"

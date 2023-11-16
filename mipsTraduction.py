@@ -30,9 +30,17 @@ class mipsTraduction():
                     # self.controller.pop(len(self.controller)-1)
                     # del self.diccionario[clean_line[0].split(":=")[0]]
                     if self.controller[len(self.controller)-2].split("_")[0] not in ["if","else","then","fi","while","loop","pool"]:
-                        self.diccionario[self.controller[len(self.controller)-2]].append("\tjal " + clean_line[0].split(":=")[0] + "\n")
-                        self.diccionario[self.controller[len(self.controller)-1]].append(".text\n")
-                        self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
+                        if self.controller[len(self.controller)-2].split("_")[0] == "main":
+                            self.diccionario[self.controller[len(self.controller)-2]].append("\tjal " + clean_line[0].split(":=")[0] + "\n")
+                            self.diccionario[self.controller[len(self.controller)-1]].append(".text\n")
+                            self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
+                        else:
+                            position = self.newPosition()
+                            self.diccionario[self.controller[len(self.controller)-2]].append("\tsw $ra, " + str(position) +"($s3)\n")
+                            self.diccionario[self.controller[len(self.controller)-2]].append("\tjal " + clean_line[0].split(":=")[0] + "\n")
+                            self.diccionario[self.controller[len(self.controller)-1]].append(".text\n")
+                            self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
+                            self.diccionario[self.controller[len(self.controller)-2]].append("\tlw $ra, " + str(position) +"($s3)\n")
                     elif self.controller[len(self.controller)-2].split("_")[0] in ["while","loop","pool"]:
                         position = self.newPosition()
                         self.diccionario[self.controller[len(self.controller)-2]].append("\tsw $ra, " + str(position) +"($s3)\n")
@@ -73,7 +81,7 @@ class mipsTraduction():
                     self.diccionario[self.controller[len(self.controller)-1]].append(str(clean_line[0].replace(":=",":")))
                     if "main:=" in clean_line[0]:
                         self.diccionario[self.controller[len(self.controller)-1]].append("\tla $sp, 0x7FFFFFC0\n")
-                        self.diccionario[self.controller[len(self.controller)-1]].append("\tsub $sp, $sp, 80\n")
+                        self.diccionario[self.controller[len(self.controller)-1]].append("\tsub $sp, $sp, 16\n")
                         self.diccionario[self.controller[len(self.controller)-1]].append("\tsw $ra, 0($sp)\n")
                 
                 #Ahora aplicamos la misma lógica para el while
@@ -122,7 +130,7 @@ class mipsTraduction():
                     # self.diccionario["main"].append("\tmove $a0, $t0\n")
                     # self.diccionario["main"].append("\tsyscall\n")
                     self.diccionario["main"].append("\tlw $ra, 0($sp)\n")
-                    self.diccionario["main"].append("\tadd $sp, $sp, 80\n")
+                    self.diccionario["main"].append("\tadd $sp, $sp, 16\n")
                     self.diccionario["main"].append("\tli $v0, 10\n")
                     self.diccionario["main"].append("\tsyscall\n")
                     self.controller.remove("main")
@@ -159,6 +167,8 @@ class mipsTraduction():
                     elif "$s2" in clean_line[0] and "8($sp)" == clean_line[2].strip():
                         self.diccionario[self.controller[len(self.controller)-1]].append("\tla " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ "\n")
                     elif "$s3" in clean_line[0] and "12($sp)" == clean_line[2].strip():
+                        self.diccionario[self.controller[len(self.controller)-1]].append("\tla " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ "\n")
+                    elif "$s4" in clean_line[0] and "16($sp)" == clean_line[2].strip():
                         self.diccionario[self.controller[len(self.controller)-1]].append("\tla " + str(clean_line[0].strip()) +", "+ str(clean_line[2].strip())+ "\n")
                     elif "$t" in clean_line[0] and "$s1" in str(clean_line[2]):
                         self.diccionario[self.controller[len(self.controller)-1]].append("\tlw " + str(clean_line[0].strip()) + ", " + str(clean_line[2].strip()) + "\n")
@@ -326,12 +336,20 @@ class mipsTraduction():
                             self.diccionario[self.controller[len(self.controller)-1]].append("\tjal ISVOID\n")
                             self.diccionario[self.controller[len(self.controller)-1]].append("\tlw "+ clean_line[0].strip() + ", 0($s2)\n")
                     elif clean_line[2] == "CALL_OWN":
-                        position = self.newPosition()
-                        self.diccionario[self.controller[len(self.controller)-1]].append("\tsw $ra, " + str(position) +"($s3)\n")
-                        # self.diccionario[self.controller[len(self.controller)-1]].append("\tsw " + clean_line[3].split(".")[0].strip()+ ", 0($s2)\n")
-                        self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
-                        self.diccionario[self.controller[len(self.controller)-1]].append("\tlw " + clean_line[0].strip() + ", 0($s2)\n")
-                        self.diccionario[self.controller[len(self.controller)-1]].append("\tlw $ra, " + str(position) +"($s3)\n")
+                        sendValue = clean_line[3].split("(")[1].split(")")[0].strip().split(",")
+                        if len(sendValue) > 0:
+                            self.diccionario[self.controller[len(self.controller)-1]].append("\taddi $s4, $s4, -"+ str((len(sendValue)+1)*4) + "\n")
+                            self.diccionario[self.controller[len(self.controller)-1]].append("\tsw $ra, 0($s4)\n")
+                            for i in range(len(sendValue)):
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tlw $t0, "+str(i)+"($s1)\n")
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tsw $t0, "+str((i+1)*4)+"($s4)\n")
+                                
+                            self.diccionario[self.controller[len(self.controller)-1]].append("\tjal " + clean_line[3].split("(")[0].strip() + "\n")
+                            self.diccionario[self.controller[len(self.controller)-1]].append("\tlw $ra, 0($s4)\n")
+                            for i in range(len(sendValue)):
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tlw $t0, "+str((i+1)*4)+"($s4)\n")
+                                self.diccionario[self.controller[len(self.controller)-1]].append("\tsw $t0, "+str(i)+"($s1)\n")
+                            self.diccionario[self.controller[len(self.controller)-1]].append("\taddi $s4, $s4, "+ str((len(sendValue)+1)*4) + "\n")
                         
                 else:
                     # print("clean_line: ",clean_line)
