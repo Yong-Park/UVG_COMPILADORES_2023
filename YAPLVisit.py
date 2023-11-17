@@ -308,26 +308,8 @@ class YAPLVisit(ParseTreeVisitor):
             methodtoadd = method_name
         else:
             methodtoadd = self.actualAmbit
-        
-        self.tac.addLables(methodtoadd,self.actual_class)
-        self.tac.add(l=self.tac.returnSpecificLabelInCopy(methodtoadd,self.actual_class))
-        # self.tac.add("<-","$s0","GP")
-        # self.tac.add("<-","$s1","LP")
-        self.tac.add("<-","$s0","$sp")
-        self.tac.add("<-","$s1","$sp")
-        self.tac.add("<-","$s2","$sp")
-        self.tac.add("<-","$s3","$sp")
-        # self.tac.add("<-","$s4","16($sp)")
-        #revisar si el self.tac.visitProperties tiene valores y si es asi añadir la llamada a estos
-        if len(self.tac.visitProperties) > 0 and method_name == "main":
-            print("VisitMethod self.tac.visitProperties: ",self.tac.visitProperties)
-            for vp in self.tac.visitProperties:
-                self.tac.add("call",vp)
-        
-        print('method_name: ', method_name, '\n')
-        print('method_type: ', method_type, '\n')
-        
-        # en este se guardara los parametros que recibe el metodo
+            
+         # en este se guardara los parametros que recibe el metodo
         self.methodRecieves = []
         for form in formlExist:
             res= self.visit(form)
@@ -340,7 +322,31 @@ class YAPLVisit(ParseTreeVisitor):
             print("el len de self.methodrecieves si es mas de 1")
             #agregar el recieves los parametros que tendria ese metodo junto con el nuevo peso calculado
             self.symbol_table.change_symbol_value(method_name,self.actual_class,"recieves",self.methodRecieves)
+            param = []
+            for x in self.methodRecieves:
+                param.append(x[0])
+                
+            self.tac.addLables(methodtoadd+str(param).replace("'",""),self.actual_class)
+            self.tac.add(l=self.tac.returnSpecificLabelInCopy(methodtoadd+str(param).replace("'",""),self.actual_class))
+        else:
+            self.tac.addLables(methodtoadd,self.actual_class)
+            self.tac.add(l=self.tac.returnSpecificLabelInCopy(methodtoadd,self.actual_class))
+        # self.tac.add("<-","$s0","GP")
+        # self.tac.add("<-","$s1","LP")
+        if method_name == "main":
+            self.tac.add("<-","$s0","$sp")
+            self.tac.add("<-","$s1","$sp")
+            self.tac.add("<-","$s2","$sp")
+            self.tac.add("<-","$s3","$sp")
+            self.tac.add("<-","$s4","16($sp)")
+        #revisar si el self.tac.visitProperties tiene valores y si es asi añadir la llamada a estos
+        if len(self.tac.visitProperties) > 0 and method_name == "main":
+            print("VisitMethod self.tac.visitProperties: ",self.tac.visitProperties)
+            for vp in self.tac.visitProperties:
+                self.tac.add("call",vp)
         
+        print('method_name: ', method_name, '\n')
+        print('method_type: ', method_type, '\n')
         
         # visitar el expr de la funcion
         method_expr_type, _ = self.visit(ctx.expr())
@@ -359,7 +365,10 @@ class YAPLVisit(ParseTreeVisitor):
         
         #agregar el fin del metodo del metodo en tac
         
-        self.tac.add(l=str(self.tac.returnSpecificLabelInCopy(methodtoadd,self.actual_class)) + "_EndTask")
+        if len(self.methodRecieves)> 0:
+            self.tac.add(l=str(self.tac.returnSpecificLabelInCopy(methodtoadd+str(param).replace("'",""),self.actual_class)) + "_EndTask")
+        else:
+            self.tac.add(l=str(self.tac.returnSpecificLabelInCopy(methodtoadd,self.actual_class)) + "_EndTask")
         
         #revisar si tiene un valor igual al tipo del metodo 
         if type(method_expr_type) == list:
@@ -1460,6 +1469,7 @@ class YAPLVisit(ParseTreeVisitor):
         temporalToAdd = None
         recievedParamsValues = None
         expresions = ctx.expr()
+        params = []
         
         inherist = self.symbol_table.get_symbol_value(self.actual_class,self.actual_class,"inherits")
         print("visitOwnMethodCall inherist: ",inherist)
@@ -1637,7 +1647,13 @@ class YAPLVisit(ParseTreeVisitor):
                 
             #agregar al self.tac para que realice un goto al mismo metodo
             temporalToAdd = recievedParamsValues[0]
-            self.tac.add("callown",temporalToAdd,self.tac.returnSpecificLabelInCopy(self.actual_class+"."+id,self.actual_class),recievedParamsValues)
+            if len(params) > 0:
+                param = []
+                for x in params:
+                    param.append(x[0])
+                self.tac.add("callown",temporalToAdd,self.tac.returnSpecificLabelInCopy(self.actual_class+"."+id+str(param).replace("'",""),self.actual_class),recievedParamsValues)
+            else:
+                self.tac.add("callown",temporalToAdd,self.tac.returnSpecificLabelInCopy(self.actual_class+"."+id,self.actual_class),recievedParamsValues)
 
                 
         else:
