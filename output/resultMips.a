@@ -137,7 +137,7 @@ then_0:
 fi_0:
 	jr $ra
 .text
-Main.a:
+Main.n:
 	li $t0, 10
 	sw $t0, 0($s0)
 	jr $ra
@@ -160,7 +160,7 @@ main:
 	move $s1, $sp
 	move $s2, $sp
 	move $s3, $sp
-	jal Main.a
+	jal Main.n
 	sw $t0, 4($s0)
 	lw $t0, 4($s0)
 	lw $t1, 0($s0)

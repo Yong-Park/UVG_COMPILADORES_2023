@@ -32,10 +32,10 @@ then_0:=
 	4($s1) <- $t0
 fi_0:=
 Factorial.factorial[n]_EndTask:=
-Main.a:=
+Main.n:=
 	$t0 <- 10
 	0($s0) <- $t0
-Main.a_EndTask:=
+Main.n_EndTask:=
 Main.facto:=
 Main.facto_EndTask:=
 main:=
@@ -44,7 +44,7 @@ main:=
 	$s2 <- $sp
 	$s3 <- $sp
 	$s4 <- 16($sp)
-	CALL Main.a
+	CALL Main.n
 	4($s0) <- $t0
 	$t0 <- 4($s0)
 	$t1 <- 0($s0)
