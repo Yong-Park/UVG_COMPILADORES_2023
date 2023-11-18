@@ -4,6 +4,7 @@ class Main inherits IO {
 
     main() : Int {
         {(
+            out_int(n);
             if n = 5 then
             {
                 t <- 2;
@@ -11,17 +12,8 @@ class Main inherits IO {
             }
             else
             {
-                if t = 3 then
-                {
-                    t <- 4;
-                    out_int(t);
-                }
-                else
-                {
-                    t <- 5;
-                    out_int(t);
-                }
-                fi
+                t <- 3;
+                out_int(t);
             }
             fi
         );
