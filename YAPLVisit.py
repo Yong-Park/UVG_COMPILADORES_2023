@@ -334,11 +334,17 @@ class YAPLVisit(ParseTreeVisitor):
         # self.tac.add("<-","$s0","GP")
         # self.tac.add("<-","$s1","LP")
         if method_name == "main":
-            self.tac.add("<-","$s0","$sp")
-            self.tac.add("<-","$s1","$sp")
-            self.tac.add("<-","$s2","$sp")
-            self.tac.add("<-","$s3","$sp")
+            # self.tac.add("<-","$s0","$sp")
+            # self.tac.add("<-","$s1","$sp")
+            # self.tac.add("<-","$s2","$sp")
+            # self.tac.add("<-","$s3","$sp")
+            # self.tac.add("<-","$s4","$sp")
+            self.tac.add("<-","$s0","0($sp)")
+            self.tac.add("<-","$s1","4($sp)")
+            self.tac.add("<-","$s2","8($sp)")
+            self.tac.add("<-","$s3","12($sp)")
             self.tac.add("<-","$s4","$sp")
+
         #revisar si el self.tac.visitProperties tiene valores y si es asi añadir la llamada a estos
         if len(self.tac.visitProperties) > 0 and method_name == "main":
             print("VisitMethod self.tac.visitProperties: ",self.tac.visitProperties)

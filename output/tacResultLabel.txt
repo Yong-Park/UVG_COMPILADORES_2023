@@ -1,41 +1,57 @@
 L0:=
-	$t0 <- 7
+	$t0 <- 0
 	0($s0) <- $t0
 L0_EndTask:=
 L1:=
-	$t0 <- 3
-	4($s0) <- $t0
-L1_EndTask:=
 L2:=
-	$s0 <- $sp
-	$s1 <- $sp
-	$s2 <- $sp
-	$s3 <- $sp
-	$s4 <- $sp
-	CALL L0
-	CALL L1
-	$t0 <- 0($s0)
-	$t0 <- CALL OUT_INT($t0)
+	$t0 <- 0($s1)
+	$t1 <- 0
+	$t0 == $t1 GOTO L8
 L3:=
-	$t0 <- 0($s0)
-	$t1 <- 5
-	$t0 == $t1 GOTO L5
 L4:=
-	$t0 <- 3
-	4($s0) <- $t0
-	$t0 <- 4($s0)
-	$t0 <- CALL OUT_INT($t0)
-	GOTO L6
+	$t0 <- 0($s1)
+	$t1 <- 1
+	$t0 == $t1 GOTO L6
 L5:=
-	$t0 <- 2
+	$t0 <- 0($s1)
+	$t1 <- 0($s1)
+	$t2 <- 1
+	$t1 <- $t1 - $t2
+	0($s1) <- $t1
+	callown $t1 L1 ['$t1']
+	$t0 <- $t0 * $t1
+	4($s1) <- $t0
+	GOTO L7
+L6:=
+	$t0 <- 1
+	4($s1) <- $t0
+L7:=
+	GOTO L9
+L8:=
+	$t0 <- 0
+	4($s1) <- $t0
+L9:=
+L1_EndTask:=
+L10:=
+	$t0 <- 10
+	0($s0) <- $t0
+L10_EndTask:=
+L11:=
+L11_EndTask:=
+L12:=
+	$s0 <- 0($sp)
+	$s1 <- 4($sp)
+	$s2 <- 8($sp)
+	$s3 <- 12($sp)
+	$s4 <- $sp
+	CALL L10
 	4($s0) <- $t0
 	$t0 <- 4($s0)
+	$t1 <- 0($s0)
+	0($s1) <- $t1
+	$t0 <- CALL Factorial.factorial($t1)
 	$t0 <- CALL OUT_INT($t0)
-L6:=
 	$t0 <- text_0
-	$t0 <- CALL OUT_STRING($t0)
-	$t0 <- 0($s0)
-	$t0 <- CALL OUT_INT($t0)
-L2_EndTask:=
+L12_EndTask:=
 .data: 
-	text_0: .asciiz "El valor de n es: \n"
+	text_0: .asciiz "SELF_TYPE"
