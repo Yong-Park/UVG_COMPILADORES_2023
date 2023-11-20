@@ -251,6 +251,12 @@ class ThreeAddressCode():
                     file.write(str(self.returnSpecificRegistroByLabel(str(tac.l))) + ":="+ "\n")
                 elif tac.o == "<-":
                     file.write("\t" + str(tac.s) + " " + str(tac.o) + " " + str(tac.x) + "\n")
+                elif "addi" in tac.o:
+                    file.write("\t" + str(tac.o) + "\n")
+                elif "sw" in tac.o:
+                    file.write("\t" + str(tac.o) + "\n")
+                elif "lw" in tac.o:
+                    file.write("\t" + str(tac.o) + "\n")
                 elif tac.o == "add":
                     file.write("\t" + str(tac.s) + " <- " + str(tac.x) + " + " + str(tac.y)+ "\n")
                 elif tac.o == "sub":

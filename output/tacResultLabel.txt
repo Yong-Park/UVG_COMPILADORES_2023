@@ -16,9 +16,16 @@ L5:=
 	$t0 <- 0($s1)
 	$t1 <- 0($s1)
 	$t2 <- 1
+	addi $sp, $sp, -12 None None None
+	sw $ra, 0($sp) None None None
+	sw $t1, 4($sp) None None None
+	sw $t2, 8($sp) None None None
 	$t1 <- $t1 - $t2
 	0($s1) <- $t1
 	callown $t1 L1 ['$t1']
+	lw $ra, 0($sp) None None None
+	lw $t1, 4($sp) None None None
+	addi, $sp, $sp, 12 None None None
 	$t0 <- $t0 * $t1
 	4($s1) <- $t0
 	GOTO L7

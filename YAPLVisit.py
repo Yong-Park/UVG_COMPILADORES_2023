@@ -30,6 +30,8 @@ class YAPLVisit(ParseTreeVisitor):
         self.and_or_conditional = None
         self.ifposition = 0
         self.whileposition = 0
+        self.ownmethod = False
+        self.stackPosition = []
         # Codigo de tres direcciones
         self.tac = ThreeAddressCode()
         self.errors = ["ArithError","BothNotBool","RepeatedValue","assignError","methodValuesNotSame","NotSameLenght","TypeNotExist","notContainsType","diferentMethodType","diferentRecievers","recursiveInherit","whileError","DobleMain","newError","invertNotInt","inheritProblem","noMain","boolAr","intchar","charAr","assignEr","notequal","noValue","ifError","notLessorequal","notLess","methodError","noMethodAssign"]
@@ -757,11 +759,28 @@ class YAPLVisit(ParseTreeVisitor):
                 self.tac.temporals.remove(left_value)
             
         #en caso que siga false crear una temporal para guardar la operacion en ella
+        print("self.ownmethod: ",self.ownmethod)
         if temporalExist == False:
             temporalToAdd = self.tac.newTemporal()
-            self.tac.add("sub",temporalToAdd,left_value,right_value)
+            if self.ownmethod:
+                self.tac.add("addi $sp, $sp, -12")
+                self.tac.add("sw $ra, 0($sp)")
+                self.tac.add("sw "+ left_value +", 4($sp)")
+                self.tac.add("sw "+ right_value +", 8($sp)")
+                self.stackPosition.append(12)
+                self.tac.add("sub",temporalToAdd,left_value,right_value)
+            else:
+                self.tac.add("sub",temporalToAdd,left_value,right_value)
         else:
-            self.tac.add("sub",temporalToAdd,left_value,right_value)
+            if self.ownmethod:
+                self.tac.add("addi $sp, $sp, -12")
+                self.tac.add("sw $ra, 0($sp)")
+                self.tac.add("sw "+ left_value +", 4($sp)")
+                self.tac.add("sw "+ right_value +", 8($sp)")
+                self.stackPosition.append(12)
+                self.tac.add("sub",temporalToAdd,left_value,right_value)
+            else:
+                self.tac.add("sub",temporalToAdd,left_value,right_value)
         
         #revisar que no sean parte del algun del los errors
         if left in self.errors:
@@ -1603,7 +1622,7 @@ class YAPLVisit(ParseTreeVisitor):
                 
         #revisar si el id es un metodo que se esta llamando que es del mismo metodo
         if self.symbol_table.contains_symbol(id,self.actual_class):
-   
+            self.ownmethod = True
             print("visitOwnMethodCall si es un metodo de la clase actual")
             #revisar si este recibe parametros
             params = self.symbol_table.get_symbol_value(id,self.actual_class,"recieves")
@@ -1658,6 +1677,10 @@ class YAPLVisit(ParseTreeVisitor):
                 for x in params:
                     param.append(x[0])
                 self.tac.add("callown",temporalToAdd,self.tac.returnSpecificLabelInCopy(self.actual_class+"."+id+str(param).replace("'",""),self.actual_class),recievedParamsValues)
+                self.tac.add("lw $ra, 0($sp)")
+                for i in range(len(recievedParamsValues)):
+                    self.tac.add("lw " + recievedParamsValues[i].replace("'","") + ", " + str((i+1)*4) + "($sp)")
+                self.tac.add("addi, $sp, $sp, " + str(self.stackPosition.pop()))
             else:
                 self.tac.add("callown",temporalToAdd,self.tac.returnSpecificLabelInCopy(self.actual_class+"."+id,self.actual_class),recievedParamsValues)
 
@@ -1668,6 +1691,7 @@ class YAPLVisit(ParseTreeVisitor):
             #primero obtener si existe un inhertis de la clase
             inhertisExist = self.symbol_table.get_symbol_value(self.actual_class,self.actual_class,"inherits")
             while inhertisExist:
+                self.ownmethod = True
                 print("visitOwnMethodCall si existe su metodo en la herncia")
                 if self.symbol_table.contains_symbol(id, inhertisExist):
                     #revisar si recibe parametros este
@@ -1727,7 +1751,7 @@ class YAPLVisit(ParseTreeVisitor):
             message = self.actual_method_type
                 
         print("visitOwnMethodCall message: ",message)
-        
+        self.ownmethod = False
         return message,temporalToAdd
 
 
